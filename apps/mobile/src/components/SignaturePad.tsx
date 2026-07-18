@@ -24,6 +24,11 @@ export function SignaturePad({
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onMoveShouldSetPanResponder: () => true,
+      // win the gesture against the parent ScrollView and never yield it
+      onStartShouldSetPanResponderCapture: () => true,
+      onMoveShouldSetPanResponderCapture: () => true,
+      onPanResponderTerminationRequest: () => false,
+      onShouldBlockNativeResponder: () => true,
       onPanResponderGrant: (evt) => {
         currentStroke.current = [
           { x: evt.nativeEvent.locationX, y: evt.nativeEvent.locationY },

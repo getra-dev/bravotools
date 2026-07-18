@@ -204,9 +204,14 @@ export function HandoverWizard({
     }
   }
 
+  const signing = step === 'signGiver' || step === 'signReceiver';
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.ink }}>
-      <ScrollView contentContainerStyle={[ui.screen, { paddingBottom: 48 }]}>
+      <ScrollView
+        scrollEnabled={!signing}
+        contentContainerStyle={[ui.screen, { paddingBottom: 48 }]}
+      >
         <Text style={ui.mono}>{tool.qr_code}</Text>
         <Text style={ui.title}>{title}</Text>
         <Text style={[ui.mono, { marginTop: 4 }]}>{tool.name}</Text>
