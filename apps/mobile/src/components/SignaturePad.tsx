@@ -37,12 +37,14 @@ export function SignaturePad({
     setLive((prev) => [...prev, p]);
   }
 
+  const liveRef = useRef<{ x: number; y: number }[]>([]);
+  liveRef.current = live;
+
   function onTouchEnd() {
     drawing.current = false;
-    setLive((finished) => {
-      if (finished.length > 1) setStrokes((prev) => [...prev, finished]);
-      return [];
-    });
+    const finished = liveRef.current;
+    if (finished.length > 1) setStrokes((prev) => [...prev, finished]);
+    setLive([]);
   }
 
   const allStrokes = live.length > 1 ? [...strokes, live] : strokes;
