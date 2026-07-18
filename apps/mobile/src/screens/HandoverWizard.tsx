@@ -38,6 +38,30 @@ type Step =
 
 type LocationOption = { id: string; name: string };
 
+// Hermes on older RN versions lacks TextEncoder — encode UTF-8 by hand.
+function utf8Bytes(text: string): Uint8Array {
+  const out: number[] = [];
+  for (let i = 0; i < text.length; i += 1) {
+    let code = text.charCodeAt(i);
+    if (code >= 0xd800 && code <= 0xdbff && i + 1 < text.length) {
+      code = 0x10000 + ((code - 0xd800) << 10) + (text.charCodeAt(i + 1) - 0xdc00);
+      i += 1;
+    }
+    if (code < 0x80) out.push(code);
+    else if (code < 0x800) out.push(0xc0 | (code >> 6), 0x80 | (code & 0x3f));
+    else if (code < 0x10000)
+      out.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
+    else
+      out.push(
+        0xf0 | (code >> 18),
+        0x80 | ((code >> 12) & 0x3f),
+        0x80 | ((code >> 6) & 0x3f),
+        0x80 | (code & 0x3f),
+      );
+  }
+  return Uint8Array.from(out);
+}
+
 function stepsFor(action: HandoverAction, tracksEngine: boolean): Step[] {
   const tail: Step[] = tracksEngine
     ? ['photo', 'engine', 'signGiver', 'signReceiver']
@@ -143,11 +167,10 @@ export function HandoverWizard({
         photoPaths.push(path);
       }
 
-      const encoder = new TextEncoder();
       const giverPath = `${tool.org_id}/acts/${actId}/giver.json`;
       const receiverPath = `${tool.org_id}/acts/${actId}/receiver.json`;
-      await uploadBytes('signatures', giverPath, encoder.encode(JSON.stringify(giverSig)), 'application/json');
-      await uploadBytes('signatures', receiverPath, encoder.encode(JSON.stringify(receiverSig)), 'application/json');
+      await uploadBytes('signatures', giverPath, utf8Bytes(JSON.stringify(giverSig)), 'application/json');
+      await uploadBytes('signatures', receiverPath, utf8Bytes(JSON.stringify(receiverSig)), 'application/json');
 
       const { data, error: rpcError } = await supabase.rpc('perform_handover', {
         args: {
