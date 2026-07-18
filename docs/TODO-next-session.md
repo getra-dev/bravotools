@@ -1,23 +1,16 @@
 # Kitos sesijos darbai (užfiksuota 2026-07-18 vakare)
 
-## 1. BUG (P0): telefonas negauna naujo JS bundle
+## 1. IŠSPRĘSTA tą patį vakarą: telefonas negavo naujo JS bundle
 
-Simptomai iš realaus įrenginio:
-- Po pradinio parsisiuntimo (905 moduliai, SDK 54) telefonas gaudavo tik
-  pavienius HMR patch'us; nuo 22:40 nebegavo NIEKO.
-- Vartotojas teigia darė pilną Expo Go uždarymą + atidarymą per exp:// —
-  Metro loge NEATSIRADO naujo pilno bundle request'o, o UI požymiai
-  (nėra parašų skaitliuko, nėra pass-phone ekrano) rodo seną kodą.
-- Hipotezės tikrinimui: (a) Expo Go bundle cache — bandyti su
-  `npx expo start --clear`; (b) CI=1 režimas gali trukdyti dev session
-  registracijai — paleisti Metro be CI; (c) galimai telefonas jungiasi prie
-  KITO Metro proceso/porto likučio; patikrinti ar 8081 klauso tik vienas;
-  (d) Expo Go „Recently opened" gali atidaryti seną manifest cache — atidaryti
-  per QR su pridėtu cache-buster.
-- Dėl šito realiai NEPATIKRINTA, ar parašų vertikalės fix'ai
-  (dcf223c „be ScrollView", 9a37605 stroke race) veikia — spręsti tik
-  užsitikrinus, kad įrenginys vykdo naujausią kodą (požymis: skaitliukas
-  `X / Y` po parašo lauku).
+ROOT CAUSE: Metro buvo paleistas su `CI=1` — tame režime Metro NESTEBI failų
+pakeitimų ir serveruoja modulių grafą, užšaldytą paleidimo momentu. Bundle
+tikrai neturėjo naujausio kodo (patikrinta grep'u pagal passPhoneAction
+žymę), telefonas siuntėsi sąžiningai.
+FIX: Metro perleistas `npx expo start --clear` BE CI — žymė bundle atsirado.
+RUNBOOK taisyklė: dev serverio įrenginiams niekada neleisti su CI=1;
+patikra, ar įrenginys vykdo naujausią kodą — parašų skaitliukas `X / Y`.
+LIKO PATIKRINTI įrenginyje: parašo vertikalės fix'ai (dcf223c, 9a37605)
+ir pass-phone ekranas — savininkas testuos.
 
 ## 2. Įrankio kortelėje nerodomos nuotraukos
 
