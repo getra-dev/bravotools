@@ -206,12 +206,41 @@ export function HandoverWizard({
 
   const signing = step === 'signGiver' || step === 'signReceiver';
 
+  // Signature steps live OUTSIDE any ScrollView: even a scroll-disabled one
+  // keeps a vertical pan recognizer on iOS that swallows vertical strokes.
+  if (signing) {
+    return (
+      <View style={{ flex: 1, backgroundColor: theme.colors.ink }}>
+        <View style={ui.screen}>
+          <Text style={ui.mono}>{tool.qr_code}</Text>
+          <Text style={ui.title}>{title}</Text>
+          <Text style={[ui.mono, { marginTop: 4 }]}>{tool.name}</Text>
+          {error ? <Text style={ui.error}>{error}</Text> : null}
+          {step === 'signGiver' ? (
+            <SignaturePad
+              title={t('mobile.handover.signGiver')}
+              onDone={(sig) => {
+                setGiverSig(sig);
+                next();
+              }}
+            />
+          ) : (
+            <SignaturePad
+              title={t('mobile.handover.signReceiver')}
+              onDone={(sig) => void submit(sig)}
+            />
+          )}
+          <Pressable style={ui.secondaryButton} onPress={back}>
+            <Text style={ui.secondaryButtonText}>{t('mobile.handover.back')}</Text>
+          </Pressable>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.ink }}>
-      <ScrollView
-        scrollEnabled={!signing}
-        contentContainerStyle={[ui.screen, { paddingBottom: 48 }]}
-      >
+      <ScrollView contentContainerStyle={[ui.screen, { paddingBottom: 48 }]}>
         <Text style={ui.mono}>{tool.qr_code}</Text>
         <Text style={ui.title}>{title}</Text>
         <Text style={[ui.mono, { marginTop: 4 }]}>{tool.name}</Text>
@@ -249,18 +278,6 @@ export function HandoverWizard({
               <Text style={ui.primaryButtonText}>{t('mobile.handover.next')}</Text>
             </Pressable>
           </View>
-        ) : null}
-        {step === 'signGiver' ? (
-          <SignaturePad
-            title={t('mobile.handover.signGiver')}
-            onDone={(sig) => {
-              setGiverSig(sig);
-              next();
-            }}
-          />
-        ) : null}
-        {step === 'signReceiver' ? (
-          <SignaturePad title={t('mobile.handover.signReceiver')} onDone={(sig) => void submit(sig)} />
         ) : null}
         {step === 'saving' ? (
           <View style={{ marginTop: 48, alignItems: 'center' }}>
