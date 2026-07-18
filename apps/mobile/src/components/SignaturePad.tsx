@@ -87,6 +87,9 @@ export function SignaturePad({
           </Svg>
         </View>
       </View>
+      <Text style={[ui.mono, { marginTop: 4 }]}>
+        {`${strokes.length} / ${live.length}`}
+      </Text>
       <View style={{ flexDirection: 'row', gap: theme.spacing.md }}>
         <Pressable
           style={[ui.secondaryButton, { flex: 1 }]}

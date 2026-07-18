@@ -1,5 +1,7 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { supabase } from '../lib/supabase';
 import { theme, ui } from '../ui';
 import type { HandoverAction, ScannedTool } from '../types';
 
@@ -13,7 +15,7 @@ const STATUS_COLOR: Record<string, string> = {
 };
 
 export function ToolScreen({
-  tool,
+  tool: initialTool,
   onScanAgain,
   onHandover,
 }: {
@@ -22,11 +24,42 @@ export function ToolScreen({
   onHandover: (action: HandoverAction) => void;
 }) {
   const { t } = useTranslation();
+  const [tool, setTool] = useState(initialTool);
+  const [refreshing, setRefreshing] = useState(false);
+  useEffect(() => setTool(initialTool), [initialTool]);
+
+  async function refresh() {
+    setRefreshing(true);
+    const { data } = await supabase
+      .from('tools')
+      .select(
+        `id, org_id, name, qr_code, status, serial_number, tracks_engine_hours, engine_hours,
+         category:tool_categories(name),
+         location:locations!tools_current_location_id_fkey(name),
+         holder:profiles!tools_current_holder_id_fkey(full_name),
+         external_holder:external_persons!tools_current_external_holder_id_fkey(full_name)`,
+      )
+      .eq('id', initialTool.id)
+      .maybeSingle();
+    if (data) setTool(data as ScannedTool);
+    setRefreshing(false);
+  }
+
   const statusColor = STATUS_COLOR[tool.status] ?? theme.colors.dim;
   const holderName = tool.holder?.full_name ?? tool.external_holder?.full_name ?? null;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: theme.colors.ink }} contentContainerStyle={ui.screen}>
+    <ScrollView
+      style={{ flex: 1, backgroundColor: theme.colors.ink }}
+      contentContainerStyle={ui.screen}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={() => void refresh()}
+          tintColor={theme.colors.hi}
+        />
+      }
+    >
       <Text style={ui.mono}>{tool.qr_code}</Text>
       <Text style={ui.title}>{tool.name}</Text>
 
