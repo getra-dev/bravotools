@@ -3206,7 +3206,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assert_location_editor: {
+        Args: { target_org: string }
+        Returns: undefined
+      }
       assert_tool_editor: { Args: { target_org: string }; Returns: undefined }
+      assign_site_member: {
+        Args: { manager?: boolean; target_site: string; target_user: string }
+        Returns: undefined
+      }
       create_external_person: {
         Args: {
           person_name: string
@@ -3214,6 +3222,10 @@ export type Database = {
           person_position?: string
           target_org: string
         }
+        Returns: string
+      }
+      create_location: {
+        Args: { payload: Json; target_org: string }
         Returns: string
       }
       create_organization: { Args: { org_name: string }; Returns: string }
@@ -3235,11 +3247,19 @@ export type Database = {
         Returns: undefined
       }
       perform_handover: { Args: { args: Json }; Returns: Json }
+      remove_site_assignment: {
+        Args: { target_site: string; target_user: string }
+        Returns: undefined
+      }
       set_act_pdf_path: {
         Args: { act_id: string; pdf_path: string }
         Returns: undefined
       }
       shares_org_with: { Args: { other: string }; Returns: boolean }
+      update_location: {
+        Args: { location_id: string; payload: Json }
+        Returns: undefined
+      }
       update_tool: {
         Args: { payload: Json; tool_id: string }
         Returns: undefined

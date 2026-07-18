@@ -1,7 +1,7 @@
 -- RLS test: tools org isolation.
 -- Proves: (1) org member sees only own-org tools via policy org_members_all;
 --         (2) without the policy access is denied (deny-by-default);
---         (3) RLS-enabled table with no policy (site_assignments) is invisible.
+--         (3) RLS-enabled table with no policy (platform_admins) is invisible.
 -- Runs inside one transaction and rolls back — leaves no trace.
 begin;
 
@@ -34,10 +34,10 @@ insert into locations (id, org_id, type, name) values
   ('aaaaaaaa-3333-0000-0000-000000000001', 'aaaaaaaa-1111-0000-0000-000000000001',
    'warehouse', 'RLS Warehouse A');
 
--- site_assignments still has NO policy — our deny-by-default probe
-insert into site_assignments (org_id, site_id, user_id) values
-  ('aaaaaaaa-1111-0000-0000-000000000001', 'aaaaaaaa-3333-0000-0000-000000000001',
-   'aaaaaaaa-0000-0000-0000-00000000000a');
+-- platform_admins has NO client policy — our deny-by-default probe
+-- (it must NEVER become visible to org users)
+insert into platform_admins (user_id, note) values
+  ('aaaaaaaa-0000-0000-0000-00000000000a', 'rls probe');
 
 -- ---------- act as user A ----------
 set local role authenticated;
@@ -58,10 +58,10 @@ begin
     raise exception 'FAIL: cross-org leak — user A sees org B tool';
   end if;
 
-  -- site_assignments has RLS enabled but no policy yet ⇒ must be invisible
-  select count(*) into n from site_assignments;
+  -- platform_admins has RLS enabled and no client policy ⇒ must be invisible
+  select count(*) into n from platform_admins;
   if n <> 0 then
-    raise exception 'FAIL: deny-by-default broken — % site_assignments visible without policy', n;
+    raise exception 'FAIL: deny-by-default broken — % platform_admins visible without policy', n;
   end if;
 end $$;
 

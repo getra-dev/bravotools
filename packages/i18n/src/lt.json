@@ -44,7 +44,58 @@
   "nav": {
     "overview": "Apžvalga",
     "tools": "Įrankiai",
+    "locations": "Objektai",
     "members": "Nariai"
+  },
+  "locations": {
+    "title": "Objektai",
+    "newCta": "Naujas objektas",
+    "colName": "Pavadinimas",
+    "colType": "Tipas",
+    "colAddress": "Adresas",
+    "colResponsible": "Atsakingi",
+    "activeStamp": "Aktyvus",
+    "archivedStamp": "Archyvuotas",
+    "empty": "Objektų dar nėra",
+    "emptyHint": "Sukurk pirmą objektą ar sandėlį — jų reikia perdavimams ir žemėlapiui.",
+    "types": {
+      "site": "Objektas",
+      "warehouse": "Sandėlis",
+      "service": "Servisas"
+    },
+    "form": {
+      "newTitle": "Naujas objektas",
+      "editTitle": "Redaguoti objektą",
+      "name": "Pavadinimas",
+      "type": "Tipas",
+      "address": "Adresas",
+      "latitude": "Platuma",
+      "longitude": "Ilguma",
+      "coordsHint": "Koordinatės padės objektą žemėlapyje (SPEC 2.8)",
+      "active": "Aktyvus",
+      "create": "Sukurti objektą",
+      "save": "Išsaugoti pakeitimus",
+      "cancel": "Atšaukti",
+      "errors": {
+        "name_required": "Įvesk objekto pavadinimą",
+        "not_allowed": "Objektus valdyti gali tik savininkas, administratorius arba tiekimo vadovas",
+        "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+      }
+    },
+    "detail": {
+      "edit": "Redaguoti",
+      "assignmentsTitle": "Atsakingi žmonės",
+      "managerStamp": "Objekto vadovas",
+      "workerStamp": "Priskirtas",
+      "assignTitle": "Priskirti narį",
+      "member": "Narys",
+      "asManager": "Objekto vadovas",
+      "assignAction": "Priskirti",
+      "removeAction": "Pašalinti",
+      "noAssignments": "Dar niekas nepriskirtas",
+      "toolsTitle": "Įrankiai šiame objekte",
+      "toolsEmpty": "Šiuo metu įrankių čia nėra"
+    }
   },
   "org": {
     "switcherLabel": "Organizacija",

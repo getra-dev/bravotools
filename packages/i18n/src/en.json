@@ -44,7 +44,58 @@
   "nav": {
     "overview": "Overview",
     "tools": "Tools",
+    "locations": "Locations",
     "members": "Members"
+  },
+  "locations": {
+    "title": "Locations",
+    "newCta": "New location",
+    "colName": "Name",
+    "colType": "Type",
+    "colAddress": "Address",
+    "colResponsible": "Responsible",
+    "activeStamp": "Active",
+    "archivedStamp": "Archived",
+    "empty": "No locations yet",
+    "emptyHint": "Create your first site or warehouse — handovers and the map need them.",
+    "types": {
+      "site": "Site",
+      "warehouse": "Warehouse",
+      "service": "Service"
+    },
+    "form": {
+      "newTitle": "New location",
+      "editTitle": "Edit location",
+      "name": "Name",
+      "type": "Type",
+      "address": "Address",
+      "latitude": "Latitude",
+      "longitude": "Longitude",
+      "coordsHint": "Coordinates place the location on the map (SPEC 2.8)",
+      "active": "Active",
+      "create": "Create location",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "errors": {
+        "name_required": "Enter the location name",
+        "not_allowed": "Only the owner, admin or supply manager can manage locations",
+        "save_failed": "Could not save — try again"
+      }
+    },
+    "detail": {
+      "edit": "Edit",
+      "assignmentsTitle": "Responsible people",
+      "managerStamp": "Site manager",
+      "workerStamp": "Assigned",
+      "assignTitle": "Assign member",
+      "member": "Member",
+      "asManager": "Site manager",
+      "assignAction": "Assign",
+      "removeAction": "Remove",
+      "noAssignments": "Nobody assigned yet",
+      "toolsTitle": "Tools at this location",
+      "toolsEmpty": "No tools here right now"
+    }
   },
   "org": {
     "switcherLabel": "Organization",
