@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { theme, ui } from '../ui';
 import type { HandoverAction, ScannedTool } from '../types';
+
+type PhotoPreview = { url: string; takenAt: string };
 
 const STATUS_COLOR: Record<string, string> = {
   available: theme.colors.ok,
@@ -26,10 +28,39 @@ export function ToolScreen({
   const { t } = useTranslation();
   const [tool, setTool] = useState(initialTool);
   const [refreshing, setRefreshing] = useState(false);
+  const [photoPair, setPhotoPair] = useState<PhotoPreview[]>([]);
   useEffect(() => setTool(initialTool), [initialTool]);
+
+  async function loadPhotos() {
+    const { data: rows } = await supabase
+      .from('tool_photos')
+      .select('storage_path, taken_at')
+      .eq('tool_id', initialTool.id)
+      .order('taken_at', { ascending: false })
+      .limit(2);
+    if (!rows || rows.length === 0) {
+      setPhotoPair([]);
+      return;
+    }
+    const previews: PhotoPreview[] = [];
+    for (const row of rows) {
+      const { data: signed } = await supabase.storage
+        .from('tool-photos')
+        .createSignedUrl(row.storage_path, 3600);
+      if (signed?.signedUrl) {
+        previews.push({ url: signed.signedUrl, takenAt: row.taken_at.slice(0, 16).replace('T', ' ') });
+      }
+    }
+    setPhotoPair(previews);
+  }
+
+  useEffect(() => {
+    void loadPhotos();
+  }, [initialTool.id]);
 
   async function refresh() {
     setRefreshing(true);
+    void loadPhotos();
     const { data } = await supabase
       .from('tools')
       .select(
@@ -91,6 +122,32 @@ export function ToolScreen({
         <>
           <Text style={ui.label}>{t('mobile.tool.serial')}</Text>
           <Text style={ui.value}>{tool.serial_number}</Text>
+        </>
+      ) : null}
+
+      {photoPair.length > 0 ? (
+        <>
+          <Text style={ui.label}>{t('mobile.tool.photosTitle')}</Text>
+          <View style={{ flexDirection: 'row', gap: theme.spacing.md, marginTop: theme.spacing.sm }}>
+            {photoPair.map((photo, index) => (
+              <View key={photo.url} style={{ flex: 1 }}>
+                <Image
+                  source={{ uri: photo.url }}
+                  style={{
+                    width: '100%',
+                    aspectRatio: 1,
+                    borderRadius: theme.radius.button,
+                    borderWidth: 1,
+                    borderColor: theme.colors.line,
+                  }}
+                />
+                <Text style={[ui.mono, { marginTop: 4 }]}>
+                  {index === 0 ? t('mobile.tool.photoLatest') : t('mobile.tool.photoPrevious')}
+                </Text>
+                <Text style={[ui.mono, { marginTop: 2 }]}>{photo.takenAt}</Text>
+              </View>
+            ))}
+          </View>
         </>
       ) : null}
 

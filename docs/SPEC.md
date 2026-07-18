@@ -82,6 +82,15 @@ server-side when online (react-pdf), stored, linked.
   after sync; UI shows "act pending sync" stamp.
 - AC: full flow ≤30 s with gloves-size targets (≥52 px). Return flow diffs
   components vs last checkout and flags missing (component status).
+- OWNER AMENDMENTS (2026-07-19): (a) condition photos are part of the act —
+  embedded in the PDF; components are checked against photos on handover AND
+  return, per-component photos supported; (b) both parties can add free-text
+  notes (giver + receiver), printed on the act; (c) when a return flags
+  missing components, the SUPPLY MANAGER is notified (notifications row now,
+  push when 2.7 lands); (d) checkout must record the destination site
+  (to_location) — "kur įrankis yra" is first-class; (e) see ADR-015: receiver
+  countersigns on their OWN phone (remote signature), pass-the-phone stays
+  only for external persons.
 
 ### 2.5 My responsibility
 - Mobile screen: big € total (sum of purchase_price of held tools), list
@@ -99,6 +108,9 @@ server-side when online (react-pdf), stored, linked.
   sync produces zero duplicates.
 
 ### 2.7 Push & reminders (E1 scope)
+- OWNER AMENDMENT (2026-07-19): + missing_components notification to supply
+  manager/admin/owner when a return flags lost components (see 2.4c);
+  + signature_requested push to the receiver (ADR-015).
 - Expo push tokens per device. Server cron (Vercel cron or pg_cron) daily:
   rental_due (T-3, T-1, overdue), warranty_expiring (T-30), inspection_due
   (T-14). Insert notifications row + push. Tap → deep link to tool.

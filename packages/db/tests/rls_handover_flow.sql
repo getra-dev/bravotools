@@ -74,10 +74,16 @@ begin
     'action', 'checkout',
     'receiver_profile_id', 'ffffffff-0000-0000-0000-00000000000b',
     'components', jsonb_build_array(
-      jsonb_build_object('component_id', 'ffffffff-3333-0000-0000-000000000001', 'included', true),
+      jsonb_build_object('component_id', 'ffffffff-3333-0000-0000-000000000001', 'included', true,
+                         'condition_note', 'lagamino spynelė įskilusi'),
       jsonb_build_object('component_id', 'ffffffff-3333-0000-0000-000000000002', 'included', true)),
-    'photos', jsonb_build_array(jsonb_build_object('storage_path', org || '/t/1.jpg')),
+    'photos', jsonb_build_array(
+      jsonb_build_object('storage_path', org || '/t/1.jpg'),
+      jsonb_build_object('storage_path', org || '/t/comp1.jpg',
+                         'component_id', 'ffffffff-3333-0000-0000-000000000001')),
     'gps_lat', '54.6872', 'gps_lng', '25.2798',
+    'giver_note', 'perduodu pilnai sukomplektuotą',
+    'receiver_note', 'priimu, pastabų neturiu',
     'giver_signature_path', org || '/acts/g1.json',
     'receiver_signature_path', org || '/acts/r1.json'
   )) into res;
@@ -92,8 +98,24 @@ begin
      <> 'ffffffff-0000-0000-0000-00000000000b' then
     raise exception 'FAIL: holder not set';
   end if;
-  if (select count(*) from tool_photos where movement_id = m1) <> 1 then
-    raise exception 'FAIL: photo row missing';
+  if (select count(*) from tool_photos where movement_id = m1) <> 2 then
+    raise exception 'FAIL: photo rows missing';
+  end if;
+  if (select count(*) from tool_photos where movement_id = m1
+      and component_id = 'ffffffff-3333-0000-0000-000000000001') <> 1 then
+    raise exception 'FAIL: component-tied photo missing';
+  end if;
+  if (select notes from tool_movements where id = m1) <> 'perduodu pilnai sukomplektuotą' then
+    raise exception 'FAIL: giver note not stored on movement';
+  end if;
+  if (select count(*) from comments where entity_type = 'handover_act'
+      and body = 'priimu, pastabų neturiu') <> 1 then
+    raise exception 'FAIL: receiver note comment missing';
+  end if;
+  if (select condition_note from movement_components
+      where movement_id = m1 and component_id = 'ffffffff-3333-0000-0000-000000000001')
+      <> 'lagamino spynelė įskilusi' then
+    raise exception 'FAIL: included-component note not stored';
   end if;
 
   -- idempotency: same movement uuid returns the same act, no new rows
@@ -147,6 +169,25 @@ begin
     raise exception 'FAIL: second act number % (expected -0002)', res->>'act_number';
   end if;
 end $$;
+
+-- ---------- supply manager notified about the missing component ----------
+reset role;
+do $$
+declare org uuid; n integer;
+begin
+  select org_id into org from t24_ctx;
+  -- org creator (owner) must have gotten the missing-components notification
+  select count(*) into n from notifications
+  where org_id = org
+    and user_id = 'ffffffff-0000-0000-0000-00000000000a'
+    and title like 'Missing components%';
+  if n <> 1 then
+    raise exception 'FAIL: owner did not get missing-components notification (%)', n;
+  end if;
+end $$;
+set local role authenticated;
+set local request.jwt.claims =
+  '{"sub":"ffffffff-0000-0000-0000-00000000000a","role":"authenticated"}';
 
 -- ---------- outsider denied ----------
 set local request.jwt.claims =

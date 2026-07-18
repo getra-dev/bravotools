@@ -34,7 +34,7 @@ export async function GET(_request: NextRequest, ctx: { params: Promise<{ id: st
        receiver:profiles!handover_acts_receiver_id_fkey(full_name),
        external_receiver:external_persons!handover_acts_external_receiver_id_fkey(full_name),
        movement:tool_movements!handover_acts_movement_id_fkey(
-         id, action, performed_at, gps_latitude, gps_longitude,
+         id, action, performed_at, gps_latitude, gps_longitude, notes,
          tool:tools(name, qr_code, serial_number),
          org:organizations(name))`,
     )
@@ -52,7 +52,7 @@ export async function GET(_request: NextRequest, ctx: { params: Promise<{ id: st
     }
   }
 
-  const [{ data: checklist }, { count: photoCount }, giverSig, receiverSig, t, tTools] =
+  const [{ data: checklist }, { data: photoRows }, { data: actComments }, giverSig, receiverSig, t, tTools] =
     await Promise.all([
       supabase
         .from('movement_components')
@@ -60,13 +60,34 @@ export async function GET(_request: NextRequest, ctx: { params: Promise<{ id: st
         .eq('movement_id', act.movement.id),
       supabase
         .from('tool_photos')
-        .select('id', { count: 'exact', head: true })
-        .eq('movement_id', act.movement.id),
+        .select('storage_path, taken_at, component:tool_components(name)')
+        .eq('movement_id', act.movement.id)
+        .order('taken_at')
+        .limit(6),
+      supabase
+        .from('comments')
+        .select('body')
+        .eq('entity_type', 'handover_act')
+        .eq('entity_id', act.id)
+        .order('created_at')
+        .limit(1),
       loadSignature(supabase, act.giver_signature_path),
       loadSignature(supabase, act.receiver_signature_path),
       getTranslations('actPdf'),
       getTranslations('tools.detail.actions'),
     ]);
+  const photoCount = photoRows?.length ?? 0;
+
+  const photos: { dataUri: string; caption: string }[] = [];
+  for (const row of photoRows ?? []) {
+    const { data: blob } = await supabase.storage.from('tool-photos').download(row.storage_path);
+    if (!blob) continue;
+    const b64 = Buffer.from(await blob.arrayBuffer()).toString('base64');
+    photos.push({
+      dataUri: `data:image/jpeg;base64,${b64}`,
+      caption: `${row.component?.name ? `${row.component.name} · ` : ''}${row.taken_at.slice(0, 16).replace('T', ' ')}`,
+    });
+  }
 
   const movement = act.movement;
   const gps =
@@ -86,12 +107,15 @@ export async function GET(_request: NextRequest, ctx: { params: Promise<{ id: st
       included: t('included'),
       missing: t('missing'),
       note: t('note'),
-      photos: t('photos', { count: photoCount ?? 0 }),
+      photos: t('photos', { count: photoCount }),
       gps: t('gps'),
       signatureGiver: t('signatureGiver'),
       signatureReceiver: t('signatureReceiver'),
       generated: t('generated'),
       action: t('action'),
+      giverNote: t('giverNote'),
+      receiverNote: t('receiverNote'),
+      conditionPhotos: t('conditionPhotos'),
     },
     orgName: movement.org?.name ?? '',
     actNumber: act.act_number,
@@ -107,8 +131,11 @@ export async function GET(_request: NextRequest, ctx: { params: Promise<{ id: st
       included: c.included,
       note: c.condition_note ?? '',
     })),
-    photoCount: photoCount ?? 0,
+    photoCount,
     gps,
+    giverNote: act.movement.notes ?? '',
+    receiverNote: actComments?.[0]?.body ?? '',
+    photos,
     giverSignature: giverSig,
     receiverSignature: receiverSig,
   });

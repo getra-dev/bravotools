@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import {
   Document,
   Font,
+  Image,
   Page,
   Path,
   StyleSheet,
@@ -36,7 +37,8 @@ export type ActPdfData = {
   labels: Record<
     | 'title' | 'tool' | 'serial' | 'qr' | 'giver' | 'receiver' | 'components'
     | 'included' | 'missing' | 'note' | 'photos' | 'gps' | 'signatureGiver'
-    | 'signatureReceiver' | 'generated' | 'action',
+    | 'signatureReceiver' | 'generated' | 'action' | 'giverNote' | 'receiverNote'
+    | 'conditionPhotos',
     string
   >;
   orgName: string;
@@ -51,6 +53,9 @@ export type ActPdfData = {
   components: { name: string; included: boolean; note: string }[];
   photoCount: number;
   gps: string;
+  giverNote: string;
+  receiverNote: string;
+  photos: { dataUri: string; caption: string }[];
   giverSignature: SignatureStrokes | null;
   receiverSignature: SignatureStrokes | null;
 };
@@ -173,6 +178,39 @@ export async function renderActPdf(data: ActPdfData): Promise<Buffer> {
             </Text>
           </View>
         </View>
+
+        {data.giverNote || data.receiverNote ? (
+          <View style={s.section}>
+            {data.giverNote ? (
+              <View style={{ marginBottom: 4 }}>
+                <Text style={s.h2}>{labels.giverNote}</Text>
+                <Text>{data.giverNote}</Text>
+              </View>
+            ) : null}
+            {data.receiverNote ? (
+              <View>
+                <Text style={s.h2}>{labels.receiverNote}</Text>
+                <Text>{data.receiverNote}</Text>
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+
+        {data.photos.length > 0 ? (
+          <View style={s.section}>
+            <Text style={s.h2}>{labels.conditionPhotos}</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {data.photos.map((photo, i) => (
+                <View key={i} style={{ width: 120 }}>
+                  <Image src={photo.dataUri} style={{ width: 120, height: 90, objectFit: 'cover' }} />
+                  <Text style={{ fontSize: 6, color: tokens.color.dim, marginTop: 2 }}>
+                    {photo.caption}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : null}
 
         <View style={[s.section, { flexDirection: 'row', gap: 12 }]}>
           <View style={s.sigBox}>

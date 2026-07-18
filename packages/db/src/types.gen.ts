@@ -2358,6 +2358,7 @@ export type Database = {
       }
       tool_photos: {
         Row: {
+          component_id: string | null
           id: string
           movement_id: string | null
           notes: string | null
@@ -2370,6 +2371,7 @@ export type Database = {
           tool_id: string
         }
         Insert: {
+          component_id?: string | null
           id?: string
           movement_id?: string | null
           notes?: string | null
@@ -2382,6 +2384,7 @@ export type Database = {
           tool_id: string
         }
         Update: {
+          component_id?: string | null
           id?: string
           movement_id?: string | null
           notes?: string | null
@@ -2394,6 +2397,13 @@ export type Database = {
           tool_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tool_photos_component_id_fkey"
+            columns: ["component_id"]
+            isOneToOne: false
+            referencedRelation: "tool_components"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tool_photos_movement_id_fkey"
             columns: ["movement_id"]
@@ -3220,6 +3230,10 @@ export type Database = {
       is_org_member: { Args: { check_org: string }; Returns: boolean }
       next_act_number: { Args: { target_org: string }; Returns: string }
       next_tool_qr: { Args: { target_org: string }; Returns: string }
+      notify_missing_components: {
+        Args: { movement: string; target_org: string; target_tool: string }
+        Returns: undefined
+      }
       perform_handover: { Args: { args: Json }; Returns: Json }
       set_act_pdf_path: {
         Args: { act_id: string; pdf_path: string }

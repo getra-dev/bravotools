@@ -46,7 +46,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
 
   if (!tool) notFound();
 
-  const [{ data: components }, { data: movements }, { data: repairs }] = await Promise.all([
+  const [{ data: components }, { data: movements }, { data: repairs }, { data: photoRows }] = await Promise.all([
     supabase
       .from('tool_components')
       .select('id, name, quantity, status, notes')
@@ -68,7 +68,26 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
       .select('id, repair_type, status, description, sent_at, returned_at, cost')
       .eq('tool_id', id)
       .order('sent_at', { ascending: false }),
+    supabase
+      .from('tool_photos')
+      .select('id, storage_path, taken_at, photo_type, component:tool_components(name)')
+      .eq('tool_id', id)
+      .order('taken_at', { ascending: false })
+      .limit(9),
   ]);
+
+  const photoPaths = (photoRows ?? []).map((p) => p.storage_path);
+  const { data: signedPhotos } = photoPaths.length
+    ? await supabase.storage.from('tool-photos').createSignedUrls(photoPaths, 3600)
+    : { data: [] };
+  const photos = (photoRows ?? [])
+    .map((row, i) => ({
+      id: row.id,
+      url: signedPhotos?.[i]?.signedUrl ?? null,
+      takenAt: row.taken_at.slice(0, 16).replace('T', ' '),
+      componentName: row.component?.name ?? null,
+    }))
+    .filter((p) => p.url !== null);
 
   const movementIds = (movements ?? []).map((m) => m.id);
   const { data: acts } = movementIds.length
@@ -238,6 +257,30 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
           ) : null}
         </section>
       </div>
+
+      {photos.length > 0 ? (
+        <section className="mt-6 rounded-card border border-line/30 bg-white p-4">
+          <h2 className="font-mono text-xs uppercase tracking-[1.5px] text-dim">
+            {t('detail.photosTitle')}
+          </h2>
+          <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
+            {photos.map((photo) => (
+              <a key={photo.id} href={photo.url!} target="_blank" className="block">
+                {/* plain img: signed URLs are short-lived, next/image adds nothing here */}
+                <img
+                  src={photo.url!}
+                  alt={photo.componentName ?? photo.takenAt}
+                  className="aspect-square w-full rounded-button border border-line/30 object-cover"
+                />
+                <p className="mt-1 truncate font-mono text-[10px] uppercase tracking-[1px] text-dim">
+                  {photo.componentName ? `${photo.componentName} · ` : ''}
+                  {photo.takenAt}
+                </p>
+              </a>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
         <section className="rounded-card border border-line/30 bg-white p-4">

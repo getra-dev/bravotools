@@ -17,6 +17,7 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { theme, ui } from '../ui';
 import { SignaturePad } from '../components/SignaturePad';
+import { CameraModal } from '../components/CameraModal';
 import type {
   ChecklistItem,
   HandoverAction,
@@ -69,8 +70,9 @@ function stepsFor(action: HandoverAction, tracksEngine: boolean): Step[] {
     // performer receives the tool back: returning holder signs first
     return ['location', 'components', ...middle, 'passPhone', 'signGiver', 'signReceiver'];
   }
-  // performer gives the tool away: they sign, then hand the phone over
-  return ['receiver', 'components', ...middle, 'signGiver', 'passPhone', 'signReceiver'];
+  // performer gives the tool away: pick receiver AND the site it goes to,
+  // sign, then hand the phone over (owner: site fixation required)
+  return ['receiver', 'location', 'components', ...middle, 'signGiver', 'passPhone', 'signReceiver'];
 }
 
 export function HandoverWizard({
@@ -91,7 +93,10 @@ export function HandoverWizard({
   const [toLocation, setToLocation] = useState<LocationOption | null>(null);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [photos, setPhotos] = useState<string[]>([]);
+  const [componentPhotos, setComponentPhotos] = useState<Record<string, string>>({});
   const [engineHours, setEngineHours] = useState(String(tool.engine_hours ?? ''));
+  const [giverNote, setGiverNote] = useState('');
+  const [receiverNote, setReceiverNote] = useState('');
   const [giverSig, setGiverSig] = useState<SignatureStrokes | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [actNumber, setActNumber] = useState<string | null>(null);
@@ -161,13 +166,21 @@ export function HandoverWizard({
       const actId = ExpoCrypto.randomUUID();
       const gps = await captureGps();
 
-      const photoPaths: string[] = [];
-      for (let i = 0; i < photos.length; i += 1) {
-        const b64 = await FileSystem.readAsStringAsync(photos[i], { encoding: 'base64' });
+      const photoItems: { storage_path: string; component_id?: string }[] = [];
+      const uploadPhoto = async (uri: string, name: string, componentId?: string) => {
+        const b64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
         const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-        const path = `${tool.org_id}/${tool.id}/${movementId}/${i + 1}.jpg`;
+        const path = `${tool.org_id}/${tool.id}/${movementId}/${name}.jpg`;
         await uploadBytes('tool-photos', path, bytes, 'image/jpeg');
-        photoPaths.push(path);
+        photoItems.push(componentId ? { storage_path: path, component_id: componentId } : { storage_path: path });
+      };
+      for (let i = 0; i < photos.length; i += 1) {
+        await uploadPhoto(photos[i], String(i + 1));
+      }
+      const componentEntries = Object.entries(componentPhotos);
+      for (let i = 0; i < componentEntries.length; i += 1) {
+        const [componentId, uri] = componentEntries[i];
+        await uploadPhoto(uri, `c${i + 1}`, componentId);
       }
 
       const giverPath = `${tool.org_id}/acts/${actId}/giver.json`;
@@ -187,12 +200,14 @@ export function HandoverWizard({
           engine_hours: tool.tracks_engine_hours ? engineHours.replace(',', '.') : '',
           gps_lat: gps.lat === null ? '' : String(gps.lat),
           gps_lng: gps.lng === null ? '' : String(gps.lng),
+          giver_note: giverNote,
+          receiver_note: receiverNote,
           components: checklist.map((c) => ({
             component_id: c.component_id,
             included: c.included,
             condition_note: c.condition_note,
           })),
-          photos: photoPaths.map((p) => ({ storage_path: p })),
+          photos: photoItems,
           giver_signature_path: giverPath,
           receiver_signature_path: receiverPath,
           performed_at: new Date().toISOString(),
@@ -224,18 +239,36 @@ export function HandoverWizard({
           <Text style={[ui.mono, { marginTop: 4 }]}>{tool.name}</Text>
           {error ? <Text style={ui.error}>{error}</Text> : null}
           {step === 'signGiver' ? (
-            <SignaturePad
-              title={t('mobile.handover.signGiver')}
-              onDone={(sig) => {
-                setGiverSig(sig);
-                next();
-              }}
-            />
+            <>
+              <Text style={ui.label}>{t('mobile.handover.giverNoteLabel')}</Text>
+              <TextInput
+                style={ui.input}
+                value={giverNote}
+                onChangeText={setGiverNote}
+                placeholderTextColor={theme.colors.dim}
+              />
+              <SignaturePad
+                title={t('mobile.handover.signGiver')}
+                onDone={(sig) => {
+                  setGiverSig(sig);
+                  next();
+                }}
+              />
+            </>
           ) : (
-            <SignaturePad
-              title={t('mobile.handover.signReceiver')}
-              onDone={(sig) => void submit(sig)}
-            />
+            <>
+              <Text style={ui.label}>{t('mobile.handover.receiverNoteLabel')}</Text>
+              <TextInput
+                style={ui.input}
+                value={receiverNote}
+                onChangeText={setReceiverNote}
+                placeholderTextColor={theme.colors.dim}
+              />
+              <SignaturePad
+                title={t('mobile.handover.signReceiver')}
+                onDone={(sig) => void submit(sig)}
+              />
+            </>
           )}
           <Pressable style={ui.secondaryButton} onPress={back}>
             <Text style={ui.secondaryButtonText}>{t('mobile.handover.back')}</Text>
@@ -259,13 +292,27 @@ export function HandoverWizard({
         {step === 'location' ? (
           <LocationStep
             orgId={tool.org_id}
+            title={
+              action === 'checkin'
+                ? t('mobile.handover.returnLocationTitle')
+                : t('mobile.handover.toLocationTitle')
+            }
+            defaultWarehouse={action === 'checkin'}
             selected={toLocation}
             onSelect={setToLocation}
             onNext={next}
           />
         ) : null}
         {step === 'components' ? (
-          <ComponentsStep checklist={checklist} onChange={setChecklist} onNext={next} />
+          <ComponentsStep
+            checklist={checklist}
+            onChange={setChecklist}
+            componentPhotos={componentPhotos}
+            onPhoto={(componentId, uri) =>
+              setComponentPhotos((prev) => ({ ...prev, [componentId]: uri }))
+            }
+            onNext={next}
+          />
         ) : null}
         {step === 'photo' ? (
           <PhotoStep photos={photos} onChange={setPhotos} onNext={next} />
@@ -463,11 +510,15 @@ function ReceiverStep({
 
 function LocationStep({
   orgId,
+  title,
+  defaultWarehouse,
   selected,
   onSelect,
   onNext,
 }: {
   orgId: string;
+  title: string;
+  defaultWarehouse: boolean;
   selected: LocationOption | null;
   onSelect: (l: LocationOption) => void;
   onNext: () => void;
@@ -486,14 +537,16 @@ function LocationStep({
       .then(({ data }) => {
         const list = data ?? [];
         setLocations(list.map((l) => ({ id: l.id, name: l.name })));
-        const warehouse = list.find((l) => l.type === 'warehouse');
-        if (warehouse) onSelect({ id: warehouse.id, name: warehouse.name });
+        if (defaultWarehouse) {
+          const warehouse = list.find((l) => l.type === 'warehouse');
+          if (warehouse) onSelect({ id: warehouse.id, name: warehouse.name });
+        }
       });
-  }, [orgId]);
+  }, [orgId, defaultWarehouse]);
 
   return (
     <View>
-      <Text style={ui.label}>{t('mobile.handover.returnLocationTitle')}</Text>
+      <Text style={ui.label}>{title}</Text>
       {locations.map((l) => {
         const active = selected?.id === l.id;
         return (
@@ -531,13 +584,18 @@ function LocationStep({
 function ComponentsStep({
   checklist,
   onChange,
+  componentPhotos,
+  onPhoto,
   onNext,
 }: {
   checklist: ChecklistItem[];
   onChange: (items: ChecklistItem[]) => void;
+  componentPhotos: Record<string, string>;
+  onPhoto: (componentId: string, uri: string) => void;
   onNext: () => void;
 }) {
   const { t } = useTranslation();
+  const [cameraFor, setCameraFor] = useState<string | null>(null);
 
   return (
     <View>
@@ -556,6 +614,32 @@ function ComponentsStep({
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
             <Text style={{ color: theme.colors.paper, fontSize: 16, flex: 1 }}>{item.name}</Text>
+            <Pressable
+              onPress={() => setCameraFor(item.component_id)}
+              style={{
+                minHeight: 40,
+                justifyContent: 'center',
+                paddingHorizontal: theme.spacing.md,
+                borderRadius: theme.radius.buttonSm,
+                borderWidth: 1,
+                borderColor: componentPhotos[item.component_id]
+                  ? theme.colors.ok
+                  : theme.colors.line,
+                marginRight: theme.spacing.md,
+              }}
+            >
+              <Text
+                style={{
+                  color: componentPhotos[item.component_id] ? theme.colors.ok : theme.colors.steel,
+                  fontSize: 13,
+                  fontWeight: '600',
+                }}
+              >
+                {componentPhotos[item.component_id]
+                  ? t('mobile.handover.componentPhotoDone')
+                  : t('mobile.handover.componentPhotoCta')}
+              </Text>
+            </Pressable>
             <Switch
               value={item.included}
               onValueChange={(value) => {
@@ -567,21 +651,27 @@ function ComponentsStep({
               thumbColor={theme.colors.paper}
             />
           </View>
-          {!item.included ? (
-            <TextInput
-              style={[ui.input, { marginTop: theme.spacing.sm }]}
-              placeholder={t('mobile.handover.componentNote')}
-              placeholderTextColor={theme.colors.dim}
-              value={item.condition_note}
-              onChangeText={(text) => {
-                const nextItems = [...checklist];
-                nextItems[index] = { ...item, condition_note: text };
-                onChange(nextItems);
-              }}
-            />
-          ) : null}
+          <TextInput
+            style={[ui.input, { marginTop: theme.spacing.sm }]}
+            placeholder={t('mobile.handover.componentNote')}
+            placeholderTextColor={theme.colors.dim}
+            value={item.condition_note}
+            onChangeText={(text) => {
+              const nextItems = [...checklist];
+              nextItems[index] = { ...item, condition_note: text };
+              onChange(nextItems);
+            }}
+          />
         </View>
       ))}
+      <CameraModal
+        visible={cameraFor !== null}
+        onCancel={() => setCameraFor(null)}
+        onCapture={(uri) => {
+          if (cameraFor) onPhoto(cameraFor, uri);
+          setCameraFor(null);
+        }}
+      />
       <Pressable style={ui.primaryButton} onPress={onNext}>
         <Text style={ui.primaryButtonText}>{t('mobile.handover.next')}</Text>
       </Pressable>
