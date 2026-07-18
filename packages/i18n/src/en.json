@@ -5,18 +5,72 @@
     "offline": "Offline — changes will sync when back online",
     "retry": "Try again"
   },
-  "web": {
-    "home": {
-      "title": "Dispatcher console",
-      "subtitle": "Local development stack",
-      "stackHeading": "Stack status",
-      "database": "Database",
-      "databaseDetail": "Supabase local on port 55321, 51 tables",
-      "web": "Web console",
-      "webDetail": "Next.js on port 3100",
-      "mobile": "Field app",
-      "mobileDetail": "Expo — run pnpm mobile and scan the QR code",
-      "nextSteps": "Next: SPEC 2.1 — auth and organizations"
+  "auth": {
+    "signInTitle": "Sign in",
+    "signUpTitle": "Create account",
+    "email": "Email",
+    "password": "Password",
+    "fullName": "Full name",
+    "signInAction": "Sign in",
+    "signUpAction": "Create account",
+    "magicLinkAction": "Email me a sign-in link",
+    "orDivider": "or",
+    "noAccount": "No account yet?",
+    "haveAccount": "Already have an account?",
+    "signOut": "Sign out",
+    "notices": {
+      "magic_link_sent": "Link sent — check your inbox (local mail: port 55324)"
+    },
+    "errors": {
+      "missing_fields": "Fill in all fields",
+      "invalid_credentials": "Wrong email or password",
+      "weak_password": "Password must be at least 8 characters",
+      "signup_failed": "Could not create the account — try a different email",
+      "otp_failed": "The sign-in link is invalid or expired — request a new one",
+      "generic": "Something went wrong — try again"
+    }
+  },
+  "onboarding": {
+    "title": "Create your organization",
+    "subtitle": "Tools, orders and invoices live inside an organization. You will be its owner.",
+    "orgName": "Organization name",
+    "orgNamePlaceholder": "e.g. Sivysta UAB",
+    "createAction": "Create organization",
+    "errors": {
+      "missing_fields": "Enter the organization name",
+      "create_failed": "Could not create the organization — try again"
+    }
+  },
+  "nav": {
+    "overview": "Overview",
+    "tools": "Tools",
+    "members": "Members"
+  },
+  "org": {
+    "switcherLabel": "Organization",
+    "switchAction": "Switch"
+  },
+  "home": {
+    "title": "Overview",
+    "toolsCount": "Tools",
+    "membersCount": "Members",
+    "openOrders": "Open orders",
+    "nextSteps": "Next: SPEC 2.2 — Excel import of the tool registry"
+  },
+  "tools": {
+    "title": "Tools",
+    "empty": "No tools yet",
+    "emptyHint": "Your registry is empty. Excel import (SPEC 2.2) and tool CRUD (SPEC 2.3) come next.",
+    "colCode": "Code",
+    "colName": "Name",
+    "colStatus": "Status",
+    "status": {
+      "available": "Available",
+      "checked_out": "Checked out",
+      "in_service": "In service",
+      "lost": "Lost",
+      "written_off": "Written off",
+      "returned_to_vendor": "Returned to vendor"
     }
   },
   "mobile": {
@@ -24,6 +78,35 @@
       "title": "Field app",
       "subtitle": "Scan. Hand over. Sign.",
       "statusReady": "Connected to local stack"
+    }
+  },
+  "members": {
+    "title": "Members",
+    "colName": "Name",
+    "colEmail": "Role",
+    "inviteTitle": "Invite member",
+    "inviteEmail": "Email",
+    "inviteRole": "Role",
+    "inviteAction": "Invite",
+    "pendingTitle": "Pending invitations",
+    "pendingBadge": "Pending",
+    "notices": {
+      "member_added": "User already had an account — added to the organization",
+      "invitation_sent": "Invitation saved — it activates when they sign up with this email"
+    },
+    "errors": {
+      "missing_fields": "Fill in email and role",
+      "invalid_email": "That email address looks invalid",
+      "not_allowed": "Only the owner or admin can invite members",
+      "invite_failed": "Could not send the invitation — try again"
+    },
+    "roles": {
+      "owner": "Owner",
+      "admin": "Admin",
+      "supply_manager": "Supply manager",
+      "site_manager": "Site manager",
+      "driver": "Driver",
+      "worker": "Worker"
     }
   }
 }

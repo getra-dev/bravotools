@@ -1373,6 +1373,54 @@ export type Database = {
           },
         ]
       }
+      org_invitations: {
+        Row: {
+          accepted_at: string | null
+          created_at: string
+          email: string
+          id: string
+          invited_by: string
+          org_id: string
+          role: string
+          status: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          invited_by: string
+          org_id: string
+          role?: string
+          status?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          invited_by?: string
+          org_id?: string
+          role?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "org_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "org_invitations_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           company_code: string | null
@@ -3148,8 +3196,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_organization: { Args: { org_name: string }; Returns: string }
+      invite_member: {
+        Args: { invite_email: string; invite_role: string; target_org: string }
+        Returns: string
+      }
       is_assigned_to_site: { Args: { check_site: string }; Returns: boolean }
       is_org_member: { Args: { check_org: string }; Returns: boolean }
+      shares_org_with: { Args: { other: string }; Returns: boolean }
     }
     Enums: {
       [_ in never]: never

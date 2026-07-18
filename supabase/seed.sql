@@ -60,8 +60,8 @@ select
 from auth.users u
 where u.email like '%@sivysta.lt';
 
--- Migration 0001 has NO trigger creating profiles from auth.users,
--- so profiles are inserted explicitly.
+-- Migration 0002 trigger auto-creates bare profiles rows on auth.users
+-- insert, so this is an upsert filling in names/phones.
 insert into profiles (id, full_name, phone, locale) values
   ('00000000-0000-0000-0001-000000000001', 'Ona Kazlauskienė',   '+37061234501', 'lt'),
   ('00000000-0000-0000-0001-000000000002', 'Marius Petrauskas',  '+37061234502', 'lt'),
@@ -69,7 +69,9 @@ insert into profiles (id, full_name, phone, locale) values
   ('00000000-0000-0000-0001-000000000004', 'Darius Vaitkus',     '+37061234504', 'lt'),
   ('00000000-0000-0000-0001-000000000005', 'Jonas Balčiūnas',    '+37061234505', 'lt'),
   ('00000000-0000-0000-0001-000000000006', 'Petras Urbonas',     '+37061234506', 'lt'),
-  ('00000000-0000-0000-0001-000000000007', 'Andrius Žukauskas',  '+37061234507', 'lt');
+  ('00000000-0000-0000-0001-000000000007', 'Andrius Žukauskas',  '+37061234507', 'lt')
+on conflict (id) do update
+  set full_name = excluded.full_name, phone = excluded.phone, locale = excluded.locale;
 
 insert into memberships (org_id, user_id, role) values
   ('00000000-0000-0000-0000-000000000001', '00000000-0000-0000-0001-000000000001', 'owner'),

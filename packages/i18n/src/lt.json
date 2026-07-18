@@ -5,18 +5,72 @@
     "offline": "Nėra ryšio — pakeitimai susisinchronizuos atsiradus ryšiui",
     "retry": "Bandyti dar kartą"
   },
-  "web": {
-    "home": {
-      "title": "Dispečerio pultas",
-      "subtitle": "Lokali kūrimo aplinka",
-      "stackHeading": "Stack'o būsena",
-      "database": "Duomenų bazė",
-      "databaseDetail": "Supabase lokaliai, portas 55321, 51 lentelė",
-      "web": "Web pultas",
-      "webDetail": "Next.js, portas 3100",
-      "mobile": "Lauko aplikacija",
-      "mobileDetail": "Expo — paleisk pnpm mobile ir nuskenuok QR kodą",
-      "nextSteps": "Toliau: SPEC 2.1 — autentifikacija ir organizacijos"
+  "auth": {
+    "signInTitle": "Prisijungti",
+    "signUpTitle": "Sukurti paskyrą",
+    "email": "El. paštas",
+    "password": "Slaptažodis",
+    "fullName": "Vardas ir pavardė",
+    "signInAction": "Prisijungti",
+    "signUpAction": "Sukurti paskyrą",
+    "magicLinkAction": "Atsiųsti prisijungimo nuorodą",
+    "orDivider": "arba",
+    "noAccount": "Dar neturi paskyros?",
+    "haveAccount": "Jau turi paskyrą?",
+    "signOut": "Atsijungti",
+    "notices": {
+      "magic_link_sent": "Nuoroda išsiųsta — patikrink paštą (lokalus paštas: portas 55324)"
+    },
+    "errors": {
+      "missing_fields": "Užpildyk visus laukus",
+      "invalid_credentials": "Neteisingas el. paštas arba slaptažodis",
+      "weak_password": "Slaptažodis turi būti bent 8 simbolių",
+      "signup_failed": "Nepavyko sukurti paskyros — pabandyk kitą el. paštą",
+      "otp_failed": "Prisijungimo nuoroda negalioja arba pasibaigė — užsakyk naują",
+      "generic": "Kažkas nepavyko — bandyk dar kartą"
+    }
+  },
+  "onboarding": {
+    "title": "Sukurk savo organizaciją",
+    "subtitle": "Įrankiai, užsakymai ir sąskaitos gyvena organizacijoje. Tu būsi jos savininkas.",
+    "orgName": "Organizacijos pavadinimas",
+    "orgNamePlaceholder": "pvz. Sivysta UAB",
+    "createAction": "Sukurti organizaciją",
+    "errors": {
+      "missing_fields": "Įvesk organizacijos pavadinimą",
+      "create_failed": "Nepavyko sukurti organizacijos — bandyk dar kartą"
+    }
+  },
+  "nav": {
+    "overview": "Apžvalga",
+    "tools": "Įrankiai",
+    "members": "Nariai"
+  },
+  "org": {
+    "switcherLabel": "Organizacija",
+    "switchAction": "Perjungti"
+  },
+  "home": {
+    "title": "Apžvalga",
+    "toolsCount": "Įrankiai",
+    "membersCount": "Nariai",
+    "openOrders": "Atviri užsakymai",
+    "nextSteps": "Toliau: SPEC 2.2 — įrankių registro Excel importas"
+  },
+  "tools": {
+    "title": "Įrankiai",
+    "empty": "Įrankių dar nėra",
+    "emptyHint": "Registras tuščias. Excel importas (SPEC 2.2) ir įrankių valdymas (SPEC 2.3) — kiti žingsniai.",
+    "colCode": "Kodas",
+    "colName": "Pavadinimas",
+    "colStatus": "Būsena",
+    "status": {
+      "available": "Laisvas",
+      "checked_out": "Paimtas",
+      "in_service": "Servise",
+      "lost": "Dingęs",
+      "written_off": "Nurašytas",
+      "returned_to_vendor": "Grąžintas nuomotojui"
     }
   },
   "mobile": {
@@ -24,6 +78,35 @@
       "title": "Lauko aplikacija",
       "subtitle": "Skenuok. Perduok. Pasirašyk.",
       "statusReady": "Prisijungta prie lokalios aplinkos"
+    }
+  },
+  "members": {
+    "title": "Nariai",
+    "colName": "Vardas",
+    "colEmail": "Rolė",
+    "inviteTitle": "Pakviesti narį",
+    "inviteEmail": "El. paštas",
+    "inviteRole": "Rolė",
+    "inviteAction": "Pakviesti",
+    "pendingTitle": "Laukiantys pakvietimai",
+    "pendingBadge": "Laukiama",
+    "notices": {
+      "member_added": "Vartotojas jau turėjo paskyrą — pridėtas prie organizacijos",
+      "invitation_sent": "Pakvietimas išsaugotas — suveiks, kai jis užsiregistruos šiuo el. paštu"
+    },
+    "errors": {
+      "missing_fields": "Užpildyk el. paštą ir rolę",
+      "invalid_email": "El. pašto adresas atrodo neteisingas",
+      "not_allowed": "Kviesti narius gali tik savininkas arba administratorius",
+      "invite_failed": "Nepavyko išsiųsti pakvietimo — bandyk dar kartą"
+    },
+    "roles": {
+      "owner": "Savininkas",
+      "admin": "Administratorius",
+      "supply_manager": "Tiekimo vadovas",
+      "site_manager": "Objekto vadovas",
+      "driver": "Vairuotojas",
+      "worker": "Darbuotojas"
     }
   }
 }

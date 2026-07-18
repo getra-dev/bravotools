@@ -16,11 +16,5 @@
   --radius-button-sm: 9px;
   --radius-button-lg: 12px;
   --radius-stamp: 5px;
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 12px;
-  --spacing-lg: 16px;
-  --spacing-xl: 24px;
-  --spacing-xxl: 32px;
   --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace;
 }

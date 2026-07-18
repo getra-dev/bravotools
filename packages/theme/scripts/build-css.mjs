@@ -17,9 +17,11 @@ for (const [name, value] of Object.entries(tokens.radius)) {
   const kebab = name.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`);
   lines.push(`  --radius-${kebab}: ${value}px;`);
 }
-for (const [name, value] of Object.entries(tokens.spacing)) {
-  lines.push(`  --spacing-${name}: ${value}px;`);
-}
+// NOTE: tokens.spacing is deliberately NOT emitted as --spacing-* CSS vars:
+// Tailwind 4 resolves w-*/max-w-*/p-* from the --spacing namespace, so named
+// entries like --spacing-sm hijack utilities like max-w-sm. Web uses the
+// default 4px scale (xs=1, sm=2, md=3, lg=4, xl=6, xxl=8); RN reads
+// tokens.spacing directly.
 lines.push(`  --font-mono: ${tokens.typography.mono.fontFamily};`);
 lines.push('}');
 lines.push('');
