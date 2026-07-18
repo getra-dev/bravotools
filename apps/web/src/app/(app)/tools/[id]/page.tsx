@@ -23,6 +23,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
   if (!ctx?.activeOrg) redirect('/onboarding');
   const { id } = await params;
   const t = await getTranslations('tools');
+  const tActPdf = await getTranslations('actPdf');
 
   const supabase = await getSupabaseServer();
   const { data: tool } = await supabase
@@ -281,8 +282,17 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
                     <span className="font-mono text-xs uppercase tracking-[1.5px]">
                       {a.act_number}
                     </span>
-                    <span className={`${STAMP} border-line text-ink`}>
-                      {t(`detail.actStatus.${a.status}` as Parameters<typeof t>[0])}
+                    <span className="flex items-center gap-2">
+                      <span className={`${STAMP} border-line text-ink`}>
+                        {t(`detail.actStatus.${a.status}` as Parameters<typeof t>[0])}
+                      </span>
+                      <a
+                        href={`/api/acts/${a.id}/pdf`}
+                        target="_blank"
+                        className="font-mono text-xs uppercase tracking-[1.5px] text-blue underline"
+                      >
+                        {tActPdf('openPdf')}
+                      </a>
                     </span>
                   </li>
                 ))}

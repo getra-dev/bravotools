@@ -28,7 +28,7 @@ export function ScanScreen({
     const { data, error } = await supabase
       .from('tools')
       .select(
-        `id, name, qr_code, status, serial_number,
+        `id, org_id, name, qr_code, status, serial_number, tracks_engine_hours, engine_hours,
          category:tool_categories(name),
          location:locations!tools_current_location_id_fkey(name),
          holder:profiles!tools_current_holder_id_fkey(full_name),

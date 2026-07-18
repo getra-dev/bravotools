@@ -1,7 +1,7 @@
-import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { theme, ui } from '../ui';
-import type { ScannedTool } from '../types';
+import type { HandoverAction, ScannedTool } from '../types';
 
 const STATUS_COLOR: Record<string, string> = {
   available: theme.colors.ok,
@@ -12,16 +12,18 @@ const STATUS_COLOR: Record<string, string> = {
   returned_to_vendor: theme.colors.dim,
 };
 
-export function ToolScreen({ tool, onScanAgain }: { tool: ScannedTool; onScanAgain: () => void }) {
+export function ToolScreen({
+  tool,
+  onScanAgain,
+  onHandover,
+}: {
+  tool: ScannedTool;
+  onScanAgain: () => void;
+  onHandover: (action: HandoverAction) => void;
+}) {
   const { t } = useTranslation();
   const statusColor = STATUS_COLOR[tool.status] ?? theme.colors.dim;
   const holderName = tool.holder?.full_name ?? tool.external_holder?.full_name ?? null;
-  const primaryAction =
-    tool.status === 'available'
-      ? t('mobile.tool.actionHandOver')
-      : tool.status === 'checked_out'
-        ? t('mobile.tool.actionReturn')
-        : null;
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: theme.colors.ink }} contentContainerStyle={ui.screen}>
@@ -59,13 +61,20 @@ export function ToolScreen({ tool, onScanAgain }: { tool: ScannedTool; onScanAga
         </>
       ) : null}
 
-      {primaryAction ? (
-        <Pressable
-          style={ui.primaryButton}
-          onPress={() => Alert.alert(primaryAction, t('mobile.tool.comingSoon'))}
-        >
-          <Text style={ui.primaryButtonText}>{primaryAction}</Text>
+      {tool.status === 'available' ? (
+        <Pressable style={ui.primaryButton} onPress={() => onHandover('checkout')}>
+          <Text style={ui.primaryButtonText}>{t('mobile.tool.actionHandOver')}</Text>
         </Pressable>
+      ) : null}
+      {tool.status === 'checked_out' ? (
+        <>
+          <Pressable style={ui.primaryButton} onPress={() => onHandover('checkin')}>
+            <Text style={ui.primaryButtonText}>{t('mobile.handover.titleCheckin')}</Text>
+          </Pressable>
+          <Pressable style={ui.secondaryButton} onPress={() => onHandover('transfer')}>
+            <Text style={ui.secondaryButtonText}>{t('mobile.handover.titleTransfer')}</Text>
+          </Pressable>
+        </>
       ) : null}
 
       <Pressable style={ui.secondaryButton} onPress={onScanAgain}>

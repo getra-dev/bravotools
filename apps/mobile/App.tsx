@@ -9,11 +9,13 @@ import { LoginScreen } from './src/screens/LoginScreen';
 import { ScanScreen } from './src/screens/ScanScreen';
 import { ToolScreen } from './src/screens/ToolScreen';
 import { UnknownCodeScreen } from './src/screens/UnknownCodeScreen';
-import type { ScannedTool } from './src/types';
+import { HandoverWizard } from './src/screens/HandoverWizard';
+import type { HandoverAction, ScannedTool } from './src/types';
 
 type Route =
   | { name: 'scan' }
   | { name: 'tool'; tool: ScannedTool }
+  | { name: 'handover'; tool: ScannedTool; action: HandoverAction }
   | { name: 'unknown'; code: string };
 
 export default function App() {
@@ -40,7 +42,22 @@ export default function App() {
     if (!session) {
       content = <LoginScreen />;
     } else if (route.name === 'tool') {
-      content = <ToolScreen tool={route.tool} onScanAgain={() => setRoute({ name: 'scan' })} />;
+      content = (
+        <ToolScreen
+          tool={route.tool}
+          onScanAgain={() => setRoute({ name: 'scan' })}
+          onHandover={(action) => setRoute({ name: 'handover', tool: route.tool, action })}
+        />
+      );
+    } else if (route.name === 'handover') {
+      content = (
+        <HandoverWizard
+          tool={route.tool}
+          action={route.action}
+          onDone={() => setRoute({ name: 'scan' })}
+          onCancel={() => setRoute({ name: 'tool', tool: route.tool })}
+        />
+      );
     } else if (route.name === 'unknown') {
       content = (
         <UnknownCodeScreen code={route.code} onScanAgain={() => setRoute({ name: 'scan' })} />

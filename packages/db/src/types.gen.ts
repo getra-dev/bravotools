@@ -3197,6 +3197,15 @@ export type Database = {
     }
     Functions: {
       assert_tool_editor: { Args: { target_org: string }; Returns: undefined }
+      create_external_person: {
+        Args: {
+          person_name: string
+          person_phone?: string
+          person_position?: string
+          target_org: string
+        }
+        Returns: string
+      }
       create_organization: { Args: { org_name: string }; Returns: string }
       create_tool: {
         Args: { payload: Json; target_org: string }
@@ -3209,7 +3218,13 @@ export type Database = {
       }
       is_assigned_to_site: { Args: { check_site: string }; Returns: boolean }
       is_org_member: { Args: { check_org: string }; Returns: boolean }
+      next_act_number: { Args: { target_org: string }; Returns: string }
       next_tool_qr: { Args: { target_org: string }; Returns: string }
+      perform_handover: { Args: { args: Json }; Returns: Json }
+      set_act_pdf_path: {
+        Args: { act_id: string; pdf_path: string }
+        Returns: undefined
+      }
       shares_org_with: { Args: { other: string }; Returns: boolean }
       update_tool: {
         Args: { payload: Json; tool_id: string }
