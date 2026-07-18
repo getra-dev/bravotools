@@ -29,6 +29,12 @@ pending_signatures būsena, push gavėjui (prisitraukia SPEC 2.7 push
 infrastruktūra), „laukia tavo parašo" sąrašas. Išoriniams asmenims kol kas
 lieka on-device parašas.
 
+## 4. Užfiksuota SPEC 2.9 (savininko papildymai, ne šiai sesijai)
+
+Inventorizacija (audit sesijos su QR skenavimu ir ataskaita), įrankių
+nurašymas (priežastis+foto+patvirtinimas+aktas, recharge hook), priėmimas į
+eksploataciją (naujo įrankio intake su pirkimo duomenim, komponentais, QR).
+
 ## Fonas
 
 - Web dev :3100, Metro :8081, Supabase 55321-55324 — visi paleisti fone.

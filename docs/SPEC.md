@@ -121,6 +121,27 @@ server-side when online (react-pdf), stored, linked.
 - Map (Leaflet+OSM): location markers with tool counts; vendor locations
   distinct color. Click → filtered list.
 
+### 2.9 Tools-axis backlog — OWNER ADDITIONS (2026-07-19, scope for E1.5/E2)
+
+- **Inventorizacija (stocktake).** Periodic audit session: auditor walks a
+  location scanning QR codes; system builds found / missing / misplaced
+  (wrong location or holder) lists live; unresolved missing → tool status
+  lost + supply-manager notification; session closes with a signed audit
+  report (PDF) and adjustment log. Supports per-location partial audits.
+  Needs new tables (inventory_sessions, inventory_scans) — reuse-check first.
+- **Nurašymas (write-off).** Guided flow: reason (broken / lost / stolen /
+  worn_out), photo evidence, approval by owner/admin, write_off movement
+  (action exists in schema) + written_off status, write-off act PDF for
+  accounting; if held by a subcontractor at the time → hook into recharge
+  builder (lost_tool line type already exists).
+- **Priėmimas į eksploataciją (commissioning).** Intake flow for a newly
+  purchased/leased tool: registration with purchase data (vendor, invoice
+  no, warranty), initial condition photos, component list definition, QR
+  sticker assignment, inspection schedule setup where applicable, optional
+  commissioning act. Turns "naujas daiktas iš parduotuvės" into a tracked
+  tool in one guided pass. Pairs with the future "ordered / in transit"
+  states question (see E2 delivery_tasks).
+
 Definition of E1 done: Sivysta imports registry, prints stickers, and field
 crew completes real handovers offline for 2 weeks without prompting.
 
