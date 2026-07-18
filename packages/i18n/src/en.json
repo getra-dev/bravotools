@@ -57,10 +57,55 @@
     "openOrders": "Open orders",
     "nextSteps": "Next: SPEC 2.2 — Excel import of the tool registry"
   },
+  "import": {
+    "title": "Import tools from Excel",
+    "subtitle": "Upload your existing .xlsx or .csv tool list. Columns are mapped automatically — you review and confirm before anything is written.",
+    "fileLabel": "File (.xlsx or .csv)",
+    "uploadAction": "Upload and preview",
+    "importAction": "Import tools",
+    "backToTools": "Back to tools",
+    "mappingTitle": "Check column mapping",
+    "fileInfo": "{file} — {rows} rows",
+    "autoMapped": "{mapped} of {total} columns mapped automatically",
+    "colSource": "Column in your file",
+    "colTarget": "Imported as",
+    "colSamples": "Sample values",
+    "ignore": "Do not import",
+    "fields": {
+      "name": "Name",
+      "serial_number": "Serial number",
+      "inventory_code": "Inventory code",
+      "category": "Category",
+      "purchase_price": "Purchase price",
+      "purchase_date": "Purchase date",
+      "vendor": "Vendor",
+      "notes": "Notes"
+    },
+    "resultTitle": "Import finished",
+    "resultImported": "{count} tools imported",
+    "resultSkippedTitle": "Fix later ({count})",
+    "resultSkippedHint": "These rows were skipped without blocking the import. Fix them in the file and upload again, or add the tools manually later.",
+    "skippedRow": "Row {row}",
+    "reasons": {
+      "missing_name": "No tool name"
+    },
+    "errors": {
+      "missing_file": "Choose a file first",
+      "file_too_large": "File is larger than 5 MB",
+      "unsupported_format": "Only .xlsx and .csv files are supported",
+      "empty_file": "The file has no data rows",
+      "too_many_rows": "More than 2000 rows — split the file",
+      "not_allowed": "Only the owner, admin or supply manager can import",
+      "name_required": "Map at least the Name column",
+      "import_failed": "Import failed — try again",
+      "expired": "This import session expired — upload the file again"
+    }
+  },
   "tools": {
     "title": "Tools",
+    "importCta": "Import from Excel",
     "empty": "No tools yet",
-    "emptyHint": "Your registry is empty. Excel import (SPEC 2.2) and tool CRUD (SPEC 2.3) come next.",
+    "emptyHint": "Your registry is empty. Import your existing Excel list or add tools one by one (coming in SPEC 2.3).",
     "colCode": "Code",
     "colName": "Name",
     "colStatus": "Status",

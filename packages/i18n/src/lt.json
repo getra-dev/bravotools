@@ -57,10 +57,55 @@
     "openOrders": "Atviri užsakymai",
     "nextSteps": "Toliau: SPEC 2.2 — įrankių registro Excel importas"
   },
+  "import": {
+    "title": "Importuoti įrankius iš Excel",
+    "subtitle": "Įkelk savo turimą .xlsx ar .csv įrankių sąrašą. Stulpeliai sumapinami automatiškai — tu peržiūri ir patvirtini, prieš ką nors įrašant.",
+    "fileLabel": "Failas (.xlsx arba .csv)",
+    "uploadAction": "Įkelti ir peržiūrėti",
+    "importAction": "Importuoti įrankius",
+    "backToTools": "Grįžti į įrankius",
+    "mappingTitle": "Patikrink stulpelių atitikimą",
+    "fileInfo": "{file} — {rows} eil.",
+    "autoMapped": "{mapped} iš {total} stulpelių sumapinta automatiškai",
+    "colSource": "Stulpelis tavo faile",
+    "colTarget": "Importuojama kaip",
+    "colSamples": "Reikšmių pavyzdžiai",
+    "ignore": "Neimportuoti",
+    "fields": {
+      "name": "Pavadinimas",
+      "serial_number": "Serijos numeris",
+      "inventory_code": "Inventoriaus kodas",
+      "category": "Kategorija",
+      "purchase_price": "Pirkimo kaina",
+      "purchase_date": "Pirkimo data",
+      "vendor": "Tiekėjas",
+      "notes": "Pastabos"
+    },
+    "resultTitle": "Importas baigtas",
+    "resultImported": "Importuota įrankių: {count}",
+    "resultSkippedTitle": "Sutvarkyti vėliau ({count})",
+    "resultSkippedHint": "Šios eilutės praleistos nesustabdžius importo. Pataisyk jas faile ir įkelk iš naujo arba pridėk įrankius rankiniu būdu vėliau.",
+    "skippedRow": "Eilutė {row}",
+    "reasons": {
+      "missing_name": "Nėra įrankio pavadinimo"
+    },
+    "errors": {
+      "missing_file": "Pirma pasirink failą",
+      "file_too_large": "Failas didesnis nei 5 MB",
+      "unsupported_format": "Palaikomi tik .xlsx ir .csv failai",
+      "empty_file": "Faile nėra duomenų eilučių",
+      "too_many_rows": "Daugiau nei 2000 eilučių — padalink failą",
+      "not_allowed": "Importuoti gali tik savininkas, administratorius arba tiekimo vadovas",
+      "name_required": "Sumapink bent Pavadinimo stulpelį",
+      "import_failed": "Importas nepavyko — bandyk dar kartą",
+      "expired": "Importo sesija pasibaigė — įkelk failą iš naujo"
+    }
+  },
   "tools": {
     "title": "Įrankiai",
+    "importCta": "Importuoti iš Excel",
     "empty": "Įrankių dar nėra",
-    "emptyHint": "Registras tuščias. Excel importas (SPEC 2.2) ir įrankių valdymas (SPEC 2.3) — kiti žingsniai.",
+    "emptyHint": "Registras tuščias. Importuok turimą Excel sąrašą arba pridėk įrankius po vieną (SPEC 2.3).",
     "colCode": "Kodas",
     "colName": "Pavadinimas",
     "colStatus": "Būsena",

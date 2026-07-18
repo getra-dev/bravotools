@@ -3197,6 +3197,7 @@ export type Database = {
     }
     Functions: {
       create_organization: { Args: { org_name: string }; Returns: string }
+      import_tools: { Args: { rows: Json; target_org: string }; Returns: Json }
       invite_member: {
         Args: { invite_email: string; invite_role: string; target_org: string }
         Returns: string

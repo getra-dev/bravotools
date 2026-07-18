@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
@@ -24,9 +25,21 @@ export default async function ToolsPage() {
     .eq('org_id', ctx.activeOrg.orgId)
     .order('qr_code');
 
+  const canImport = ['owner', 'admin', 'supply_manager'].includes(ctx.activeOrg.role);
+
   return (
     <main>
-      <h1 className="text-2xl font-extrabold tracking-tight">{t('title')}</h1>
+      <div className="flex items-center justify-between gap-4">
+        <h1 className="text-2xl font-extrabold tracking-tight">{t('title')}</h1>
+        {canImport ? (
+          <Link
+            href="/tools/import"
+            className="flex h-11 items-center rounded-button bg-ink px-6 text-sm font-semibold text-paper hover:bg-panel"
+          >
+            {t('importCta')}
+          </Link>
+        ) : null}
+      </div>
 
       {!tools || tools.length === 0 ? (
         <div className="mt-6 rounded-card border border-dashed border-line/50 bg-white p-8 text-center">
