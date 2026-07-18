@@ -121,6 +121,26 @@ server-side when online (react-pdf), stored, linked.
 - Map (Leaflet+OSM): location markers with tool counts; vendor locations
   distinct color. Click → filtered list.
 
+### 2.8b Objektų valdymas — OWNER ADDITION (2026-07-19, E1 scope gap)
+
+Sites/locations management was implicit in the schema but never specced as
+UI. Requirements:
+- Owner/admin/supply_manager CREATE and edit locations: type (site /
+  warehouse / service), name, address, geo coordinates (map picker or
+  address geocode — feeds the 2.8 map), is_active archiving. Page-based
+  CRUD (web /locations, /locations/new, /locations/[id]/edit).
+- RESPONSIBLES: assign people to a site (site_assignments): one or more
+  workers + explicitly marked site manager (is_manager). Assignment UI on
+  the location page; a person can be on several sites.
+- Visibility follows the §1 roles matrix: workers/site managers see their
+  own sites' requests/tasks via site_assignments — this is the data that
+  E2 flows (material requests, receiving) will depend on, so it must land
+  BEFORE E2 starts.
+- Handover wizard site pickers list only active sites; site card shows
+  current tools on site (count + list link).
+- NOT random input: creation restricted to owner/admin/supply_manager;
+  workers cannot create locations.
+
 ### 2.9 Tools-axis backlog — OWNER ADDITIONS (2026-07-19, scope for E1.5/E2)
 
 - **Inventorizacija (stocktake).** Periodic audit session: auditor walks a
