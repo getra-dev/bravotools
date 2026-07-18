@@ -32,6 +32,7 @@ type Step =
   | 'photo'
   | 'engine'
   | 'signGiver'
+  | 'passPhone'
   | 'signReceiver'
   | 'saving'
   | 'done';
@@ -63,11 +64,13 @@ function utf8Bytes(text: string): Uint8Array {
 }
 
 function stepsFor(action: HandoverAction, tracksEngine: boolean): Step[] {
-  const tail: Step[] = tracksEngine
-    ? ['photo', 'engine', 'signGiver', 'signReceiver']
-    : ['photo', 'signGiver', 'signReceiver'];
-  if (action === 'checkin') return ['location', 'components', ...tail];
-  return ['receiver', 'components', ...tail];
+  const middle: Step[] = tracksEngine ? ['photo', 'engine'] : ['photo'];
+  if (action === 'checkin') {
+    // performer receives the tool back: returning holder signs first
+    return ['location', 'components', ...middle, 'passPhone', 'signGiver', 'signReceiver'];
+  }
+  // performer gives the tool away: they sign, then hand the phone over
+  return ['receiver', 'components', ...middle, 'signGiver', 'passPhone', 'signReceiver'];
 }
 
 export function HandoverWizard({
@@ -204,6 +207,10 @@ export function HandoverWizard({
     }
   }
 
+  const holderName =
+    tool.holder?.full_name ?? tool.external_holder?.full_name ?? '';
+  const passPhoneName = action === 'checkin' ? holderName : (receiver?.name ?? '');
+
   const signing = step === 'signGiver' || step === 'signReceiver';
 
   // Signature steps live OUTSIDE any ScrollView: even a scroll-disabled one
@@ -276,6 +283,20 @@ export function HandoverWizard({
             />
             <Pressable style={ui.primaryButton} onPress={next}>
               <Text style={ui.primaryButtonText}>{t('mobile.handover.next')}</Text>
+            </Pressable>
+          </View>
+        ) : null}
+        {step === 'passPhone' ? (
+          <View style={{ marginTop: 24 }}>
+            <Text style={ui.label}>{t('mobile.handover.passPhoneTitle')}</Text>
+            <Text style={[ui.title, { fontSize: 24 }]}>{passPhoneName}</Text>
+            <Text style={[ui.value, { marginTop: 12 }]}>
+              {t('mobile.handover.passPhoneBody', { name: passPhoneName })}
+            </Text>
+            <Pressable style={ui.primaryButton} onPress={next}>
+              <Text style={ui.primaryButtonText}>
+                {t('mobile.handover.passPhoneAction', { name: passPhoneName })}
+              </Text>
             </Pressable>
           </View>
         ) : null}
