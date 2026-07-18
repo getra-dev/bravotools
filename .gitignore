@@ -1,0 +1,21 @@
+# deps
+node_modules/
+
+# builds
+.next/
+dist/
+.expo/
+.turbo/
+
+# env
+.env
+.env.local
+.env*.local
+
+# supabase local
+supabase/.branches/
+supabase/.temp/
+
+# os / editor
+.DS_Store
+*.log

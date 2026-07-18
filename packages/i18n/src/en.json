@@ -1,0 +1,29 @@
+{
+  "common": {
+    "appName": "BravoTools",
+    "loading": "Loading…",
+    "offline": "Offline — changes will sync when back online",
+    "retry": "Try again"
+  },
+  "web": {
+    "home": {
+      "title": "Dispatcher console",
+      "subtitle": "Local development stack",
+      "stackHeading": "Stack status",
+      "database": "Database",
+      "databaseDetail": "Supabase local on port 55321, 51 tables",
+      "web": "Web console",
+      "webDetail": "Next.js on port 3100",
+      "mobile": "Field app",
+      "mobileDetail": "Expo — run pnpm mobile and scan the QR code",
+      "nextSteps": "Next: SPEC 2.1 — auth and organizations"
+    }
+  },
+  "mobile": {
+    "home": {
+      "title": "Field app",
+      "subtitle": "Scan. Hand over. Sign.",
+      "statusReady": "Connected to local stack"
+    }
+  }
+}

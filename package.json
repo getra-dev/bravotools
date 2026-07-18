@@ -1,0 +1,35 @@
+{
+  "name": "bravotools",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": ">=20.10"
+  },
+  "scripts": {
+    "dev": "turbo run dev --filter=web",
+    "mobile": "pnpm --filter mobile start",
+    "build": "turbo run build",
+    "lint": "eslint .",
+    "typecheck": "turbo run typecheck",
+    "test": "turbo run test",
+    "db:start": "supabase start",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset",
+    "db:typegen": "pnpm --filter @bravotools/db typegen",
+    "db:test": "pnpm --filter @bravotools/db test"
+  },
+  "devDependencies": {
+    "eslint": "^9.30.0",
+    "eslint-plugin-i18next": "^6.1.1",
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@swc/core",
+      "sharp"
+    ]
+  }
+}

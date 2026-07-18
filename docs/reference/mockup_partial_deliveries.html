@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BravoTools — Partial Deliveries at Scale</title>
+<style>
+  :root{
+    --ink:#17191C; --panel:#21252A; --panel2:#1B1E22; --line:#2E333A;
+    --steel:#96A0AA; --dim:#6B7480; --paper:#F1F2F3;
+    --hi:#F3B000; --hi-ink:#171200; --hot:#E8503A; --ok:#3CB878; --blue:#8FB0FF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{background:#0A0C0E;font-family:-apple-system,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 10px 40px}
+  .personas{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;justify-content:center}
+  .pbtn{background:var(--panel);border:1px solid var(--line);color:var(--steel);
+    padding:10px 16px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:9px}
+  .pbtn .av{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;color:var(--hi-ink)}
+  .pbtn.on{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .pbtn small{display:block;font-weight:500;font-size:10px;opacity:.7}
+  .hidden{display:none!important}
+  .toast{position:fixed;bottom:26px;left:50%;transform:translateX(-50%);background:var(--ok);color:#06130C;
+    font-size:13px;font-weight:700;padding:11px 18px;border-radius:99px;z-index:999;opacity:0;transition:opacity .25s;
+    pointer-events:none;white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
+  .toast.show{opacity:1}
+  .frame-note{color:#525A63;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;font-weight:700;text-align:center;padding-top:14px}
+
+  .phone{width:400px;height:820px;background:var(--ink);border-radius:44px;border:1px solid #2B3037;
+    overflow:hidden;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.65);display:flex;flex-direction:column}
+  .topbar{padding:15px 20px 11px;display:flex;align-items:center;border-bottom:1px solid var(--line);flex-shrink:0}
+  .logo{font-weight:800;font-size:15px;color:var(--paper)} .logo b{color:var(--hi)}
+  .topbar .who{margin-left:auto;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.4px;font-weight:700}
+  .title{padding:13px 18px 2px;color:var(--paper);font-size:20px;font-weight:800;letter-spacing:-.3px}
+  .sub{padding:0 18px 8px;color:var(--dim);font-size:12px}
+  .content{flex:1;overflow-y:auto;padding:0 12px 24px;scrollbar-width:none}
+  .content::-webkit-scrollbar{display:none}
+
+  /* progress header */
+  .prog{margin:6px 6px 12px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 14px}
+  .prog .nums{display:flex;justify-content:space-between;align-items:baseline}
+  .prog .big{font-size:26px;font-weight:900;color:var(--paper);font-variant-numeric:tabular-nums}
+  .prog .big small{font-size:13px;color:var(--dim);font-weight:700}
+  .prog .issues{font-size:13px;font-weight:800;color:var(--hot)}
+  .bar{height:7px;border-radius:4px;background:#2A3037;margin-top:9px;overflow:hidden;display:flex}
+  .bar i{display:block;height:100%}
+  .bar .ok{background:var(--ok)} .bar .miss{background:var(--hot)}
+  .prog .hint{font-size:11px;color:var(--dim);margin-top:8px;line-height:1.5}
+  .prog .hint b{color:var(--paper)}
+
+  /* search + groups */
+  .search{margin:0 6px 10px;display:flex;gap:8px}
+  .search input{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--paper);
+    padding:11px 13px;font-size:14px;outline:none}
+  .fpill{background:var(--panel);border:1px solid var(--line);color:var(--steel);border-radius:10px;padding:0 13px;
+    font-size:12px;font-weight:700;cursor:pointer}
+  .fpill.on{border-color:var(--hot);color:var(--hot)}
+  .grp{margin:0 6px 10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+  .grp .ghead{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer}
+  .grp .gname{flex:1;color:var(--paper);font-size:13.5px;font-weight:750}
+  .grp .gcount{font-size:11px;color:var(--dim);font-family:ui-monospace,monospace}
+  .grp .gstat{font-size:10px;font-weight:800;letter-spacing:.8px;text-transform:uppercase}
+  .grp .gstat.allok{color:var(--ok)} .grp .gstat.hasmiss{color:var(--hot)}
+  .grp .chev{color:var(--dim);transition:transform .15s}
+  .grp.open .chev{transform:rotate(90deg)}
+  .grp .items{display:none;border-top:1px solid var(--line)}
+  .grp.open .items{display:block}
+  .item{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #262B31}
+  .item:last-child{border-bottom:none}
+  .item .nm{flex:1;min-width:0}
+  .item .nm .n1{color:var(--paper);font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .item .nm .n2{color:var(--dim);font-size:10.5px;font-family:ui-monospace,monospace;margin-top:2px}
+  .item .qty{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--ok);font-weight:700;white-space:nowrap}
+  .item.short .qty{color:var(--hot)}
+  .item .flag{background:transparent;border:1px solid var(--line);color:var(--dim);border-radius:8px;
+    padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+  .item.short .flag{border-color:var(--hot);color:var(--hot)}
+  /* short editor */
+  .editor{background:var(--panel2);border-top:1px dashed #454D57;padding:11px 14px;display:none}
+  .item.editing + .editor{display:block}
+  .editor .erow{display:flex;align-items:center;gap:10px}
+  .step{display:flex;align-items:center;gap:0;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+  .step button{width:38px;height:38px;background:var(--panel);border:none;color:var(--paper);font-size:18px;font-weight:800;cursor:pointer}
+  .step .v{width:52px;text-align:center;color:var(--paper);font-weight:800;font-size:15px;font-variant-numeric:tabular-nums}
+  .editor .lbl{font-size:11px;color:var(--dim);font-weight:700;text-transform:uppercase;letter-spacing:.8px}
+  .editor .reasons{display:flex;gap:6px;margin-top:9px;flex-wrap:wrap}
+  .editor .rsn{border:1px solid var(--line);color:var(--steel);border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700;cursor:pointer;background:var(--panel)}
+  .editor .rsn.on{border-color:var(--hot);color:var(--hot)}
+  .bigcta{position:sticky;bottom:0;margin:8px 6px 0;padding:15px;background:var(--hi);color:var(--hi-ink);
+    border:none;border-radius:13px;font-weight:800;font-size:15px;cursor:pointer;width:calc(100% - 12px);
+    box-shadow:0 -10px 24px rgba(12,14,16,.7)}
+
+  /* driver */
+  .dcard{margin:0 6px 10px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 14px}
+  .dcard .t{color:var(--paper);font-size:14.5px;font-weight:750;display:flex;justify-content:space-between;gap:8px}
+  .dcard .s{color:var(--steel);font-size:12px;margin-top:5px;line-height:1.55}
+  .dcard .s b{color:var(--paper)}
+  .dcard.alert{border-color:rgba(232,80,58,.5);background:linear-gradient(180deg,rgba(232,80,58,.08),var(--panel) 55%)}
+  .dbtns{display:flex;gap:8px;margin-top:11px}
+  .dbtn{flex:1;padding:12px;border-radius:9px;border:none;font-weight:800;font-size:12.5px;cursor:pointer;background:var(--hi);color:var(--hi-ink)}
+  .dbtn.ghost{background:transparent;border:1px solid var(--line);color:var(--steel);font-weight:600}
+  .stamp{display:inline-flex;font-size:9.5px;font-weight:800;letter-spacing:1.1px;text-transform:uppercase;
+    padding:4px 9px;border:1px solid currentColor;border-radius:5px}
+  .st-hot{color:var(--hot)}.st-ok{color:var(--ok)}.st-wait{color:var(--hi)}.st-info{color:var(--blue)}
+
+  /* desktop */
+  .desk{width:min(1220px,97vw);height:800px;background:#F4F5F6;border-radius:18px;border:1px solid #D6DADE;
+    box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column;color:#1B1E22;font-size:13px}
+  .dhead{display:flex;align-items:center;gap:18px;padding:13px 22px;background:#fff;border-bottom:1px solid #E3E6E9}
+  .dhead .logo2{font-weight:800;font-size:15px}.dhead .logo2 b{color:#C98F00}
+  .dhead .nav{display:flex;gap:4px;margin-left:8px}
+  .dhead .nav span{padding:7px 12px;border-radius:8px;color:#5A626B;font-weight:600;font-size:12.5px;cursor:pointer}
+  .dhead .nav span.on{background:#F0F1F3;color:#1B1E22}
+  .dhead .right{margin-left:auto;color:#5A626B;font-size:12px;display:flex;gap:14px;align-items:center}
+  .dbody{flex:1;display:flex;min-height:0}
+  .dmain{flex:1.5;padding:16px 18px;overflow-y:auto;border-right:1px solid #E3E6E9}
+  .dside{flex:1;padding:16px 18px;overflow-y:auto;background:#FBFBFC}
+  .dh2{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#8A929B;font-weight:800;margin-bottom:10px;
+    display:flex;justify-content:space-between;align-items:center}
+  .dh2 .norm{font-weight:600;text-transform:none;letter-spacing:0}
+  table.dt{width:100%;border-collapse:collapse;background:#fff;border:1px solid #E3E6E9;border-radius:12px;overflow:hidden}
+  .dt th{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#8A929B;text-align:left;padding:8px 10px;
+    border-bottom:1px solid #E3E6E9;font-weight:800;background:#FAFBFB;white-space:nowrap}
+  .dt td{padding:8px 10px;border-bottom:1px solid #F0F1F3;font-size:12px;vertical-align:middle}
+  .dt tr:last-child td{border-bottom:none}
+  .dt tr.sel td{background:#FFF8E6}
+  .dt .mono{font-family:ui-monospace,monospace;font-size:11px;color:#5A626B}
+  .fill{width:110px;height:7px;border-radius:4px;background:#ECEEF0;overflow:hidden;display:inline-flex;vertical-align:middle}
+  .fill i{display:block;height:100%}
+  .fill .g{background:#3CB878}.fill .r{background:var(--hot)}
+  .pct{font-family:ui-monospace,monospace;font-size:11px;color:#5A626B;margin-left:7px}
+  .pill{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:3px 8px;border-radius:5px;border:1px solid;white-space:nowrap}
+  .p-ok{color:#2E9B63;border-color:#2E9B63}.p-hot{color:var(--hot);border-color:var(--hot)}
+  .p-wait{color:#C98F00;border-color:#C98F00}.p-mute{color:#8A929B;border-color:#C9CED3}
+  .act{padding:8px 13px;border-radius:8px;border:none;font-weight:750;font-size:11.5px;cursor:pointer;background:#1B1E22;color:#fff}
+  .act.sec{background:#F0F1F3;color:#1B1E22}
+  .planbox{background:#fff;border:1px solid #E3E6E9;border-radius:13px;padding:13px 15px;margin-bottom:12px;border-left:3px solid #7A9BEE}
+  .planbox .t{font-weight:800;font-size:13px}
+  .planbox .d{color:#5A626B;font-size:12px;margin-top:5px;line-height:1.6}
+  .planbox .d b{color:#1B1E22}
+  .kpis{display:flex;gap:10px;margin-bottom:14px}
+  .kpi{flex:1;background:#fff;border:1px solid #E3E6E9;border-radius:12px;padding:11px 13px}
+  .kpi .n{font-size:22px;font-weight:900;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .kpi .l{font-size:9.5px;letter-spacing:1px;text-transform:uppercase;color:#8A929B;font-weight:700;margin-top:2px}
+  .kpi.bad .n{color:var(--hot)}.kpi.good .n{color:#2E9B63}.kpi.warn .n{color:#C98F00}
+</style>
+</head>
+<body>
+
+<div class="personas">
+  <button class="pbtn on" data-v="v-jonas" onclick="persona(this)">
+    <span class="av" style="background:var(--hi)">J</span><span>Jonas · Foreman<small>Accepts a 100-item delivery</small></span>
+  </button>
+  <button class="pbtn" data-v="v-darius" onclick="persona(this)">
+    <span class="av" style="background:var(--blue)">D</span><span>Darius · Driver<small>Vendor short-loads at pickup</small></span>
+  </button>
+  <button class="pbtn" data-v="v-greta" onclick="persona(this)">
+    <span class="av" style="background:var(--ok)">G</span><span>Greta · Supply<small>20 orders · missing items · next run</small></span>
+  </button>
+</div>
+
+<!-- ============ JONAS: RECEIVING ============ -->
+<div id="v-jonas">
+<div class="phone">
+  <div class="topbar"><div class="logo">Bravo<b>Tools</b></div><div class="who">Jonas · Lapių st. 3</div></div>
+  <div class="title">Receive delivery</div>
+  <div class="sub">BT-0038 · Senukai · Darius · today 09:32</div>
+  <div class="content" id="jscroll">
+    <div class="prog">
+      <div class="nums"><div class="big"><span id="okc">100</span><small> / 100 items OK</small></div><div class="issues" id="issc"></div></div>
+      <div class="bar" id="jbar"><i class="ok" style="width:100%"></i></div>
+      <div class="hint"><b>Everything counts as delivered by default.</b> Only tap what's wrong — missing, short or damaged. Don't check 100 lines; flag 3.</div>
+    </div>
+    <div class="search">
+      <input placeholder="Search 100 items…" oninput="jfilter(this.value)">
+      <button class="fpill" id="onlyIssues" onclick="jtoggleIssues()">Issues</button>
+    </div>
+    <div id="jgroups"></div>
+    <button class="bigcta" id="jcta" onclick="jconfirm()">Confirm receipt — sign</button>
+  </div>
+</div>
+<div class="frame-note">Open a group → tap “Short” on any line → set received qty. Try flagging a few.</div>
+</div>
+
+<!-- ============ DARIUS: PICKUP SHORTAGE ============ -->
+<div id="v-darius" class="hidden">
+<div class="phone">
+  <div class="topbar"><div class="logo">Bravo<b>Tools</b></div><div class="who">Darius · Driver</div></div>
+  <div class="title">Stop 1 · SENUKAI pickup</div>
+  <div class="sub">Order BT-0038 · 100 items · manifest loaded</div>
+  <div class="content">
+    <div class="dcard">
+      <div class="t">Loading manifest <span class="stamp st-info">100 items</span></div>
+      <div class="s">You don't count 100 lines. Vendor gives you their dispatch note — <b>photograph it</b>, AI compares with the order in seconds. You only verify what AI flags.</div>
+      <div class="dbtns"><button class="dbtn" onclick="dscan()">📷 Photo dispatch note</button></div>
+    </div>
+
+    <div id="dresult" class="hidden">
+      <div class="dcard alert">
+        <div class="t">AI found 3 mismatches <span class="stamp st-hot">Check these</span></div>
+        <div class="s">
+          • Profiles CD-60 — note says <b>105 of 120</b> (15 short)<br>
+          • Screws 3.5×25 — note says <b>18 of 25 boxes</b><br>
+          • Primer 10L — <b>not on the note at all</b><br><br>
+          Everything else (97 lines) matches. Verify these 3 on the pallet, then choose:
+        </div>
+        <div class="dbtns">
+          <button class="dbtn" onclick="dproceed()">Confirm 3 shorts & proceed</button>
+          <button class="dbtn ghost" onclick="toast('Vendor desk called — waiting note updated')">Dispute at desk</button>
+        </div>
+      </div>
+      <div id="dafter" class="hidden">
+        <div class="dcard">
+          <div class="t">You're covered — drive on <span class="stamp st-ok">Logged</span></div>
+          <div class="s"><b>Nothing else for you to do.</b> The 3 shorts are timestamped with the note photo — <b>proof it's the vendor, not you</b>. Greta already sees it; backorder draft created; Jonas's receiving list auto-adjusted so he won't hunt for items that never left the store. Next stop: Makvezis, 08:10.</div>
+        </div>
+        <div class="dcard">
+          <div class="t">Why this matters to you</div>
+          <div class="s">Friday's "Darius lost the profiles" conversation can't happen anymore. The dispatch-note photo settles it in one look.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="frame-note">Tap “photo dispatch note” → AI diff → confirm shorts</div>
+</div>
+
+<!-- ============ GRETA: SCALE VIEW ============ -->
+<div id="v-greta" class="hidden">
+<div class="desk">
+  <div class="dhead">
+    <div class="logo2">Bravo<b>Tools</b></div>
+    <div class="nav"><span>Attention</span><span class="on">Fulfillment</span><span>Orders</span><span>Deliveries</span><span>Invoices</span></div>
+    <div class="right"><span>Mon, Jul 13 · 10:05</span><span style="font-weight:800;color:#1B1E22">Greta · Supply</span></div>
+  </div>
+  <div class="dbody">
+    <div class="dmain">
+      <div class="kpis">
+        <div class="kpi"><div class="n">20</div><div class="l">Open orders</div></div>
+        <div class="kpi"><div class="n">1,614</div><div class="l">Items total</div></div>
+        <div class="kpi bad"><div class="n" id="gmiss">116</div><div class="l">Items missing</div></div>
+        <div class="kpi warn"><div class="n">7</div><div class="l">Orders partial</div></div>
+        <div class="kpi good"><div class="n">13</div><div class="l">Fully delivered</div></div>
+      </div>
+      <div class="dh2">Fulfillment — all 20 open orders <span class="norm">sorted by missing · click a partial row</span></div>
+      <table class="dt"><tbody id="gorders"></tbody></table>
+    </div>
+    <div class="dside">
+      <div class="dh2">Missing items — aggregated <span class="norm" id="gsel">across all orders</span></div>
+      <div class="planbox">
+        <div class="t">Next delivery plan — AI draft</div>
+        <div class="d">116 missing items collapse into <b>3 pickups</b>: Senukai (2 orders' remainders, one stop), Makvezis (1), Metalistas (1). Fits <b>Darius Tue 07:30 run</b> at 74% load; Vidas takes the rebar (crane). <b>4 sites notified automatically</b> with new ETAs — including Jonas, before he calls.</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <button class="act" onclick="toast('Plan confirmed · 3 backorder POs sent · routes updated · 4 sites notified with ETAs')">Confirm plan — 1 click</button>
+          <button class="act sec" onclick="toast('Editing route manually')">Edit</button>
+        </div>
+      </div>
+      <table class="dt"><tbody id="gmissing"></tbody></table>
+      <div class="dh2" style="margin-top:16px">Tomorrow's fleet plan <span class="norm">AI-packed · you confirm</span></div>
+      <table class="dt"><tbody>
+        <tr><th>Vehicle</th><th>Constraints</th><th>Load</th><th>Stops</th></tr>
+        <tr><td><b>Busiukas</b> · Crafter<br><span class="mono">1,200 kg · 10 m³</span></td>
+            <td>boxed goods, bags</td>
+            <td><span class="fill"><i class="g" style="width:74%"></i></span><span class="pct">74% · 890 kg</span></td>
+            <td>Senukai + Makvezis → <b>Lapių 3</b> (Darius)</td></tr>
+        <tr><td><b>Fiskaras</b> · MAN crane<br><span class="mono">5,000 kg · crane ✓</span></td>
+            <td>rebar 6m, pallets, lifts</td>
+            <td><span class="fill"><i class="g" style="width:52%"></i></span><span class="pct">52% · 2.6 t</span></td>
+            <td>Metalistas → <b>Naugard. 8</b> (Vidas)</td></tr>
+        <tr><td><b>Kablukas</b> · car+trailer<br><span class="mono">750 kg · long items</span></td>
+            <td>light/long, no pallets</td>
+            <td><span class="fill"><i class="g" style="width:0%"></i></span><span class="pct">idle — reserve</span></td>
+            <td>—</td></tr>
+      </tbody></table>
+      <div class="planbox" style="margin-top:10px;border-left-color:#C98F00">
+        <div class="t">2 conflicts AI already resolved in this draft</div>
+        <div class="d">• Rebar Ø12 6m (2.1 t) <b>doesn't fit the van</b> → auto-assigned to Fiskaras (weight + length + crane rule).<br>
+        • Lapių 3 had loads landing in <b>two</b> routes → merged into Darius's run — <b>rule: one site = one vehicle per day</b>, so two drivers never cross at the same gate.</div>
+      </div>
+      <div class="dh2" style="margin-top:16px">Who flagged what <span class="norm">all users · last 24h</span></div>
+      <table class="dt">
+        <tr><th>When</th><th>Who</th><th>What</th></tr>
+        <tr><td class="mono">09:41</td><td><b>Jonas</b> · foreman</td><td>Flagged 2 short at receiving (BT-0038)</td></tr>
+        <tr><td class="mono">07:38</td><td><b>Darius</b> · driver</td><td>3 shorts at Senukai pickup, note photo</td></tr>
+        <tr><td class="mono">07:35</td><td><b>AI</b></td><td>Dispatch-note diff: 97/100 match</td></tr>
+        <tr><td class="mono">Fri</td><td><b>Tomas</b> · foreman</td><td>1 damaged pallet, photo (BT-0041)</td></tr>
+        <tr><td class="mono">Fri</td><td><b>Vidas</b> · driver</td><td>Rebar pickup moved by vendor to Tue</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+<div class="frame-note">Click any partial (yellow/red) order row — right panel shows its missing lines</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let tt;
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2600)}
+function persona(btn){
+  document.querySelectorAll('.pbtn').forEach(b=>b.classList.toggle('on',b===btn));
+  ['v-jonas','v-darius','v-greta'].forEach(v=>document.getElementById(v).classList.toggle('hidden',v!==btn.dataset.v));
+}
+
+/* ============ JONAS DATA: 100 items in 6 groups ============ */
+const cats=[
+ ['Drywall & boards',['Drywall board 12.5mm','Drywall moisture 12.5mm','OSB board 18mm','Plywood 12mm','Cement board']],
+ ['Profiles & framing',['Profile CD-60','Profile UD-27','Profile CW-75','Profile UW-75','Corner bead','Hat channel']],
+ ['Fasteners',['Screws 3.5×25 (box)','Screws 3.5×45 (box)','Anchors 6×40 (pack)','Dowels 8mm (pack)','Nails 90mm (kg)','Washers M8 (pack)']],
+ ['Adhesives & chemicals',['Adhesive C1 25kg','Primer deep 10L','Joint filler 20kg','Foam gun 750ml','Silicone neutral','Contact glue 5L']],
+ ['Insulation',['EPS 100 50mm sheet','Mineral wool roll','Vapor film 75m²','Tape butyl 20m']],
+ ['Misc & site',['Cutting disc 125mm','Mixing paddle','Bucket 20L','Tarpaulin 4×6','Marker crayons (pack)','Knife blades (pack)']]
+];
+let jitems=[]; let idn=0;
+cats.forEach(([g,names],gi)=>{
+  const per = gi===2||gi===1 ? 20 : gi===0 ? 18 : 14;
+  for(let i=0;i<per && jitems.length<100;i++){
+    const nm=names[i%names.length]+(i>=names.length?` · type ${Math.floor(i/names.length)+1}`:'');
+    jitems.push({id:idn++,g,gi,name:nm,sku:'SEN-'+(4200+idn),qty:[10,20,25,40,60,120][idn%6]});
+  }
+});
+// pre-flagged from Darius pickup (vendor shorts) — auto-adjusted
+const pre={ };
+jitems.forEach(it=>{
+  if(it.name.startsWith('Profile CD-60')&&!pre.p1){pre.p1=1;it.short=15;it.reason='Vendor short (Darius)';it.locked=true}
+  if(it.name.startsWith('Screws 3.5×25')&&!pre.p2){pre.p2=1;it.short=7;it.reason='Vendor short (Darius)';it.locked=true}
+  if(it.name.startsWith('Primer deep')&&!pre.p3){pre.p3=1;it.short=it.qty;it.reason='Vendor short (Darius)';it.locked=true}
+});
+let onlyIss=false, q='';
+function jrender(){
+  const wrap=document.getElementById('jgroups');wrap.innerHTML='';
+  cats.forEach(([g],gi)=>{
+    const its=jitems.filter(it=>it.gi===gi&&(!onlyIss||it.short)&&(q===''||it.name.toLowerCase().includes(q)));
+    if(!its.length)return;
+    const missN=jitems.filter(it=>it.gi===gi&&it.short).length;
+    const total=jitems.filter(it=>it.gi===gi).length;
+    const open=onlyIss||q!==''||missN>0;
+    const div=document.createElement('div');div.className='grp'+(open?' open':'');
+    div.innerHTML=`<div class="ghead" onclick="this.parentNode.classList.toggle('open')">
+      <div class="gname">${g}</div><div class="gcount">${total} lines</div>
+      <div class="gstat ${missN?'hasmiss':'allok'}">${missN?missN+' issue'+(missN>1?'s':''):'all ok'}</div>
+      <div class="chev">›</div></div>
+      <div class="items">${its.map(it=>{
+        const rec=it.qty-(it.short||0);
+        return `<div class="item ${it.short?'short':''}" id="it${it.id}">
+          <div class="nm"><div class="n1">${it.name}</div><div class="n2">${it.sku}${it.reason?' · '+it.reason:''}</div></div>
+          <div class="qty">${rec}/${it.qty}</div>
+          ${it.locked?`<span class="stamp st-hot" style="font-size:8.5px">Pre-flagged</span>`
+            :`<button class="flag" onclick="jedit(${it.id})">${it.short?'Edit':'Short?'}</button>`}
+        </div>
+        ${it.locked?'':`<div class="editor" id="ed${it.id}">
+          <div class="erow"><span class="lbl">Received</span>
+            <div class="step"><button onclick="jstep(${it.id},-1)">−</button><div class="v" id="v${it.id}">${rec}</div><button onclick="jstep(${it.id},1)">+</button></div>
+            <span class="lbl">of ${it.qty}</span>
+          </div>
+          <div class="reasons">
+            ${['Missing','Damaged','Wrong item'].map(r=>`<button class="rsn ${it.rsn===r?'on':''}" onclick="jrsn(${it.id},'${r}',this)">${r}</button>`).join('')}
+            <button class="rsn" onclick="toast('Camera opened — photo attached to line')">📷 Photo</button>
+          </div>
+        </div>`}`;
+      }).join('')}</div>`;
+    wrap.appendChild(div);
+  });
+  const miss=jitems.filter(it=>it.short).length;
+  const missQty=jitems.reduce((s,it)=>s+(it.short||0),0);
+  document.getElementById('okc').textContent=100-miss;
+  document.getElementById('issc').textContent=miss?`${miss} lines · ${missQty} pcs short`:'';
+  const pct=(100-miss);
+  document.getElementById('jbar').innerHTML=`<i class="ok" style="width:${pct}%"></i><i class="miss" style="width:${100-pct}%"></i>`;
+  document.getElementById('jcta').textContent=miss?`Confirm receipt — ${100-miss} OK · ${miss} issues — sign`:'Confirm receipt — all 100 OK — sign';
+}
+function jedit(id){
+  const it=jitems.find(i=>i.id===id);
+  const el=document.getElementById('it'+id);
+  const was=el.classList.contains('editing');
+  document.querySelectorAll('.item.editing').forEach(e=>e.classList.remove('editing'));
+  if(!was){el.classList.add('editing'); if(!it.short){it.short=0}}
+}
+function jstep(id,d){
+  const it=jitems.find(i=>i.id===id);
+  let rec=it.qty-(it.short||0)+d;
+  rec=Math.max(0,Math.min(it.qty,rec));
+  it.short=it.qty-rec;
+  document.getElementById('v'+id).textContent=rec;
+  const el=document.getElementById('it'+id);
+  el.classList.toggle('short',it.short>0);
+  el.querySelector('.qty').textContent=`${rec}/${it.qty}`;
+  el.querySelector('.flag').textContent=it.short?'Edit':'Short?';
+  jrefreshHeader();
+}
+function jrsn(id,r,btn){
+  jitems.find(i=>i.id===id).rsn=r;
+  btn.parentNode.querySelectorAll('.rsn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+function jrefreshHeader(){
+  const miss=jitems.filter(it=>it.short).length;
+  const missQty=jitems.reduce((s,it)=>s+(it.short||0),0);
+  document.getElementById('okc').textContent=100-miss;
+  document.getElementById('issc').textContent=miss?`${miss} lines · ${missQty} pcs short`:'';
+  const pct=100-miss;
+  document.getElementById('jbar').innerHTML=`<i class="ok" style="width:${pct}%"></i><i class="miss" style="width:${100-pct}%"></i>`;
+  document.getElementById('jcta').textContent=miss?`Confirm receipt — ${100-miss} OK · ${miss} issues — sign`:'Confirm receipt — all 100 OK — sign';
+}
+function jfilter(v){q=v.toLowerCase();jrender()}
+function jtoggleIssues(){onlyIss=!onlyIss;document.getElementById('onlyIssues').classList.toggle('on',onlyIss);jrender()}
+function jconfirm(){
+  const miss=jitems.filter(it=>it.short).length;
+  toast(miss?`Signed · ${miss} shorts → Greta's board + backorder draft · vendor gets claim with photos`
+            :'Signed · all 100 delivered · order closed');
+}
+jrender();
+
+/* ============ DARIUS ============ */
+function dscan(){document.getElementById('dresult').classList.remove('hidden');toast('AI compared note vs order: 97/100 match, 3 flags')}
+function dproceed(){document.getElementById('dafter').classList.remove('hidden');toast('3 shorts logged with photo · Greta notified · Jonas list auto-adjusted')}
+
+/* ============ GRETA: 20 orders ============ */
+const sites=['Lapių 3','Naugard. 8','Ukmergės 120','Kalvarijų 9'];
+const vendors=['Senukai','Makvezis','Metalistas','Cramo','Lemora'];
+const seed=[  // [items, missing]
+ [100,17],[86,22],[120,31],[64,9],[45,12],[92,14],[38,11],
+ [110,0],[75,0],[96,0],[52,0],[88,0],[70,0],[61,0],[44,0],[130,0],[57,0],[83,0],[66,0],[37,0]
+];
+const gorders=seed.map((s,i)=>({
+  no:'BT-00'+(60-i),site:sites[i%4],vendor:vendors[i%5],items:s[0],miss:s[1],
+  due:'Jul '+(13+(i%6))
+})).sort((a,b)=>b.miss-a.miss);
+const missLines={
+ 'BT-0060':[['Profile CD-60','pcs',15,'Senukai','Tue · Darius #1'],['Screws 3.5×25','box',7,'Senukai','Tue · Darius #1'],['Primer deep 10L','pcs',10,'Senukai','Tue · Darius #1']],
+ 'BT-0059':[['Rebar Ø12 6m','pcs',18,'Metalistas','Tue · Vidas (crane)'],['Wire tie 1.2mm','kg',4,'Metalistas','Tue · Vidas']],
+ 'BT-0058':[['EPS 100 sheet','pcs',24,'Makvezis','Tue · Darius #2'],['Vapor film','roll',3,'Makvezis','Tue · Darius #2'],['Tape butyl','pcs',4,'Makvezis','Tue · Darius #2']],
+};
+function grender(){
+  const t=document.getElementById('gorders');
+  t.innerHTML='<tr><th>Order</th><th>Site</th><th>Vendor</th><th>Fulfillment</th><th>Missing</th><th>Due</th><th></th></tr>'+
+  gorders.map(o=>{
+    const pct=Math.round((o.items-o.miss)/o.items*100);
+    const st=o.miss===0?'<span class="pill p-ok">Complete</span>':(pct<80?'<span class="pill p-hot">Partial</span>':'<span class="pill p-wait">Partial</span>');
+    const btn=o.miss?`<button class="act sec" style="padding:5px 10px" onclick="gsel('${o.no}',this.closest('tr'))">View</button>`:st;
+    return `<tr>
+      <td><span class="mono">${o.no}</span></td><td>${o.site}</td><td>${o.vendor}</td>
+      <td><span class="fill"><i class="g" style="width:${pct}%"></i><i class="r" style="width:${100-pct}%"></i></span><span class="pct">${o.items-o.miss}/${o.items}</span></td>
+      <td style="font-weight:800;color:${o.miss?'#C93A26':'#2E9B63'}">${o.miss||'—'}</td><td>${o.due}</td><td>${btn}</td></tr>`;
+  }).join('');
+  gmissRender(null);
+}
+function gsel(no,row){
+  if(!missLines[no]){toast(no+' — remainder already planned on Tue routes');return}
+  document.querySelectorAll('#gorders tr').forEach(r=>r.classList.remove('sel'));
+  row.classList.add('sel');
+  document.getElementById('gsel').textContent='order '+no;
+  gmissRender(no);
+}
+function gmissRender(no){
+  const t=document.getElementById('gmissing');
+  let rows=[];
+  if(no){rows=missLines[no].map(l=>[no,...l])}
+  else{Object.entries(missLines).forEach(([k,ls])=>ls.forEach(l=>rows.push([k,...l])));
+       rows.push(['+4 more','collapsed — 84 pcs across 4 partial orders','',null,'','planned Tue/Wed'])}
+  t.innerHTML='<tr><th>Order</th><th>Item</th><th>Unit</th><th>Qty</th><th>Vendor</th><th>Planned</th></tr>'+
+    rows.map(r=>`<tr><td class="mono">${r[0]}</td><td>${r[1]}</td><td>${r[2]||''}</td>
+      <td style="font-weight:800;color:#C93A26">${r[3]??''}</td><td>${r[4]||''}</td><td>${r[5]}</td></tr>`).join('');
+}
+grender();
+</script>
+</body>
+</html>

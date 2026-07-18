@@ -1,0 +1,29 @@
+{
+  "common": {
+    "appName": "BravoTools",
+    "loading": "Kraunama…",
+    "offline": "Nėra ryšio — pakeitimai susisinchronizuos atsiradus ryšiui",
+    "retry": "Bandyti dar kartą"
+  },
+  "web": {
+    "home": {
+      "title": "Dispečerio pultas",
+      "subtitle": "Lokali kūrimo aplinka",
+      "stackHeading": "Stack'o būsena",
+      "database": "Duomenų bazė",
+      "databaseDetail": "Supabase lokaliai, portas 55321, 51 lentelė",
+      "web": "Web pultas",
+      "webDetail": "Next.js, portas 3100",
+      "mobile": "Lauko aplikacija",
+      "mobileDetail": "Expo — paleisk pnpm mobile ir nuskenuok QR kodą",
+      "nextSteps": "Toliau: SPEC 2.1 — autentifikacija ir organizacijos"
+    }
+  },
+  "mobile": {
+    "home": {
+      "title": "Lauko aplikacija",
+      "subtitle": "Skenuok. Perduok. Pasirašyk.",
+      "statusReady": "Prisijungta prie lokalios aplinkos"
+    }
+  }
+}

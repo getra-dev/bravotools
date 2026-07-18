@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BravoTools — 3 Persona Demo</title>
+<style>
+  :root{
+    --ink:#17191C; --panel:#21252A; --panel2:#1B1E22; --line:#2E333A;
+    --steel:#96A0AA; --dim:#6B7480; --paper:#F1F2F3;
+    --hi:#F3B000; --hi-ink:#171200; --hot:#E8503A; --ok:#3CB878; --blue:#8FB0FF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none}
+  body{background:#0A0C0E;font-family:-apple-system,"SF Pro Text","Segoe UI",Roboto,sans-serif;
+    min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:20px 10px 40px}
+  svg.ic{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+  /* persona switcher */
+  .personas{display:flex;gap:8px;margin-bottom:22px;flex-wrap:wrap;justify-content:center}
+  .pbtn{background:var(--panel);border:1px solid var(--line);color:var(--steel);
+    padding:10px 16px;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;gap:9px}
+  .pbtn .av{width:26px;height:26px;border-radius:8px;display:flex;align-items:center;justify-content:center;
+    font-size:12px;font-weight:900;color:var(--hi-ink)}
+  .pbtn.on{background:var(--paper);color:var(--ink);border-color:var(--paper)}
+  .pbtn small{display:block;font-weight:500;font-size:10px;opacity:.7}
+
+  /* phone frame */
+  .phone{width:390px;height:800px;background:var(--ink);border-radius:44px;border:1px solid #2B3037;
+    overflow:hidden;position:relative;box-shadow:0 30px 80px rgba(0,0,0,.65);display:flex;flex-direction:column}
+  .topbar{padding:16px 20px 12px;display:flex;align-items:center;border-bottom:1px solid var(--line);flex-shrink:0}
+  .logo{font-weight:800;font-size:15px;color:var(--paper)} .logo b{color:var(--hi)}
+  .topbar .who{margin-left:auto;font-size:10px;color:var(--dim);text-transform:uppercase;letter-spacing:1.4px;font-weight:700}
+  .content{flex:1;overflow-y:auto;padding:0 14px 120px;scrollbar-width:none}
+  .content::-webkit-scrollbar{display:none}
+  .title{padding:14px 20px 2px;color:var(--paper);font-size:22px;font-weight:800;letter-spacing:-.4px}
+  .sub{padding:0 20px 10px;color:var(--dim);font-size:12.5px}
+  .sect{margin:12px 6px 8px;color:var(--dim);font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1.8px}
+  .stamp{display:inline-flex;align-items:center;gap:5px;font-size:9.5px;font-weight:800;letter-spacing:1.1px;
+    text-transform:uppercase;padding:4px 9px;border:1px solid currentColor;border-radius:5px;flex-shrink:0}
+  .st-hot{color:var(--hot)}.st-ok{color:var(--ok)}.st-wait{color:var(--hi)}.st-info{color:var(--blue)}.st-mute{color:var(--dim)}
+  .hidden{display:none!important}
+  .toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:var(--ok);color:#06130C;
+    font-size:13px;font-weight:700;padding:11px 18px;border-radius:99px;z-index:999;opacity:0;transition:opacity .25s;
+    pointer-events:none;white-space:nowrap;max-width:90vw}
+  .toast.show{opacity:1}
+
+  /* ============ JONAS (60) — extra simple ============ */
+  .jonas .title{font-size:26px}
+  .jchat{display:flex;flex-direction:column;gap:12px;padding:8px 6px 0}
+  .jmsg{max-width:86%;display:flex;flex-direction:column;gap:5px}
+  .jmsg.me{align-self:flex-end;align-items:flex-end}
+  .jbubble{padding:14px 16px;border-radius:16px;font-size:16px;line-height:1.5}
+  .jmsg.me .jbubble{background:var(--hi);color:var(--hi-ink);font-weight:650;border-bottom-right-radius:5px}
+  .jmsg.ai .jbubble{background:var(--panel);color:var(--paper);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .jwho{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);font-weight:700;display:flex;gap:6px;align-items:center}
+  .ai-badge{border:1px solid var(--blue);color:var(--blue);border-radius:4px;padding:1px 6px;font-weight:800;font-size:9px}
+  .jconfirm{background:var(--panel2);border:1px dashed #454D57;border-radius:14px;padding:14px;margin-top:4px;min-width:250px}
+  .jconfirm .row{display:flex;justify-content:space-between;font-size:15px;color:var(--paper);padding:5px 0}
+  .jconfirm .row span:first-child{color:var(--steel)}
+  .jyes{margin-top:12px;width:100%;padding:16px;background:var(--hi);color:var(--hi-ink);border:none;
+    border-radius:12px;font-weight:800;font-size:17px;cursor:pointer}
+  .jno{margin-top:8px;width:100%;padding:13px;background:transparent;color:var(--steel);border:1px solid var(--line);
+    border-radius:12px;font-weight:600;font-size:14px;cursor:pointer}
+  .jptt-wrap{position:absolute;bottom:98px;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:9px;z-index:40}
+  .jptt{width:96px;height:96px;border-radius:50%;border:none;cursor:pointer;color:var(--hi-ink);
+    background:radial-gradient(circle at 34% 30%, #FFD75E, var(--hi) 62%);
+    box-shadow:0 12px 34px rgba(243,176,0,.4), inset 0 -4px 0 rgba(0,0,0,.22);
+    display:flex;align-items:center;justify-content:center;transition:transform .1s}
+  .jptt svg.ic{width:38px;height:38px;stroke-width:2}
+  .jptt:active,.jptt.rec{transform:scale(1.1)}
+  .jptt.rec{animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{box-shadow:0 12px 34px rgba(243,176,0,.4)}50%{box-shadow:0 12px 50px rgba(243,176,0,.85)}}
+  @media (prefers-reduced-motion:reduce){.jptt.rec{animation:none}}
+  .jhint{font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--dim);font-weight:800}
+  .jhint.rec{color:var(--hi)}
+  .jtag{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:10px;
+    display:flex;gap:13px;align-items:center}
+  .jtag .icbox{width:48px;height:48px;border-radius:11px;background:#2A3037;color:var(--steel);
+    display:flex;align-items:center;justify-content:center}
+  .jtag .name{color:var(--paper);font-size:17px;font-weight:700}
+  .jtag .code{font-family:ui-monospace,monospace;font-size:10px;color:var(--hi);letter-spacing:1.4px;margin-top:3px}
+  .jtag .meta{flex:1}
+  .jtabs{position:absolute;bottom:0;left:0;right:0;height:86px;background:rgba(17,19,22,.95);backdrop-filter:blur(14px);
+    border-top:1px solid var(--line);display:flex;z-index:50}
+  .jtab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:var(--dim);
+    font-size:11px;font-weight:800;cursor:pointer;background:none;border:none;text-transform:uppercase;letter-spacing:.6px}
+  .jtab.on{color:var(--paper)}
+  .jtab svg.ic{width:24px;height:24px}
+
+  /* ============ DARIUS — driver ============ */
+  .route-line{display:flex;gap:12px;margin-bottom:0;padding:0 6px}
+  .route-line .rail{width:26px;display:flex;flex-direction:column;align-items:center;flex-shrink:0}
+  .route-line .dot{width:26px;height:26px;border-radius:9px;background:var(--panel);border:1.5px solid var(--line);
+    color:var(--steel);font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .route-line.done .dot{background:var(--ok);border-color:var(--ok);color:#06130C}
+  .route-line .stem{flex:1;width:2px;background:var(--line);margin:3px 0}
+  .route-line:last-child .stem{display:none}
+  .dtask{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:13px 14px;margin-bottom:12px}
+  .dtask.done{opacity:.55}
+  .dtask .hd{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .dtask .t{color:var(--paper);font-size:14.5px;font-weight:700}
+  .dtask .s{color:var(--steel);font-size:12px;margin-top:4px;line-height:1.5}
+  .dtask .s b{color:var(--paper)}
+  .dbtns{display:flex;gap:8px;margin-top:11px}
+  .dbtn{flex:1;padding:11px;border-radius:9px;border:none;font-weight:800;font-size:12.5px;cursor:pointer;
+    background:var(--hi);color:var(--hi-ink)}
+  .dbtn.ghost{background:transparent;border:1px solid var(--line);color:var(--steel);font-weight:600}
+  .dbtn.problem{background:transparent;border:1px solid rgba(232,80,58,.5);color:var(--hot);font-weight:700}
+  .dsum{display:flex;gap:8px;padding:2px 6px 12px}
+  .dsum .cell{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 12px;text-align:center}
+  .dsum .n{font-size:22px;font-weight:900;color:var(--paper)}
+  .dsum .l{font-size:9px;letter-spacing:1.2px;text-transform:uppercase;color:var(--dim);font-weight:700;margin-top:2px}
+
+  /* ============ GRETA — desktop dashboard ============ */
+  .desk{width:min(1180px,96vw);height:780px;background:#F4F5F6;border-radius:18px;border:1px solid #D6DADE;
+    box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;display:flex;flex-direction:column;color:#1B1E22;
+    font-size:13px}
+  .desk *{user-select:text}
+  .dhead{display:flex;align-items:center;gap:18px;padding:14px 22px;background:#fff;border-bottom:1px solid #E3E6E9}
+  .dhead .logo2{font-weight:800;font-size:15px;color:#1B1E22}.dhead .logo2 b{color:#C98F00}
+  .dhead .nav{display:flex;gap:4px;margin-left:10px}
+  .dhead .nav span{padding:7px 12px;border-radius:8px;color:#5A626B;font-weight:600;font-size:12.5px;cursor:pointer}
+  .dhead .nav span.on{background:#F0F1F3;color:#1B1E22}
+  .dhead .right{margin-left:auto;display:flex;align-items:center;gap:14px;color:#5A626B;font-size:12px}
+  .dbody{flex:1;display:flex;min-height:0}
+  .dmain{flex:1.35;padding:18px 20px;overflow-y:auto;border-right:1px solid #E3E6E9}
+  .dside{flex:1;padding:18px 20px;overflow-y:auto;background:#FBFBFC}
+  .dh2{font-size:11px;letter-spacing:1.6px;text-transform:uppercase;color:#8A929B;font-weight:800;margin-bottom:10px;
+    display:flex;justify-content:space-between;align-items:center}
+  .kpis{display:flex;gap:10px;margin-bottom:18px}
+  .kpi{flex:1;background:#fff;border:1px solid #E3E6E9;border-radius:12px;padding:12px 14px}
+  .kpi .n{font-size:24px;font-weight:900;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .kpi .l{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#8A929B;font-weight:700;margin-top:2px}
+  .kpi.bad .n{color:var(--hot)} .kpi.warn .n{color:#C98F00} .kpi.good .n{color:#2E9B63}
+  .ex{background:#fff;border:1px solid #E3E6E9;border-radius:13px;padding:13px 15px;margin-bottom:10px;
+    border-left:3px solid #E3E6E9}
+  .ex.hot{border-left-color:var(--hot)} .ex.warn{border-left-color:#E8B10A} .ex.info{border-left-color:#7A9BEE}
+  .ex .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+  .ex .t{font-weight:750;font-size:13.5px;line-height:1.4}
+  .ex .d{color:#5A626B;font-size:12px;margin-top:4px;line-height:1.55}
+  .ex .d b{color:#1B1E22}
+  .ex .acts{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+  .act{padding:7px 12px;border-radius:8px;border:none;font-weight:750;font-size:11.5px;cursor:pointer;
+    background:#1B1E22;color:#fff}
+  .act.sec{background:#F0F1F3;color:#1B1E22}
+  .act.link{background:transparent;color:#5A626B;text-decoration:underline;font-weight:600}
+  .ago{font-size:10px;color:#9AA2AB;font-weight:700;white-space:nowrap;font-family:ui-monospace,monospace}
+  .ex.resolved{opacity:.45}
+  .ex.resolved .acts{display:none}
+  table.dtable{width:100%;border-collapse:collapse;background:#fff;border:1px solid #E3E6E9;border-radius:12px;overflow:hidden}
+  .dtable th{font-size:10px;letter-spacing:1px;text-transform:uppercase;color:#8A929B;text-align:left;
+    padding:9px 12px;border-bottom:1px solid #E3E6E9;font-weight:800;background:#FAFBFB}
+  .dtable td{padding:9px 12px;border-bottom:1px solid #F0F1F3;font-size:12.5px}
+  .dtable tr:last-child td{border-bottom:none}
+  .dtable .mono{font-family:ui-monospace,monospace;font-size:11px;color:#5A626B}
+  .pill{font-size:9px;font-weight:800;letter-spacing:.8px;text-transform:uppercase;padding:3px 8px;border-radius:5px;border:1px solid}
+  .p-ok{color:#2E9B63;border-color:#2E9B63} .p-hot{color:var(--hot);border-color:var(--hot)}
+  .p-wait{color:#C98F00;border-color:#C98F00} .p-mute{color:#8A929B;border-color:#C9CED3}
+  .frame-note{color:#525A63;font-size:10.5px;letter-spacing:1.6px;text-transform:uppercase;font-weight:700;
+    text-align:center;padding-top:14px}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <g id="i-mic"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></g>
+  <g id="i-wrench"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></g>
+  <g id="i-drill"><path d="M14 9c0 .6-.4 1-1 1H4a1 1 0 0 1-1-1V5c0-.6.4-1 1-1h9c.6 0 1 .4 1 1"/><path d="M14 4h3l4 2v2l-4 2h-3"/><path d="M5 10v4h4l1 7h2l-1-7"/></g>
+  <g id="i-ruler"><path d="M21.3 15.3 8.7 2.7a1 1 0 0 0-1.4 0l-4.6 4.6a1 1 0 0 0 0 1.4l12.6 12.6a1 1 0 0 0 1.4 0l4.6-4.6a1 1 0 0 0 0-1.4z"/><path d="m7.5 10.5 2 2"/><path d="m10.5 7.5 2 2"/><path d="m13.5 4.5 2 2"/></g>
+  <g id="i-truck"><path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11"/><path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2"/><circle cx="7" cy="18" r="2"/><circle cx="17" cy="18" r="2"/></g>
+  <g id="i-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></g>
+</defs></svg>
+
+<div class="personas">
+  <button class="pbtn on" data-v="v-jonas" onclick="persona(this)">
+    <span class="av" style="background:var(--hi)">J</span>
+    <span>Jonas · 60<small>Site foreman — orders by voice</small></span>
+  </button>
+  <button class="pbtn" data-v="v-darius" onclick="persona(this)">
+    <span class="av" style="background:var(--blue)">D</span>
+    <span>Darius<small>Driver — tomorrow's route</small></span>
+  </button>
+  <button class="pbtn" data-v="v-greta" onclick="persona(this)">
+    <span class="av" style="background:var(--ok)">G</span>
+    <span>Greta<small>Supply manager — dashboard</small></span>
+  </button>
+</div>
+
+<!-- ==================== JONAS ==================== -->
+<div id="v-jonas">
+<div class="phone jonas">
+  <div class="topbar"><div class="logo">Bravo<b>Tools</b></div><div class="who">Jonas · Lapių st. 3</div></div>
+
+  <div id="j-radio" style="display:flex;flex-direction:column;flex:1;min-height:0">
+    <div class="title">Radio</div>
+    <div class="sub">Hold the button and just say it</div>
+    <div class="content" id="jchatbox" style="padding-bottom:220px">
+      <div class="jchat">
+        <div class="jmsg ai">
+          <div class="jbubble">Morning, Jonas. Say what the site needs — I'll handle the rest.</div>
+          <div class="jwho"><span class="ai-badge">AI</span> Radio</div>
+        </div>
+        <div id="jnew"></div>
+      </div>
+    </div>
+    <div class="jptt-wrap">
+      <button class="jptt" id="jptt"><svg class="ic"><use href="#i-mic"/></svg></button>
+      <div class="jhint" id="jhint">Hold to talk</div>
+    </div>
+  </div>
+
+  <div id="j-tools" class="hidden" style="flex-direction:column;flex:1;min-height:0">
+    <div class="title">My tools</div>
+    <div class="sub">Signed to you · 3 items · €3,940</div>
+    <div class="content">
+      <div class="jtag">
+        <div class="icbox"><svg class="ic"><use href="#i-drill"/></svg></div>
+        <div class="meta"><div class="name">Hilti TE 60 hammer drill</div><div class="code">BT-TOOL-000123 · since Jul 8</div></div>
+        <span class="stamp st-ok">OK</span>
+      </div>
+      <div class="jtag">
+        <div class="icbox"><svg class="ic"><use href="#i-ruler"/></svg></div>
+        <div class="meta"><div class="name">Leica laser measure</div><div class="code">BT-TOOL-000156 · since Jun 21</div></div>
+        <span class="stamp st-wait">20 days</span>
+      </div>
+      <div class="jtag">
+        <div class="icbox"><svg class="ic"><use href="#i-zap"/></svg></div>
+        <div class="meta"><div class="name">HILTI TE 1000 breaker <span style="color:var(--dim);font-weight:500">(rented)</span></div><div class="code">RETURN BY JUL 15 · 3 days left</div></div>
+        <span class="stamp st-hot">Return</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="jtabs">
+    <button class="jtab on" data-s="j-radio" onclick="jnav(this)"><svg class="ic"><use href="#i-mic"/></svg>Radio</button>
+    <button class="jtab" data-s="j-tools" onclick="jnav(this)"><svg class="ic"><use href="#i-wrench"/></svg>My tools</button>
+  </div>
+</div>
+<div class="frame-note">Hold the yellow button, release — then confirm the order</div>
+</div>
+
+<!-- ==================== DARIUS ==================== -->
+<div id="v-darius" class="hidden">
+<div class="phone">
+  <div class="topbar"><div class="logo">Bravo<b>Tools</b></div><div class="who">Darius · Driver</div></div>
+  <div style="display:flex;flex-direction:column;flex:1;min-height:0">
+    <div class="title">Tomorrow · Jul 13</div>
+    <div class="sub">Van LNK 452 · route optimized · 46 km</div>
+    <div class="content" style="padding-bottom:30px">
+      <div class="dsum">
+        <div class="cell"><div class="n" id="dleft">4</div><div class="l">Stops left</div></div>
+        <div class="cell"><div class="n">07:30</div><div class="l">Start</div></div>
+        <div class="cell"><div class="n">2</div><div class="l">Vendors</div></div>
+      </div>
+
+      <div class="sect">Route</div>
+
+      <div class="route-line" id="r1">
+        <div class="rail"><div class="dot">1</div><div class="stem"></div></div>
+        <div class="dtask">
+          <div class="hd"><div class="t">Pick up — SENUKAI, Ukmergės st.</div><span class="stamp st-wait">07:30</span></div>
+          <div class="s">Order <b>BT-0038</b> · drywall boards ×40, profiles ×120<br>⚠ <b>Check count on loading</b> — last time 2 boards short</div>
+          <div class="dbtns">
+            <button class="dbtn" onclick="ddone('r1','Picked up · waybill photo saved')">Picked up + photo</button>
+            <button class="dbtn problem" onclick="toast('Issue logged → Greta notified instantly')">Problem</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-line" id="r2">
+        <div class="rail"><div class="dot">2</div><div class="stem"></div></div>
+        <div class="dtask">
+          <div class="hd"><div class="t">Pick up — MAKVEZIS, Savanorių ave.</div><span class="stamp st-wait">08:10</span></div>
+          <div class="s">Order <b>BT-0044</b> · adhesive C1 ×20 bags <span class="stamp st-hot" style="margin-left:4px">HOT</span><br>Jonas needs it before noon — <b>do not skip</b></div>
+          <div class="dbtns">
+            <button class="dbtn" onclick="ddone('r2','Picked up · waybill photo saved')">Picked up + photo</button>
+            <button class="dbtn problem" onclick="toast('Issue logged → Greta notified instantly')">Problem</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-line" id="r3">
+        <div class="rail"><div class="dot">3</div><div class="stem"></div></div>
+        <div class="dtask">
+          <div class="hd"><div class="t">Pick up — Central warehouse</div><span class="stamp st-info">08:45</span></div>
+          <div class="s">Primer 12 L (from stock, not bought) + <b>return crate for Cramo</b></div>
+          <div class="dbtns">
+            <button class="dbtn" onclick="ddone('r3','Loaded from warehouse')">Loaded</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-line" id="r4">
+        <div class="rail"><div class="dot">4</div><div class="stem"></div></div>
+        <div class="dtask">
+          <div class="hd"><div class="t">Deliver — Lapių st. 3 (Jonas)</div><span class="stamp st-wait">09:30</span></div>
+          <div class="s">Drop <b>everything</b>: boards, profiles, adhesive, primer.<br>Jonas signs receipt on your phone — 10 seconds.</div>
+          <div class="dbtns">
+            <button class="dbtn" onclick="ddone('r4','Delivered · Jonas signed · Greta sees ✓')">Delivered + signature</button>
+            <button class="dbtn ghost" onclick="toast('Navigation opened')">Navigate</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="route-line" id="r5">
+        <div class="rail"><div class="dot">5</div><div class="stem"></div></div>
+        <div class="dtask">
+          <div class="hd"><div class="t">Return breaker → CRAMO</div><span class="stamp st-hot">Due Jul 15</span></div>
+          <div class="s">HILTI TE 1000 from Lapių site. <b>Get the return act stamped</b> — it kills their late-rental billing.</div>
+          <div class="dbtns">
+            <button class="dbtn" onclick="ddone('r5','Returned · act photo saved · rental clock stopped')">Returned + act photo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="frame-note">Tap the buttons — every action instantly lands on Greta's board</div>
+</div>
+
+<!-- ==================== GRETA ==================== -->
+<div id="v-greta" class="hidden">
+<div class="desk">
+  <div class="dhead">
+    <div class="logo2">Bravo<b>Tools</b></div>
+    <div class="nav"><span class="on">Attention</span><span>Orders</span><span>Tools</span><span>Deliveries</span><span>Invoices</span><span>Reports</span></div>
+    <div class="right"><span>Sat, Jul 12 · 16:40</span><span style="font-weight:800;color:#1B1E22">Greta · Supply</span></div>
+  </div>
+  <div class="dbody">
+    <div class="dmain">
+      <div class="kpis">
+        <div class="kpi bad"><div class="n">5</div><div class="l">Need decision</div></div>
+        <div class="kpi warn"><div class="n">3</div><div class="l">Vendor silent &gt;24h</div></div>
+        <div class="kpi"><div class="n">41</div><div class="l">Orders on track</div></div>
+        <div class="kpi good"><div class="n">€178</div><div class="l">Saved · July</div></div>
+      </div>
+
+      <div class="dh2">Attention queue <span style="font-weight:600;text-transform:none;letter-spacing:0">AI-ranked · 5 of 49 orders need you</span></div>
+
+      <div class="ex hot" id="e1">
+        <div class="top"><div class="t">Jonas (Lapių st. 3) is escalating — adhesive not on site, crew idle after noon</div><span class="ago">12 min</span></div>
+        <div class="d">Root cause chain: <b>Makvezis confirmed late</b> (14:10 instead of 10:00) → Darius's Friday run skipped stop 2 → adhesive still at vendor. Jonas called twice. <b>Fix is already staged:</b> adhesive is stop #2 on Darius's tomorrow route, 08:10, on site ~09:30.</div>
+        <div class="acts">
+          <button class="act" onclick="resolve('e1','Voice note sent to Jonas: adhesive on site tomorrow 09:30, crew can start on primer works first')">Send Jonas voice update + plan B for the morning</button>
+          <button class="act sec" onclick="resolve('e1','Rush courier ordered · +€45 premium logged as vendor_fail')">Rush courier today (+€45)</button>
+          <button class="act link" onclick="toast('Full timeline opened — every event timestamped')">Timeline</button>
+        </div>
+      </div>
+
+      <div class="ex hot" id="e2">
+        <div class="top"><div class="t">Friday delivery gap: Darius marked 3 of 4 stops — profiles ×120 never left Senukai</div><span class="ago">2 h</span></div>
+        <div class="d">No "picked up" event for line 2 of BT-0038. Senukai says goods are reserved and waiting. <b>Not Darius's fault flag:</b> loading dock closed 20 min early (his problem-note attached, with photo).</div>
+        <div class="acts">
+          <button class="act" onclick="resolve('e2','Added as stop #1 tomorrow · Darius confirmed · Jonas notified automatically')">Add to tomorrow's route #1</button>
+          <button class="act link" onclick="toast('Darius problem note: dock closed 16:40, photo attached')">Driver's note</button>
+        </div>
+      </div>
+
+      <div class="ex warn" id="e3">
+        <div class="top"><div class="t">Cramo rental clock still running — breaker return due Mon, site done with it</div><span class="ago">today</span></div>
+        <div class="d">Every extra day = <b>€38</b>. Return is staged as stop #5 tomorrow. Risk: if route slips, Monday deadline is tight.</div>
+        <div class="acts">
+          <button class="act" onclick="resolve('e3','Return locked as priority stop · Darius gets morning reminder push')">Lock return as priority stop</button>
+          <button class="act sec" onclick="resolve('e3','Extension requested from Cramo in writing — rate frozen, proof saved')">Request extension in writing</button>
+        </div>
+      </div>
+
+      <div class="ex warn" id="e4">
+        <div class="top"><div class="t">Senukai silent 26 h on rebar RFQ — inquiry closes tomorrow</div><span class="ago">26 h</span></div>
+        <div class="d">2 of 3 vendors replied. Best so far: <b>€640/t (Metalistas)</b>. AI drafted a nudge email — one click to send.</div>
+        <div class="acts">
+          <button class="act" onclick="resolve('e4','Reminder sent · delivery tracked: sent → delivered → opened')">Send reminder (draft ready)</button>
+          <button class="act sec" onclick="resolve('e4','Awarded to Metalistas €640/t · PO generated · Jonas site notified')">Award to best offer now</button>
+        </div>
+      </div>
+
+      <div class="ex info" id="e5">
+        <div class="top"><div class="t">Duplicate suspected: Jonas's new adhesive request overlaps order BT-0044</div><span class="ago">5 min</span></div>
+        <div class="d">Voice request "twenty bags of adhesive" — same material, same site, <b>20 bags already arriving tomorrow</b>. AI asked Jonas by voice; awaiting his answer.</div>
+        <div class="acts">
+          <button class="act sec" onclick="resolve('e5','Merged with BT-0044 · duplicate closed · €260 not spent twice')">Merge (likely same need)</button>
+          <button class="act link" onclick="toast('Listening to Jonas original voice note…')">Play voice note</button>
+        </div>
+      </div>
+
+      <div class="dh2" style="margin-top:16px">Resolved today <span id="rescount">0</span></div>
+      <div id="resolvedbox"></div>
+    </div>
+
+    <div class="dside">
+      <div class="dh2">All orders <span style="font-weight:600;text-transform:none;letter-spacing:0">49 active · filter: needs attention off</span></div>
+      <table class="dtable">
+        <tr><th>Order</th><th>Site</th><th>Due</th><th>Status</th></tr>
+        <tr><td><span class="mono">BT-0044</span> Adhesive ×20</td><td>Lapių 3</td><td><b>Jul 13</b></td><td><span class="pill p-hot">HOT·late</span></td></tr>
+        <tr><td><span class="mono">BT-0038</span> Drywall pack</td><td>Lapių 3</td><td>Jul 13</td><td><span class="pill p-wait">Partial 3/4</span></td></tr>
+        <tr><td><span class="mono">RFQ-0006</span> Rebar Ø12</td><td>Naugard. 8</td><td>Jul 14</td><td><span class="pill p-wait">2/3 quotes</span></td></tr>
+        <tr><td><span class="mono">BT-0041</span> Primer 60L</td><td>Ukmergės</td><td>Jul 15</td><td><span class="pill p-ok">Confirmed</span></td></tr>
+        <tr><td><span class="mono">BT-0040</span> Fasteners</td><td>Naugard. 8</td><td>Jul 16</td><td><span class="pill p-ok">Confirmed</span></td></tr>
+        <tr><td><span class="mono">BT-0039</span> Insulation EPS</td><td>Ukmergės</td><td>Jul 18</td><td><span class="pill p-ok">Ordered</span></td></tr>
+        <tr><td><span class="mono">BT-0037</span> Cement ×60</td><td>Lapių 3</td><td>Jul 18</td><td><span class="pill p-ok">Confirmed</span></td></tr>
+        <tr><td><span class="mono">BT-0036</span> Site fence</td><td>Naugard. 8</td><td>Jul 21</td><td><span class="pill p-mute">Draft</span></td></tr>
+      </table>
+
+      <div class="dh2" style="margin-top:18px">Tomorrow's logistics</div>
+      <table class="dtable">
+        <tr><th>Driver</th><th>Stops</th><th>Crane</th><th>Load</th></tr>
+        <tr><td><b>Darius</b> · LNK 452</td><td>5 (2 vendors)</td><td>—</td><td>82%</td></tr>
+        <tr><td><b>Vidas</b> · MAN crane</td><td>3</td><td>✓ needed ×2</td><td>60%</td></tr>
+      </table>
+
+      <div class="dh2" style="margin-top:18px">Why Jonas was angry — and why he won't be</div>
+      <div class="ex info" style="border-left-color:#7A9BEE">
+        <div class="d" style="margin-top:0">Every step of the failure is on record: vendor confirmed late (14:10, email opened-proof), dock closed early (driver photo), fix staged on tomorrow's route. <b>Nobody argues about memory — the timeline settles it.</b> Greta's job left: choose the fix, one click, done.</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="frame-note">Click the black action buttons — exceptions resolve and move down</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function persona(btn){
+    document.querySelectorAll('.pbtn').forEach(b=>b.classList.toggle('on',b===btn));
+    ['v-jonas','v-darius','v-greta'].forEach(v=>{
+      document.getElementById(v).classList.toggle('hidden', v!==btn.dataset.v);
+    });
+  }
+  let tt;
+  function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');
+    clearTimeout(tt);tt=setTimeout(()=>t.classList.remove('show'),2400)}
+
+  /* Jonas */
+  function jnav(btn){
+    document.querySelectorAll('.jtab').forEach(b=>b.classList.toggle('on',b===btn));
+    document.getElementById('j-radio').classList.toggle('hidden',btn.dataset.s!=='j-radio');
+    document.getElementById('j-radio').style.display = btn.dataset.s==='j-radio'?'flex':'none';
+    const t=document.getElementById('j-tools');
+    t.classList.toggle('hidden',btn.dataset.s!=='j-tools');
+    t.style.display = btn.dataset.s==='j-tools'?'flex':'none';
+    document.querySelector('.jptt-wrap').style.display = btn.dataset.s==='j-radio'?'flex':'none';
+  }
+  const jptt=document.getElementById('jptt'), jhint=document.getElementById('jhint');
+  let jasked=false;
+  function jstart(e){e.preventDefault();jptt.classList.add('rec');jhint.textContent='Listening…';jhint.classList.add('rec')}
+  function jstop(){
+    if(!jptt.classList.contains('rec'))return;
+    jptt.classList.remove('rec');jhint.textContent='Hold to talk';jhint.classList.remove('rec');
+    const box=document.getElementById('jnew');
+    if(!jasked){
+      jasked=true;
+      box.insertAdjacentHTML('beforeend',`
+        <div class="jmsg me"><div class="jbubble">"I need twenty bags of tile adhesive and some primer, for tomorrow"</div>
+        <div class="jwho">Jonas · now</div></div>`);
+      setTimeout(()=>{
+        box.insertAdjacentHTML('beforeend',`
+          <div class="jmsg ai"><div class="jbubble">Got it, Jonas. One thing — <b>20 bags of the same adhesive already arrive tomorrow ~09:30</b> with Darius. Need 20 <b>more</b> on top, or is that the same need?
+          <div class="jconfirm">
+            <div class="row"><span>Adhesive C1 25kg</span><span>20 bags</span></div>
+            <div class="row"><span>Primer, deep</span><span>12 L · from warehouse</span></div>
+            <div class="row"><span>Arrives</span><span>tomorrow ~09:30</span></div>
+            <button class="jyes" onclick="toast('Same need confirmed · duplicate closed · Greta sees it resolved');this.closest('.jconfirm').style.opacity=.5">Same need — don't order more</button>
+            <button class="jno" onclick="toast('Extra 20 bags requested · Greta will approve')">No, I need 20 MORE</button>
+          </div></div>
+          <div class="jwho"><span class="ai-badge">AI</span> answered in 2s · Greta sees everything</div></div>`);
+        document.getElementById('jchatbox').scrollTop=99999;
+      },900);
+    } else {
+      box.insertAdjacentHTML('beforeend',`
+        <div class="jmsg me"><div class="jbubble">"Where is my breaker?"</div><div class="jwho">Jonas · now</div></div>`);
+      setTimeout(()=>{
+        box.insertAdjacentHTML('beforeend',`
+          <div class="jmsg ai"><div class="jbubble">The HILTI breaker is <b>on your site</b>, signed to you since Jul 6. Rental return due <b>Monday</b> — Darius picks it up tomorrow, nothing for you to do.</div>
+          <div class="jwho"><span class="ai-badge">AI</span> answered in 2s</div></div>`);
+        document.getElementById('jchatbox').scrollTop=99999;
+      },900);
+    }
+    document.getElementById('jchatbox').scrollTop=99999;
+  }
+  jptt.addEventListener('mousedown',jstart);
+  jptt.addEventListener('touchstart',jstart,{passive:false});
+  ['mouseup','mouseleave','touchend'].forEach(ev=>jptt.addEventListener(ev,jstop));
+
+  /* Darius */
+  let left=4;
+  function ddone(id,msg){
+    const r=document.getElementById(id);
+    if(r.classList.contains('done'))return;
+    r.classList.add('done');
+    r.querySelector('.dtask').classList.add('done');
+    r.querySelector('.dot').textContent='✓';
+    left=Math.max(0,left-1);
+    document.getElementById('dleft').textContent=left;
+    toast(msg);
+  }
+
+  /* Greta */
+  let res=0;
+  function resolve(id,msg){
+    const e=document.getElementById(id);
+    if(e.classList.contains('resolved'))return;
+    e.classList.add('resolved');
+    document.getElementById('resolvedbox').appendChild(e);
+    res++;document.getElementById('rescount').textContent=res;
+    toast(msg);
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,26 @@
+/* GENERATED from tokens.json — do not edit. Run: pnpm --filter @bravotools/theme build:css */
+@theme {
+  --color-ink: #17191C;
+  --color-panel: #21252A;
+  --color-panel2: #1B1E22;
+  --color-line: #2E333A;
+  --color-steel: #96A0AA;
+  --color-dim: #6B7480;
+  --color-paper: #F1F2F3;
+  --color-hi: #F3B000;
+  --color-hot: #E8503A;
+  --color-ok: #3CB878;
+  --color-blue: #8FB0FF;
+  --radius-card: 14px;
+  --radius-button: 10px;
+  --radius-button-sm: 9px;
+  --radius-button-lg: 12px;
+  --radius-stamp: 5px;
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-xxl: 32px;
+  --font-mono: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, monospace;
+}

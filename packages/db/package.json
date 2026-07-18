@@ -1,0 +1,12 @@
+{
+  "name": "@bravotools/db",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "typegen": "supabase --workdir ../.. gen types typescript --local > src/types.gen.ts",
+    "test": "bash tests/run-rls-tests.sh"
+  }
+}

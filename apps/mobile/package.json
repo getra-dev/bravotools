@@ -1,0 +1,27 @@
+{
+  "name": "mobile",
+  "version": "0.0.1",
+  "main": "index.ts",
+  "dependencies": {
+    "@bravotools/i18n": "workspace:*",
+    "@bravotools/theme": "workspace:*",
+    "expo": "~57.0.7",
+    "expo-status-bar": "~57.0.1",
+    "i18next": "^25.3.0",
+    "react": "19.2.3",
+    "react-i18next": "^15.6.0",
+    "react-native": "0.86.0"
+  },
+  "devDependencies": {
+    "@types/react": "~19.2.2",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "typecheck": "tsc --noEmit"
+  },
+  "private": true
+}
