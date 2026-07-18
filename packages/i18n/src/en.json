@@ -104,11 +104,100 @@
   "tools": {
     "title": "Tools",
     "importCta": "Import from Excel",
+    "newCta": "New tool",
+    "stickersCta": "QR stickers",
     "empty": "No tools yet",
-    "emptyHint": "Your registry is empty. Import your existing Excel list or add tools one by one (coming in SPEC 2.3).",
+    "emptyHint": "Your registry is empty. Import your existing Excel list or add the first tool.",
     "colCode": "Code",
     "colName": "Name",
     "colStatus": "Status",
+    "detail": {
+      "edit": "Edit",
+      "location": "Location",
+      "holder": "Holder",
+      "category": "Category",
+      "serial": "Serial number",
+      "inventoryCode": "Inventory code",
+      "purchaseTitle": "Purchase",
+      "price": "Price",
+      "date": "Date",
+      "vendor": "Vendor",
+      "warranty": "Warranty",
+      "warrantyUntil": "Until {date}",
+      "warrantyExpiring": "Warranty ends in {days} d",
+      "rentalTitle": "Rental",
+      "rentalVendor": "Rented from",
+      "rentalRate": "Rate / day",
+      "rentalDue": "Return by",
+      "rentalOverdue": "Overdue {days} d",
+      "engineHours": "Engine hours",
+      "internalRate": "Internal rate / day",
+      "notes": "Notes",
+      "componentsTitle": "Components",
+      "repairsTitle": "Service history",
+      "movementsTitle": "Movement timeline",
+      "actsTitle": "Handover acts",
+      "emptySection": "Nothing yet",
+      "byPerson": "by {name}",
+      "toPlace": "to {place}",
+      "actions": {
+        "checkout": "Checked out",
+        "checkin": "Returned",
+        "transfer": "Transferred",
+        "to_service": "Sent to service",
+        "from_service": "Back from service",
+        "write_off": "Written off"
+      },
+      "actStatus": {
+        "draft": "Draft",
+        "pending_signatures": "Pending signatures",
+        "signed": "Signed",
+        "void": "Void"
+      },
+      "repairType": {
+        "repair": "Repair",
+        "maintenance": "Maintenance",
+        "calibration": "Calibration",
+        "inspection": "Inspection"
+      },
+      "repairStatus": {
+        "in_progress": "In progress",
+        "completed": "Completed",
+        "cancelled": "Cancelled"
+      }
+    },
+    "form": {
+      "newTitle": "New tool",
+      "editTitle": "Edit tool",
+      "name": "Name",
+      "category": "Category",
+      "noCategory": "No category",
+      "serial": "Serial number",
+      "inventoryCode": "Inventory code",
+      "price": "Purchase price (EUR)",
+      "date": "Purchase date",
+      "vendor": "Vendor",
+      "noVendor": "No vendor",
+      "warrantyMonths": "Warranty (months)",
+      "internalRate": "Internal rate / day (EUR)",
+      "location": "Location",
+      "noLocation": "No location",
+      "notes": "Notes",
+      "create": "Create tool",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "errors": {
+        "name_required": "Enter the tool name",
+        "not_allowed": "Only the owner, admin or supply manager can edit tools",
+        "save_failed": "Could not save — try again"
+      }
+    },
+    "stickers": {
+      "title": "QR stickers",
+      "hint": "A4 sheet, 3×8 labels with cut lines. Print from the browser — margins are preset.",
+      "print": "Print",
+      "count": "{count} labels"
+    },
     "status": {
       "available": "Available",
       "checked_out": "Checked out",
@@ -123,6 +212,37 @@
       "title": "Field app",
       "subtitle": "Scan. Hand over. Sign.",
       "statusReady": "Connected to local stack"
+    },
+    "login": {
+      "title": "Sign in",
+      "email": "Email",
+      "password": "Password",
+      "action": "Sign in",
+      "error": "Wrong email or password"
+    },
+    "scan": {
+      "instruction": "Point at the QR sticker",
+      "permissionNeeded": "Camera access is needed to scan tool stickers",
+      "grant": "Allow camera",
+      "signOut": "Sign out",
+      "lookupFailed": "Could not check this code — try again"
+    },
+    "tool": {
+      "statusLabel": "Status",
+      "holder": "Holder",
+      "location": "Location",
+      "category": "Category",
+      "serial": "Serial number",
+      "actionHandOver": "Hand over",
+      "actionReturn": "Return / Transfer",
+      "comingSoon": "The signed handover flow arrives with SPEC 2.4",
+      "scanAgain": "Scan next"
+    },
+    "unknown": {
+      "title": "Unknown sticker",
+      "body": "Code {code} is not registered in your organization.",
+      "hint": "Register this sticker: create the tool in the web console (Tools → New tool). Linking an existing sticker from the phone lands with SPEC 2.4.",
+      "scanAgain": "Scan again"
     }
   },
   "members": {

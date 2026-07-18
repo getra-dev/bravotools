@@ -3196,7 +3196,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assert_tool_editor: { Args: { target_org: string }; Returns: undefined }
       create_organization: { Args: { org_name: string }; Returns: string }
+      create_tool: {
+        Args: { payload: Json; target_org: string }
+        Returns: string
+      }
       import_tools: { Args: { rows: Json; target_org: string }; Returns: Json }
       invite_member: {
         Args: { invite_email: string; invite_role: string; target_org: string }
@@ -3204,7 +3209,12 @@ export type Database = {
       }
       is_assigned_to_site: { Args: { check_site: string }; Returns: boolean }
       is_org_member: { Args: { check_org: string }; Returns: boolean }
+      next_tool_qr: { Args: { target_org: string }; Returns: string }
       shares_org_with: { Args: { other: string }; Returns: boolean }
+      update_tool: {
+        Args: { payload: Json; tool_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

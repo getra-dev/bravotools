@@ -29,16 +29,32 @@ export default async function ToolsPage() {
 
   return (
     <main>
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-2xl font-extrabold tracking-tight">{t('title')}</h1>
-        {canImport ? (
+        <div className="flex flex-wrap items-center gap-3">
           <Link
-            href="/tools/import"
-            className="flex h-11 items-center rounded-button bg-ink px-6 text-sm font-semibold text-paper hover:bg-panel"
+            href="/tools/stickers"
+            className="flex h-11 items-center rounded-button border border-line/40 px-6 text-sm font-semibold hover:bg-white"
           >
-            {t('importCta')}
+            {t('stickersCta')}
           </Link>
-        ) : null}
+          {canImport ? (
+            <>
+              <Link
+                href="/tools/import"
+                className="flex h-11 items-center rounded-button border border-line/40 px-6 text-sm font-semibold hover:bg-white"
+              >
+                {t('importCta')}
+              </Link>
+              <Link
+                href="/tools/new"
+                className="flex h-11 items-center rounded-button bg-ink px-6 text-sm font-semibold text-paper hover:bg-panel"
+              >
+                {t('newCta')}
+              </Link>
+            </>
+          ) : null}
+        </div>
       </div>
 
       {!tools || tools.length === 0 ? (
@@ -64,11 +80,17 @@ export default async function ToolsPage() {
             </thead>
             <tbody className="divide-y divide-line/20">
               {tools.map((tool) => (
-                <tr key={tool.id}>
+                <tr key={tool.id} className="hover:bg-paper/60">
                   <td className="px-4 py-2 font-mono text-xs uppercase tracking-[1.5px]">
-                    {tool.qr_code}
+                    <Link href={`/tools/${tool.id}`} className="hover:underline">
+                      {tool.qr_code}
+                    </Link>
                   </td>
-                  <td className="px-4 py-2 font-medium">{tool.name}</td>
+                  <td className="px-4 py-2 font-medium">
+                    <Link href={`/tools/${tool.id}`} className="hover:underline">
+                      {tool.name}
+                    </Link>
+                  </td>
                   <td className="px-4 py-2">
                     <span
                       className={`inline-block rounded-stamp border px-2 py-[2px] font-mono text-[10px] uppercase tracking-[1.5px] ${STATUS_STYLE[tool.status] ?? 'text-dim border-line'}`}

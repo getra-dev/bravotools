@@ -9,7 +9,8 @@ void i18n.use(initReactI18next).init({
   },
   lng: defaultLocale,
   fallbackLng: defaultLocale,
-  interpolation: { escapeValue: false },
+  // single braces to match next-intl ICU params in the shared en/lt files
+  interpolation: { escapeValue: false, prefix: '{', suffix: '}' },
 });
 
 export default i18n;

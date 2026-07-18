@@ -104,11 +104,100 @@
   "tools": {
     "title": "Įrankiai",
     "importCta": "Importuoti iš Excel",
+    "newCta": "Naujas įrankis",
+    "stickersCta": "QR lipdukai",
     "empty": "Įrankių dar nėra",
-    "emptyHint": "Registras tuščias. Importuok turimą Excel sąrašą arba pridėk įrankius po vieną (SPEC 2.3).",
+    "emptyHint": "Registras tuščias. Importuok turimą Excel sąrašą arba pridėk pirmą įrankį.",
     "colCode": "Kodas",
     "colName": "Pavadinimas",
     "colStatus": "Būsena",
+    "detail": {
+      "edit": "Redaguoti",
+      "location": "Lokacija",
+      "holder": "Pas ką",
+      "category": "Kategorija",
+      "serial": "Serijos numeris",
+      "inventoryCode": "Inventoriaus kodas",
+      "purchaseTitle": "Pirkimas",
+      "price": "Kaina",
+      "date": "Data",
+      "vendor": "Tiekėjas",
+      "warranty": "Garantija",
+      "warrantyUntil": "Iki {date}",
+      "warrantyExpiring": "Garantija baigiasi už {days} d.",
+      "rentalTitle": "Nuoma",
+      "rentalVendor": "Nuomojama iš",
+      "rentalRate": "Įkainis / d.",
+      "rentalDue": "Grąžinti iki",
+      "rentalOverdue": "Vėluojama {days} d.",
+      "engineHours": "Motovalandos",
+      "internalRate": "Vidinis įkainis / d.",
+      "notes": "Pastabos",
+      "componentsTitle": "Komplektacija",
+      "repairsTitle": "Serviso istorija",
+      "movementsTitle": "Judėjimo istorija",
+      "actsTitle": "Perdavimo aktai",
+      "emptySection": "Kol kas nieko",
+      "byPerson": "atliko {name}",
+      "toPlace": "į {place}",
+      "actions": {
+        "checkout": "Paimtas",
+        "checkin": "Grąžintas",
+        "transfer": "Perduotas",
+        "to_service": "Išvežtas į servisą",
+        "from_service": "Grįžo iš serviso",
+        "write_off": "Nurašytas"
+      },
+      "actStatus": {
+        "draft": "Juodraštis",
+        "pending_signatures": "Laukia parašų",
+        "signed": "Pasirašytas",
+        "void": "Anuliuotas"
+      },
+      "repairType": {
+        "repair": "Remontas",
+        "maintenance": "Priežiūra",
+        "calibration": "Kalibravimas",
+        "inspection": "Patikra"
+      },
+      "repairStatus": {
+        "in_progress": "Vykdomas",
+        "completed": "Baigtas",
+        "cancelled": "Atšauktas"
+      }
+    },
+    "form": {
+      "newTitle": "Naujas įrankis",
+      "editTitle": "Redaguoti įrankį",
+      "name": "Pavadinimas",
+      "category": "Kategorija",
+      "noCategory": "Be kategorijos",
+      "serial": "Serijos numeris",
+      "inventoryCode": "Inventoriaus kodas",
+      "price": "Pirkimo kaina (EUR)",
+      "date": "Pirkimo data",
+      "vendor": "Tiekėjas",
+      "noVendor": "Be tiekėjo",
+      "warrantyMonths": "Garantija (mėn.)",
+      "internalRate": "Vidinis įkainis / d. (EUR)",
+      "location": "Lokacija",
+      "noLocation": "Be lokacijos",
+      "notes": "Pastabos",
+      "create": "Sukurti įrankį",
+      "save": "Išsaugoti pakeitimus",
+      "cancel": "Atšaukti",
+      "errors": {
+        "name_required": "Įvesk įrankio pavadinimą",
+        "not_allowed": "Įrankius redaguoti gali tik savininkas, administratorius arba tiekimo vadovas",
+        "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+      }
+    },
+    "stickers": {
+      "title": "QR lipdukai",
+      "hint": "A4 lapas, 3×8 etiketės su kirpimo linijomis. Spausdink iš naršyklės — paraštės jau nustatytos.",
+      "print": "Spausdinti",
+      "count": "Etikečių: {count}"
+    },
     "status": {
       "available": "Laisvas",
       "checked_out": "Paimtas",
@@ -123,6 +212,37 @@
       "title": "Lauko aplikacija",
       "subtitle": "Skenuok. Perduok. Pasirašyk.",
       "statusReady": "Prisijungta prie lokalios aplinkos"
+    },
+    "login": {
+      "title": "Prisijungti",
+      "email": "El. paštas",
+      "password": "Slaptažodis",
+      "action": "Prisijungti",
+      "error": "Neteisingas el. paštas arba slaptažodis"
+    },
+    "scan": {
+      "instruction": "Nutaikyk į QR lipduką",
+      "permissionNeeded": "Skenavimui reikia prieigos prie kameros",
+      "grant": "Leisti kamerą",
+      "signOut": "Atsijungti",
+      "lookupFailed": "Nepavyko patikrinti kodo — bandyk dar kartą"
+    },
+    "tool": {
+      "statusLabel": "Būsena",
+      "holder": "Pas ką",
+      "location": "Lokacija",
+      "category": "Kategorija",
+      "serial": "Serijos numeris",
+      "actionHandOver": "Perduoti",
+      "actionReturn": "Grąžinti / Perduoti kitam",
+      "comingSoon": "Pasirašomas perdavimo srautas atkeliauja su SPEC 2.4",
+      "scanAgain": "Skenuoti kitą"
+    },
+    "unknown": {
+      "title": "Nežinomas lipdukas",
+      "body": "Kodas {code} tavo organizacijoje neužregistruotas.",
+      "hint": "Užregistruok šį lipduką: sukurk įrankį web pulte (Įrankiai → Naujas įrankis). Lipduko susiejimas iš telefono atkeliauja su SPEC 2.4.",
+      "scanAgain": "Skenuoti dar kartą"
     }
   },
   "members": {

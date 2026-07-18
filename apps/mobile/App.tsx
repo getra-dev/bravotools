@@ -1,67 +1,65 @@
+import { useEffect, useState } from 'react';
+import { View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
-import { useTranslation } from 'react-i18next';
+import type { Session } from '@supabase/supabase-js';
 import { rnTheme } from '@bravotools/theme';
 import './src/i18n';
+import { supabase } from './src/lib/supabase';
+import { LoginScreen } from './src/screens/LoginScreen';
+import { ScanScreen } from './src/screens/ScanScreen';
+import { ToolScreen } from './src/screens/ToolScreen';
+import { UnknownCodeScreen } from './src/screens/UnknownCodeScreen';
+import type { ScannedTool } from './src/types';
 
-const { colors, radius, spacing, typography } = rnTheme;
+type Route =
+  | { name: 'scan' }
+  | { name: 'tool'; tool: ScannedTool }
+  | { name: 'unknown'; code: string };
 
 export default function App() {
-  const { t } = useTranslation();
+  const [session, setSession] = useState<Session | null>(null);
+  const [ready, setReady] = useState(false);
+  const [route, setRoute] = useState<Route>({ name: 'scan' });
+
+  useEffect(() => {
+    void supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setReady(true);
+    });
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, next) => {
+      setSession(next);
+      setRoute({ name: 'scan' });
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  let content = null;
+  if (ready) {
+    if (!session) {
+      content = <LoginScreen />;
+    } else if (route.name === 'tool') {
+      content = <ToolScreen tool={route.tool} onScanAgain={() => setRoute({ name: 'scan' })} />;
+    } else if (route.name === 'unknown') {
+      content = (
+        <UnknownCodeScreen code={route.code} onScanAgain={() => setRoute({ name: 'scan' })} />
+      );
+    } else {
+      content = (
+        <ScanScreen
+          onTool={(tool) => setRoute({ name: 'tool', tool })}
+          onUnknown={(code) => setRoute({ name: 'unknown', code })}
+          onSignOut={() => void supabase.auth.signOut()}
+        />
+      );
+    }
+  }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.brand}>{t('common.appName')}</Text>
-      <Text style={styles.title}>{t('mobile.home.title')}</Text>
-      <Text style={styles.subtitle}>{t('mobile.home.subtitle')}</Text>
-      <View style={styles.stamp}>
-        <Text style={styles.stampText}>{t('mobile.home.statusReady')}</Text>
-      </View>
+    <View style={{ flex: 1, backgroundColor: rnTheme.colors.ink }}>
+      {content}
       <StatusBar style="light" />
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.ink,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: spacing.xl,
-  },
-  brand: {
-    color: colors.hi,
-    fontFamily: typography.mono.fontFamily,
-    textTransform: 'uppercase',
-    letterSpacing: typography.mono.letterSpacing,
-    fontSize: 13,
-  },
-  title: {
-    color: colors.paper,
-    fontWeight: '800',
-    fontSize: 32,
-    letterSpacing: typography.display.letterSpacing,
-    marginTop: spacing.md,
-  },
-  subtitle: {
-    color: colors.steel,
-    fontSize: 15,
-    marginTop: spacing.sm,
-  },
-  stamp: {
-    borderWidth: 1,
-    borderColor: colors.ok,
-    borderRadius: radius.stamp,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    marginTop: spacing.xl,
-  },
-  stampText: {
-    color: colors.ok,
-    textTransform: 'uppercase',
-    letterSpacing: typography.mono.letterSpacing,
-    fontSize: 11,
-    fontWeight: '600',
-  },
-});

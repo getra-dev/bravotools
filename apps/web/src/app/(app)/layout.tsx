@@ -20,7 +20,7 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="min-h-dvh">
-      <header className="border-b border-line/30 bg-white">
+      <header className="border-b border-line/30 bg-white print:hidden">
         <div className="mx-auto flex h-14 max-w-6xl items-center gap-6 px-4">
           <span className="font-mono text-xs uppercase tracking-[1.5px] text-ink">
             {t('common.appName')}
