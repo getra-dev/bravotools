@@ -62,12 +62,17 @@ begin
     'site_id', site,
     'needed_by', (current_date + 3)::text,
     'items', jsonb_build_array(
-      jsonb_build_object('raw_text', 'polistirolio 10 lapu'),
+      jsonb_build_object('raw_text', 'polistirolio 10 lapu', 'qty', '10', 'unit', 'vnt'),
       jsonb_build_object('raw_text', 'kazkokia nauja medziaga')))) into rid;
   update t3_req set req_id = rid;
 
   if (select count(*) from material_request_items where request_id = rid) <> 2 then
     raise exception 'FAIL: items not created';
+  end if;
+  -- 0017: worker-entered qty/unit stored structured at the source
+  if (select qty from material_request_items
+      where request_id = rid and raw_text like 'polistirolio%') <> 10 then
+    raise exception 'FAIL: worker qty not stored';
   end if;
 end $$;
 
@@ -116,9 +121,13 @@ begin
   select id into item2 from material_request_items
   where request_id = rid and raw_text like 'kazkokia%';
 
-  perform confirm_material_match(item1, mid, 10, 'vnt');
+  -- dispatcher confirms WITHOUT qty override — worker's qty must survive
+  perform confirm_material_match(item1, mid);
   if (select status from material_request_items where id = item1) <> 'confirmed' then
     raise exception 'FAIL: item not confirmed';
+  end if;
+  if (select qty from material_request_items where id = item1) <> 10 then
+    raise exception 'FAIL: worker qty lost on confirm';
   end if;
   -- learning: alias appeared
   if (select count(*) from material_aliases
@@ -137,6 +146,11 @@ begin
   if (select count(*) from order_items
       where order_id = (res->>'order_id')::uuid) <> 2 then
     raise exception 'FAIL: order lines missing';
+  end if;
+  if (select quantity from order_items
+      where order_id = (res->>'order_id')::uuid
+        and description like 'EPS%') <> 10 then
+    raise exception 'FAIL: qty did not flow into order line';
   end if;
   if (select status from material_requests where id = rid) <> 'ordered' then
     raise exception 'FAIL: request not marked ordered';

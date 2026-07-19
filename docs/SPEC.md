@@ -234,6 +234,18 @@ crew completes real handovers offline for 2 weeks without prompting.
   (duplicate_resolution). Confirmed → request → dispatcher queue.
 - Every exchange = comments rows (author_type ai/user, audio_path,
   body=transcript) + activity_log.
+- OWNER AMENDMENT (2026-07-19, request form UX): the site field is a
+  DROPDOWN (not a stacked list) and shows ONLY sites assigned to the
+  person (site_assignments); no fallback to all org sites for workers.
+  Supply roles (owner/admin/supply_manager) see all sites — they
+  dispatch for everyone. needed_by is a date PICKER with a drop-down
+  calendar, not a free-text field.
+- OWNER AMENDMENT (2026-07-19, structured lines): a request is entered as
+  LINE ROWS — each row = description + qty + unit (dropdown of standard
+  units), NOT one free-text blob. Reason: downstream reconciliation
+  (order vs delivery vs invoice, E3) needs structured qty/unit from the
+  source. Worker-entered qty/unit flow into material_request_items and
+  pre-fill the dispatcher confirm step; dispatcher can still override.
 
 ### 3.2 Materials dictionary
 - On unmatched raw text: fuzzy (pg_trgm) over material_aliases → top-3 to

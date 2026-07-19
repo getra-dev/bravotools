@@ -195,10 +195,16 @@ export default async function RequestsPage({
                             <input
                               name="qty"
                               inputMode="decimal"
+                              defaultValue={item.qty ?? ''}
                               placeholder={t('qty')}
                               className={`${INPUT} w-20`}
                             />
-                            <input name="unit" placeholder={t('unit')} className={`${INPUT} w-16`} />
+                            <input
+                              name="unit"
+                              defaultValue={item.unit ?? ''}
+                              placeholder={t('unit')}
+                              className={`${INPUT} w-16`}
+                            />
                             <button className="h-8 rounded-button-sm bg-ink px-3 text-xs font-bold text-paper">
                               {t('confirm')}
                             </button>
@@ -222,10 +228,16 @@ export default async function RequestsPage({
                             <input
                               name="qty"
                               inputMode="decimal"
+                              defaultValue={item.qty ?? ''}
                               placeholder={t('qty')}
                               className={`${INPUT} w-20`}
                             />
-                            <input name="unit" placeholder={t('unit')} className={`${INPUT} w-16`} />
+                            <input
+                              name="unit"
+                              defaultValue={item.unit ?? ''}
+                              placeholder={t('unit')}
+                              className={`${INPUT} w-16`}
+                            />
                             <button className="h-8 rounded-button-sm border border-line/40 px-3 text-xs font-bold">
                               {t('createAndConfirm')}
                             </button>

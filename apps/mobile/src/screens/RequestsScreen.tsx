@@ -1,5 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, RefreshControl, ScrollView, Text, TextInput, View } from 'react-native';
+import {
+  Modal,
+  Platform,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { theme, ui } from '../ui';
@@ -25,6 +35,18 @@ const HOT_REASONS = [
   'other',
 ] as const;
 
+// standard construction units — structured qty/unit per line feeds the
+// order→delivery→invoice reconciliation chain (OWNER AMENDMENT SPEC 3.1)
+const UNITS = ['vnt', 'm', 'm2', 'm3', 'kg', 't', 'l', 'pak', 'dėž', 'rul', 'kompl'] as const;
+
+type ItemRow = { text: string; qty: string; unit: string };
+
+const EMPTY_ROW: ItemRow = { text: '', qty: '', unit: 'vnt' };
+
+// UI glyphs, not translatable copy
+const CARET = '▼';
+const CLEAR = '✕';
+
 const STATUS_COLOR: Record<string, string> = {
   open: theme.colors.blue,
   processing: theme.colors.hi,
@@ -41,6 +63,24 @@ const card = {
   padding: theme.spacing.lg,
 } as const;
 
+const dropdownField = {
+  minHeight: 44,
+  flexDirection: 'row',
+  alignItems: 'center',
+  paddingHorizontal: theme.spacing.lg,
+  borderRadius: theme.radius.button,
+  borderWidth: 1,
+  borderColor: theme.colors.line,
+  backgroundColor: theme.colors.panel,
+  marginTop: theme.spacing.xs,
+} as const;
+
+function toIsoDate(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+    d.getDate(),
+  ).padStart(2, '0')}`;
+}
+
 export function RequestsScreen({ userId }: { userId: string }) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<'list' | 'new'>('list');
@@ -49,8 +89,11 @@ export function RequestsScreen({ userId }: { userId: string }) {
   const [refreshing, setRefreshing] = useState(false);
 
   const [site, setSite] = useState<Site | null>(null);
-  const [itemsText, setItemsText] = useState('');
-  const [neededBy, setNeededBy] = useState('');
+  const [sitePickerOpen, setSitePickerOpen] = useState(false);
+  const [rows, setRows] = useState<ItemRow[]>([{ ...EMPTY_ROW }]);
+  const [unitPickerRow, setUnitPickerRow] = useState<number | null>(null);
+  const [neededBy, setNeededBy] = useState<Date | null>(null);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [isHot, setIsHot] = useState(false);
   const [hotReason, setHotReason] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -75,7 +118,9 @@ export function RequestsScreen({ userId }: { userId: string }) {
     const supply = (memberRes.data ?? []).some((m) =>
       ['owner', 'admin', 'supply_manager'].includes(m.role as string),
     );
-    if (supply || assigned.length === 0) {
+    // OWNER AMENDMENT SPEC 3.1: workers see ONLY their assigned sites —
+    // no fallback to the whole org list. Supply roles dispatch for everyone.
+    if (supply) {
       const { data } = await supabase
         .from('locations')
         .select('id, name')
@@ -91,28 +136,34 @@ export function RequestsScreen({ userId }: { userId: string }) {
     void load();
   }, [load]);
 
+  function setRow(index: number, patch: Partial<ItemRow>) {
+    setRows((prev) => prev.map((row, i) => (i === index ? { ...row, ...patch } : row)));
+  }
+
+  const filledRows = rows.filter((row) => row.text.trim().length > 0);
+
   async function submit() {
-    if (!site || itemsText.trim().length === 0 || (isHot && !hotReason)) return;
+    if (!site || filledRows.length === 0 || (isHot && !hotReason)) return;
     setSaving(true);
     setError(null);
     try {
-      const items = itemsText
-        .split('\n')
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .map((raw_text) => ({ raw_text }));
+      const items = filledRows.map((row) => ({
+        raw_text: row.text.trim(),
+        qty: row.qty.trim() ? row.qty.trim().replace(',', '.') : null,
+        unit: row.unit,
+      }));
       const { error: rpcError } = await supabase.rpc('create_material_request', {
         args: {
           site_id: site.id,
-          needed_by: neededBy.trim() || null,
+          needed_by: neededBy ? toIsoDate(neededBy) : null,
           is_hot: isHot,
           hot_reason: isHot ? hotReason : null,
           items,
         },
       });
       if (rpcError) throw rpcError;
-      setItemsText('');
-      setNeededBy('');
+      setRows([{ ...EMPTY_ROW }]);
+      setNeededBy(null);
       setIsHot(false);
       setHotReason(null);
       setMode('list');
@@ -126,7 +177,7 @@ export function RequestsScreen({ userId }: { userId: string }) {
 
   if (mode === 'new') {
     const canSubmit =
-      site !== null && itemsText.trim().length > 0 && (!isHot || hotReason !== null) && !saving;
+      site !== null && filledRows.length > 0 && (!isHot || hotReason !== null) && !saving;
     return (
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.ink }}
@@ -136,51 +187,95 @@ export function RequestsScreen({ userId }: { userId: string }) {
         <Text style={ui.title}>{t('mobile.requests.newCta')}</Text>
 
         <Text style={ui.label}>{t('mobile.requests.site')}</Text>
-        {sites.map((s) => (
-          <Pressable
-            key={s.id}
-            onPress={() => setSite(s)}
-            style={{
-              minHeight: 44,
-              justifyContent: 'center',
-              paddingHorizontal: theme.spacing.lg,
-              borderRadius: theme.radius.button,
-              borderWidth: 1,
-              borderColor: site?.id === s.id ? theme.colors.hi : theme.colors.line,
-              backgroundColor: theme.colors.panel2,
-              marginTop: theme.spacing.sm,
-            }}
-          >
+        {sites.length === 0 ? (
+          <Text style={[ui.value, { color: theme.colors.dim }]}>
+            {t('mobile.requests.noSites')}
+          </Text>
+        ) : (
+          <Pressable style={dropdownField} onPress={() => setSitePickerOpen(true)}>
             <Text
               style={{
-                color: theme.colors.paper,
+                flex: 1,
+                color: site ? theme.colors.paper : theme.colors.dim,
                 fontSize: 15,
-                fontWeight: site?.id === s.id ? '800' : '400',
+                fontWeight: site ? '700' : '400',
               }}
             >
-              {s.name}
+              {site?.name ?? t('mobile.requests.sitePlaceholder')}
             </Text>
+            <Text style={{ color: theme.colors.dim, fontSize: 12 }}>{CARET}</Text>
           </Pressable>
-        ))}
+        )}
 
         <Text style={ui.label}>{t('mobile.requests.itemsLabel')}</Text>
-        <TextInput
-          style={[ui.input, { minHeight: 120, textAlignVertical: 'top' }]}
-          value={itemsText}
-          onChangeText={setItemsText}
-          multiline
-          placeholderTextColor={theme.colors.dim}
-        />
+        {rows.map((row, index) => (
+          <View key={index} style={{ marginTop: theme.spacing.sm }}>
+            <View style={{ flexDirection: 'row', gap: theme.spacing.sm }}>
+              <TextInput
+                style={[ui.input, { flex: 1, marginTop: 0 }]}
+                value={row.text}
+                onChangeText={(text) => setRow(index, { text })}
+                placeholder={t('mobile.requests.itemText')}
+                placeholderTextColor={theme.colors.dim}
+              />
+              {rows.length > 1 ? (
+                <Pressable
+                  onPress={() => setRows((prev) => prev.filter((_, i) => i !== index))}
+                  style={{ justifyContent: 'center', paddingHorizontal: 6 }}
+                  hitSlop={8}
+                >
+                  <Text style={{ color: theme.colors.dim, fontSize: 17 }}>{CLEAR}</Text>
+                </Pressable>
+              ) : null}
+            </View>
+            <View style={{ flexDirection: 'row', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+              <TextInput
+                style={[ui.input, { flex: 1, marginTop: 0 }]}
+                value={row.qty}
+                onChangeText={(qty) => setRow(index, { qty })}
+                keyboardType="decimal-pad"
+                placeholder={t('mobile.requests.itemQty')}
+                placeholderTextColor={theme.colors.dim}
+              />
+              <Pressable
+                style={[dropdownField, { flex: 1, marginTop: 0 }]}
+                onPress={() => setUnitPickerRow(index)}
+              >
+                <Text style={{ flex: 1, color: theme.colors.paper, fontSize: 15, fontWeight: '700' }}>
+                  {row.unit}
+                </Text>
+                <Text style={{ color: theme.colors.dim, fontSize: 12 }}>{CARET}</Text>
+              </Pressable>
+            </View>
+          </View>
+        ))}
+        <Pressable
+          style={[ui.secondaryButton, { marginTop: theme.spacing.md }]}
+          onPress={() => setRows((prev) => [...prev, { ...EMPTY_ROW }])}
+        >
+          <Text style={ui.secondaryButtonText}>{t('mobile.requests.addItem')}</Text>
+        </Pressable>
 
         <Text style={ui.label}>{t('mobile.requests.neededBy')}</Text>
-        <TextInput
-          style={ui.input}
-          value={neededBy}
-          onChangeText={setNeededBy}
-          autoCapitalize="none"
-          placeholder="2026-08-01"
-          placeholderTextColor={theme.colors.dim}
-        />
+        <Pressable style={dropdownField} onPress={() => setDatePickerOpen(true)}>
+          <Text
+            style={{
+              flex: 1,
+              color: neededBy ? theme.colors.paper : theme.colors.dim,
+              fontSize: 15,
+              fontWeight: neededBy ? '700' : '400',
+            }}
+          >
+            {neededBy ? toIsoDate(neededBy) : t('mobile.requests.pickDate')}
+          </Text>
+          {neededBy ? (
+            <Pressable onPress={() => setNeededBy(null)} hitSlop={12}>
+              <Text style={{ color: theme.colors.dim, fontSize: 15 }}>{CLEAR}</Text>
+            </Pressable>
+          ) : (
+            <Text style={{ color: theme.colors.dim, fontSize: 12 }}>{CARET}</Text>
+          )}
+        </Pressable>
 
         <Pressable
           onPress={() => setIsHot((prev) => !prev)}
@@ -243,6 +338,112 @@ export function RequestsScreen({ userId }: { userId: string }) {
         <Pressable style={ui.secondaryButton} onPress={() => setMode('list')}>
           <Text style={ui.secondaryButtonText}>{t('mobile.handover.back')}</Text>
         </Pressable>
+
+        <Modal visible={sitePickerOpen} transparent animationType="fade">
+          <Pressable
+            style={{ flex: 1, backgroundColor: theme.colors.scrim, justifyContent: 'center', padding: 24 }}
+            onPress={() => setSitePickerOpen(false)}
+          >
+            <View style={[card, { maxHeight: '70%' }]}>
+              <Text style={[ui.label, { marginTop: 0 }]}>{t('mobile.requests.site')}</Text>
+              <ScrollView>
+                {sites.map((s) => (
+                  <Pressable
+                    key={s.id}
+                    onPress={() => {
+                      setSite(s);
+                      setSitePickerOpen(false);
+                    }}
+                    style={{ minHeight: 44, justifyContent: 'center' }}
+                  >
+                    <Text
+                      style={{
+                        color: site?.id === s.id ? theme.colors.hi : theme.colors.paper,
+                        fontSize: 16,
+                        fontWeight: site?.id === s.id ? '800' : '400',
+                      }}
+                    >
+                      {s.name}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+            </View>
+          </Pressable>
+        </Modal>
+
+        <Modal visible={unitPickerRow !== null} transparent animationType="fade">
+          <Pressable
+            style={{ flex: 1, backgroundColor: theme.colors.scrim, justifyContent: 'center', padding: 24 }}
+            onPress={() => setUnitPickerRow(null)}
+          >
+            <View style={card}>
+              <Text style={[ui.label, { marginTop: 0 }]}>{t('mobile.requests.itemUnit')}</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: theme.spacing.sm }}>
+                {UNITS.map((unit) => (
+                  <Pressable
+                    key={unit}
+                    onPress={() => {
+                      if (unitPickerRow !== null) setRow(unitPickerRow, { unit });
+                      setUnitPickerRow(null);
+                    }}
+                    style={{
+                      minHeight: 44,
+                      minWidth: 64,
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: theme.radius.button,
+                      borderWidth: 1,
+                      borderColor:
+                        unitPickerRow !== null && rows[unitPickerRow]?.unit === unit
+                          ? theme.colors.hi
+                          : theme.colors.line,
+                      backgroundColor: theme.colors.panel2,
+                    }}
+                  >
+                    <Text style={{ color: theme.colors.paper, fontSize: 15, fontWeight: '700' }}>
+                      {unit}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          </Pressable>
+        </Modal>
+
+        {datePickerOpen && Platform.OS === 'android' ? (
+          <DateTimePicker
+            value={neededBy ?? new Date()}
+            mode="date"
+            minimumDate={new Date()}
+            onChange={(event, date) => {
+              setDatePickerOpen(false);
+              if (event.type === 'set' && date) setNeededBy(date);
+            }}
+          />
+        ) : null}
+        {Platform.OS === 'ios' ? (
+          <Modal visible={datePickerOpen} transparent animationType="fade">
+            <Pressable
+              style={{ flex: 1, backgroundColor: theme.colors.scrim, justifyContent: 'center', padding: 24 }}
+              onPress={() => setDatePickerOpen(false)}
+            >
+              <View style={[card, { backgroundColor: theme.colors.panel }]}>
+                <DateTimePicker
+                  value={neededBy ?? new Date()}
+                  mode="date"
+                  display="inline"
+                  minimumDate={new Date()}
+                  themeVariant="dark"
+                  onChange={(event, date) => {
+                    if (date) setNeededBy(date);
+                    setDatePickerOpen(false);
+                  }}
+                />
+              </View>
+            </Pressable>
+          </Modal>
+        ) : null}
       </ScrollView>
     );
   }
