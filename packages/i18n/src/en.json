@@ -523,7 +523,15 @@
     },
     "eta": "ETA {date}",
     "reorderPick": "Re-order from…",
-    "reorder": "Re-order {qty}"
+    "reorder": "Re-order {qty}",
+    "history": "History",
+    "log": {
+      "created": "Order created",
+      "email_sent": "Emailed to vendor",
+      "received": "Received on site",
+      "reorder": "Re-ordered elsewhere",
+      "status_changed": "Status changed"
+    }
   },
   "mobile": {
     "home": {

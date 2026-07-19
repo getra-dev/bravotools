@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
@@ -137,7 +138,9 @@ export default async function OrdersPage({
               {(byStatus.get(status) ?? []).map((order) => (
                 <section key={order.id} className="rounded-card border border-line/30 bg-white p-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-mono text-xs font-bold">{order.order_number}</span>
+                    <Link href={`/orders/${order.id}`} className="font-mono text-xs font-bold hover:underline">
+                      {order.order_number}
+                    </Link>
                     {order.is_hot ? (
                       <span className={`${STAMP} border-hot/50 text-hot`}>{t('hot')}</span>
                     ) : null}

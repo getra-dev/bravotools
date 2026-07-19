@@ -523,7 +523,15 @@
     },
     "eta": "Iki {date}",
     "reorderPick": "Užsakyti iš…",
-    "reorder": "Užsakyti kitur {qty}"
+    "reorder": "Užsakyti kitur {qty}",
+    "history": "Istorija",
+    "log": {
+      "created": "Užsakymas sukurtas",
+      "email_sent": "Išsiųsta tiekėjui",
+      "received": "Priimta objekte",
+      "reorder": "Užsakyta kitur",
+      "status_changed": "Būsena pakeista"
+    }
   },
   "mobile": {
     "home": {
