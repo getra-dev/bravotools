@@ -3,6 +3,16 @@ import { getTranslations } from 'next-intl/server';
 import { notFound, redirect } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSessionContext } from '@/lib/org';
+import {
+  addComponentAction,
+  addInspectionAction,
+  addToolPhotoAction,
+  removeComponentAction,
+} from '@/lib/commissioning-actions';
+
+const INSPECTION_TYPES = ['electrical_safety', 'lifting_certificate', 'calibration', 'general'] as const;
+const MINI_INPUT =
+  'h-9 rounded-button-sm border border-line/40 bg-paper px-2 text-sm outline-none focus:border-ink';
 
 const STAMP = 'inline-block rounded-stamp border px-2 py-[2px] font-mono text-[10px] uppercase tracking-[1.5px]';
 const STATUS_STYLE: Record<string, string> = {
@@ -24,6 +34,8 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
   const { id } = await params;
   const t = await getTranslations('tools');
   const tActPdf = await getTranslations('actPdf');
+  const tWriteoff = await getTranslations('writeoff');
+  const tComm = await getTranslations('commissioning');
 
   const supabase = await getSupabaseServer();
   const { data: tool } = await supabase
@@ -46,7 +58,7 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
 
   if (!tool) notFound();
 
-  const [{ data: components }, { data: movements }, { data: repairs }, { data: photoRows }] = await Promise.all([
+  const [{ data: components }, { data: movements }, { data: repairs }, { data: photoRows }, { data: inspections }] = await Promise.all([
     supabase
       .from('tool_components')
       .select('id, name, quantity, status, notes')
@@ -74,6 +86,11 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
       .eq('tool_id', id)
       .order('taken_at', { ascending: false })
       .limit(9),
+    supabase
+      .from('inspection_schedules')
+      .select('id, inspection_type, interval_months, next_due')
+      .eq('tool_id', id)
+      .order('next_due'),
   ]);
 
   const photoPaths = (photoRows ?? []).map((p) => p.storage_path);
@@ -138,14 +155,24 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
             ) : null}
           </div>
         </div>
-        {canEdit ? (
-          <Link
-            href={`/tools/${tool.id}/edit`}
-            className="flex h-11 items-center rounded-button border border-line/40 px-6 text-sm font-semibold hover:bg-white"
-          >
-            {t('detail.edit')}
-          </Link>
-        ) : null}
+        <div className="flex items-center gap-3">
+          {['owner', 'admin'].includes(ctx.activeOrg.role) && tool.status !== 'written_off' ? (
+            <Link
+              href={`/tools/${tool.id}/write-off`}
+              className="flex h-11 items-center rounded-button border border-hot/50 px-6 text-sm font-semibold text-hot hover:bg-hot/10"
+            >
+              {tWriteoff('cta')}
+            </Link>
+          ) : null}
+          {canEdit ? (
+            <Link
+              href={`/tools/${tool.id}/edit`}
+              className="flex h-11 items-center rounded-button border border-line/40 px-6 text-sm font-semibold hover:bg-white"
+            >
+              {t('detail.edit')}
+            </Link>
+          ) : null}
+        </div>
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-3">
@@ -240,13 +267,87 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
               {components.map((c) => (
                 <li key={c.id} className="flex items-center justify-between gap-2 text-sm">
                   <span className="font-medium">{c.name}</span>
-                  <span className="font-mono text-xs text-dim">{`×${c.quantity}`}</span>
+                  <span className="flex items-center gap-2">
+                    <span className="font-mono text-xs text-dim">{`×${c.quantity}`}</span>
+                    {canEdit ? (
+                      <form action={removeComponentAction}>
+                        <input type="hidden" name="toolId" value={tool.id} />
+                        <input type="hidden" name="componentId" value={c.id} />
+                        <button
+                          type="submit"
+                          className="rounded-button-sm border border-line/40 px-2 py-0.5 font-mono text-[10px] uppercase tracking-[1px] text-dim hover:bg-paper"
+                        >
+                          {tComm('componentRemove')}
+                        </button>
+                      </form>
+                    ) : null}
+                  </span>
                 </li>
               ))}
             </ul>
           ) : (
             <p className="mt-3 text-sm text-dim">{t('detail.emptySection')}</p>
           )}
+          {canEdit ? (
+            <form action={addComponentAction} className="mt-3 flex items-end gap-2 border-t border-line/20 pt-3">
+              <input type="hidden" name="toolId" value={tool.id} />
+              <input
+                name="name"
+                required
+                placeholder={tComm('componentName')}
+                className={`${MINI_INPUT} min-w-0 flex-1`}
+              />
+              <input
+                name="qty"
+                type="number"
+                min="1"
+                defaultValue={1}
+                className={`${MINI_INPUT} w-16`}
+              />
+              <button
+                type="submit"
+                className="h-9 rounded-button-sm bg-ink px-3 text-xs font-semibold text-paper hover:bg-panel"
+              >
+                {tComm('componentsAdd')}
+              </button>
+            </form>
+          ) : null}
+
+          <h2 className="mt-5 font-mono text-xs uppercase tracking-[1.5px] text-dim">
+            {tComm('inspectionsTitle')}
+          </h2>
+          {inspections && inspections.length > 0 ? (
+            <ul className="mt-2 space-y-1">
+              {inspections.map((inspection) => (
+                <li key={inspection.id} className="flex items-center justify-between text-sm">
+                  <span>{tComm(`types.${inspection.inspection_type}` as Parameters<typeof tComm>[0])}</span>
+                  <span className="font-mono text-xs text-dim">{inspection.next_due}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-2 text-sm text-dim">{t('detail.emptySection')}</p>
+          )}
+          {canEdit ? (
+            <form action={addInspectionAction} className="mt-3 flex flex-wrap items-end gap-2 border-t border-line/20 pt-3">
+              <input type="hidden" name="toolId" value={tool.id} />
+              <select name="itype" className={MINI_INPUT}>
+                {INSPECTION_TYPES.map((type) => (
+                  <option key={type} value={type}>
+                    {tComm(`types.${type}`)}
+                  </option>
+                ))}
+              </select>
+              <input name="months" type="number" min="1" defaultValue={12} className={`${MINI_INPUT} w-16`} />
+              <input name="due" type="date" required className={MINI_INPUT} />
+              <button
+                type="submit"
+                className="h-9 rounded-button-sm bg-ink px-3 text-xs font-semibold text-paper hover:bg-panel"
+              >
+                {tComm('inspectionAdd')}
+              </button>
+            </form>
+          ) : null}
           {tool.notes ? (
             <>
               <h2 className="mt-5 font-mono text-xs uppercase tracking-[1.5px] text-dim">
@@ -258,11 +359,29 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
         </section>
       </div>
 
-      {photos.length > 0 ? (
+      {photos.length > 0 || canEdit ? (
         <section className="mt-6 rounded-card border border-line/30 bg-white p-4">
           <h2 className="font-mono text-xs uppercase tracking-[1.5px] text-dim">
             {t('detail.photosTitle')}
           </h2>
+          {canEdit ? (
+            <form action={addToolPhotoAction} className="mt-3 flex items-center gap-2">
+              <input type="hidden" name="toolId" value={tool.id} />
+              <input
+                name="photo"
+                type="file"
+                accept="image/jpeg,image/png"
+                required
+                className="text-sm file:mr-2 file:h-9 file:rounded-button-sm file:border file:border-line/40 file:bg-paper file:px-3 file:text-xs file:font-semibold"
+              />
+              <button
+                type="submit"
+                className="h-9 rounded-button-sm bg-ink px-3 text-xs font-semibold text-paper hover:bg-panel"
+              >
+                {tComm('photoAdd')}
+              </button>
+            </form>
+          ) : null}
           <div className="mt-3 grid grid-cols-3 gap-3 sm:grid-cols-4 lg:grid-cols-6">
             {photos.map((photo) => (
               <a key={photo.id} href={photo.url!} target="_blank" className="block">

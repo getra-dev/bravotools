@@ -48,6 +48,65 @@
     "map": "Map",
     "members": "Members"
   },
+  "inventory": {
+    "title": "Stocktakes",
+    "colLocation": "Location",
+    "colStatus": "Status",
+    "colStarted": "Started",
+    "colResult": "Result",
+    "openStamp": "In progress",
+    "closedStamp": "Closed",
+    "empty": "No stocktakes yet — start one from the mobile app",
+    "summary": "Found {found} · wrong place {misplaced} · missing {missing}",
+    "detailTitle": "Stocktake",
+    "scansTitle": "Scanned",
+    "missingTitle": "Missing",
+    "foundStamp": "Found",
+    "misplacedStamp": "Wrong place",
+    "markedLost": "Missing tools were marked LOST",
+    "pdf": "PDF report"
+  },
+  "writeoff": {
+    "cta": "Write off",
+    "title": "Write off tool",
+    "reason": "Reason",
+    "reasons": {
+      "broken": "Broken beyond repair",
+      "lost": "Lost",
+      "stolen": "Stolen",
+      "worn_out": "Worn out"
+    },
+    "note": "Note",
+    "photo": "Evidence photo (optional)",
+    "confirm": "Write off",
+    "cancel": "Cancel",
+    "warning": "The tool becomes unusable in the system. This is recorded in the movement history and cannot be undone from the UI.",
+    "billableHint": "Held by a subcontractor — the loss will surface in recharging (E3)",
+    "errors": {
+      "not_allowed": "Only the owner or admin can write off tools",
+      "already_written_off": "This tool is already written off",
+      "save_failed": "Could not save — try again"
+    }
+  },
+  "commissioning": {
+    "componentsAdd": "Add component",
+    "componentName": "Name",
+    "componentQty": "Qty",
+    "componentRemove": "Remove",
+    "inspectionsTitle": "Inspections",
+    "inspectionAdd": "Add inspection",
+    "inspectionType": "Type",
+    "inspectionMonths": "Interval (months)",
+    "inspectionDue": "Next due",
+    "types": {
+      "electrical_safety": "Electrical safety",
+      "lifting_certificate": "Lifting certificate",
+      "calibration": "Calibration",
+      "general": "General"
+    },
+    "photoAdd": "Upload photo",
+    "photoLabel": "Tool photo (jpg)"
+  },
   "map": {
     "title": "Map",
     "toolsHere": "{count} tools",
@@ -358,7 +417,25 @@
       "outboxStamp": "Waiting to sync: {count}",
       "syncNow": "Sync now",
       "remindersTitle": "Reminders",
-      "markAllRead": "Mark all as read"
+      "markAllRead": "Mark all as read",
+      "inventoryCta": "Stocktake"
+    },
+    "inventory": {
+      "title": "Stocktake",
+      "pickLocation": "Which location are you auditing?",
+      "scanPrompt": "Scan every tool you physically see here",
+      "foundStamp": "Found",
+      "misplacedStamp": "Wrong place",
+      "remaining": "Left: {count}",
+      "found": "Found: {count}",
+      "misplaced": "Wrong place: {count}",
+      "searchFallback": "No sticker? Search",
+      "finish": "Finish audit",
+      "markMissingLost": "Mark unscanned tools as LOST",
+      "summaryTitle": "Audit finished",
+      "summary": "Found {found} · wrong place {misplaced} · missing {missing}",
+      "alreadyOpen": "An audit is already open for this location",
+      "failed": "Could not save — try again"
     },
     "countersign": {
       "title": "Review and sign",

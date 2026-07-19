@@ -45,12 +45,14 @@ export function MyScreen({
   onScan,
   onCountersign,
   onOpenTool,
+  onInventory,
   onSignOut,
 }: {
   userId: string;
   onScan: () => void;
   onCountersign: (actId: string) => void;
   onOpenTool: (toolId: string) => void;
+  onInventory: () => void;
   onSignOut: () => void;
 }) {
   const { t } = useTranslation();
@@ -59,6 +61,7 @@ export function MyScreen({
   const [tools, setTools] = useState<HeldTool[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [outbox, setOutbox] = useState(pendingCount());
+  const [isSupply, setIsSupply] = useState(false);
 
   useEffect(() => onOutboxChange(() => setOutbox(pendingCount())), []);
 
@@ -73,6 +76,7 @@ export function MyScreen({
         .filter((m) => ['owner', 'admin', 'supply_manager'].includes(m.role))
         .map((m) => m.org_id),
     );
+    setIsSupply(supplyOrgs.size > 0);
 
     const { data: acts } = await supabase
       .from('handover_acts')
@@ -367,6 +371,11 @@ export function MyScreen({
         })
       )}
 
+      {isSupply ? (
+        <Pressable style={ui.secondaryButton} onPress={onInventory}>
+          <Text style={ui.secondaryButtonText}>{t('mobile.my.inventoryCta')}</Text>
+        </Pressable>
+      ) : null}
       <Pressable style={ui.secondaryButton} onPress={onSignOut}>
         <Text style={ui.secondaryButtonText}>{t('mobile.scan.signOut')}</Text>
       </Pressable>

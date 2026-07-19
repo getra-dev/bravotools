@@ -14,6 +14,7 @@ import { SearchScreen } from './src/screens/SearchScreen';
 import { ToolScreen } from './src/screens/ToolScreen';
 import { HandoverWizard } from './src/screens/HandoverWizard';
 import { CountersignScreen } from './src/screens/CountersignScreen';
+import { InventoryScreen } from './src/screens/InventoryScreen';
 import { UnknownCodeScreen } from './src/screens/UnknownCodeScreen';
 import { fetchToolById } from './src/lib/tools';
 import type { HandoverAction, ScannedTool } from './src/types';
@@ -25,6 +26,7 @@ type Route =
   | { name: 'tool'; tool: ScannedTool }
   | { name: 'handover'; tool: ScannedTool; action: HandoverAction }
   | { name: 'countersign'; actId: string }
+  | { name: 'inventory' }
   | { name: 'unknown'; code: string };
 
 export default function App() {
@@ -101,6 +103,8 @@ export default function App() {
       content = (
         <CountersignScreen actId={route.actId} onDone={() => setRoute({ name: 'my' })} />
       );
+    } else if (route.name === 'inventory') {
+      content = <InventoryScreen onDone={() => setRoute({ name: 'my' })} />;
     } else if (route.name === 'unknown') {
       content = (
         <UnknownCodeScreen code={route.code} onScanAgain={() => setRoute({ name: 'scan' })} />
@@ -116,6 +120,7 @@ export default function App() {
               if (tool) setRoute({ name: 'tool', tool });
             });
           }}
+          onInventory={() => setRoute({ name: 'inventory' })}
           onSignOut={() => void supabase.auth.signOut()}
         />
       );

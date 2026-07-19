@@ -48,6 +48,65 @@
     "map": "Žemėlapis",
     "members": "Nariai"
   },
+  "inventory": {
+    "title": "Inventorizacijos",
+    "colLocation": "Lokacija",
+    "colStatus": "Būsena",
+    "colStarted": "Pradėta",
+    "colResult": "Rezultatas",
+    "openStamp": "Vyksta",
+    "closedStamp": "Uždaryta",
+    "empty": "Inventorizacijų dar nebuvo — pradėk iš mobilios programėlės",
+    "summary": "Rasta {found} · ne vietoje {misplaced} · trūksta {missing}",
+    "detailTitle": "Inventorizacija",
+    "scansTitle": "Nuskenuota",
+    "missingTitle": "Trūksta",
+    "foundStamp": "Rasta",
+    "misplacedStamp": "Ne vietoje",
+    "markedLost": "Trūkstami įrankiai pažymėti DINGUSIAIS",
+    "pdf": "PDF ataskaita"
+  },
+  "writeoff": {
+    "cta": "Nurašyti",
+    "title": "Nurašyti įrankį",
+    "reason": "Priežastis",
+    "reasons": {
+      "broken": "Sulūžęs nepataisomai",
+      "lost": "Dingęs",
+      "stolen": "Pavogtas",
+      "worn_out": "Nusidėvėjęs"
+    },
+    "note": "Pastaba",
+    "photo": "Įrodymo nuotrauka (nebūtina)",
+    "confirm": "Nurašyti",
+    "cancel": "Atšaukti",
+    "warning": "Įrankis sistemoje taps nebenaudojamas. Tai įrašoma į judėjimo istoriją ir iš UI neatšaukiama.",
+    "billableHint": "Laikomas subrangovo — nuostolis pateks į persąskaitinimą (E3)",
+    "errors": {
+      "not_allowed": "Nurašyti gali tik savininkas arba administratorius",
+      "already_written_off": "Šis įrankis jau nurašytas",
+      "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+    }
+  },
+  "commissioning": {
+    "componentsAdd": "Pridėti komponentą",
+    "componentName": "Pavadinimas",
+    "componentQty": "Kiekis",
+    "componentRemove": "Pašalinti",
+    "inspectionsTitle": "Patikros",
+    "inspectionAdd": "Pridėti patikrą",
+    "inspectionType": "Tipas",
+    "inspectionMonths": "Intervalas (mėn.)",
+    "inspectionDue": "Kita patikra",
+    "types": {
+      "electrical_safety": "Varžų patikra",
+      "lifting_certificate": "Kėlimo sertifikatas",
+      "calibration": "Kalibravimas",
+      "general": "Bendra"
+    },
+    "photoAdd": "Įkelti nuotrauką",
+    "photoLabel": "Įrankio nuotrauka (jpg)"
+  },
   "map": {
     "title": "Žemėlapis",
     "toolsHere": "Įrankių: {count}",
@@ -358,7 +417,25 @@
       "outboxStamp": "Laukia sinchronizacijos: {count}",
       "syncNow": "Sinchronizuoti dabar",
       "remindersTitle": "Priminimai",
-      "markAllRead": "Pažymėti visus skaitytais"
+      "markAllRead": "Pažymėti visus skaitytais",
+      "inventoryCta": "Inventorizacija"
+    },
+    "inventory": {
+      "title": "Inventorizacija",
+      "pickLocation": "Kurią lokaciją tikrini?",
+      "scanPrompt": "Skenuok kiekvieną įrankį, kurį fiziškai matai čia",
+      "foundStamp": "Rasta",
+      "misplacedStamp": "Ne savo vietoje",
+      "remaining": "Liko: {count}",
+      "found": "Rasta: {count}",
+      "misplaced": "Ne vietoje: {count}",
+      "searchFallback": "Nėra lipduko? Ieškok",
+      "finish": "Užbaigti inventorizaciją",
+      "markMissingLost": "Nenuskenuotus žymėti kaip DINGUSIUS",
+      "summaryTitle": "Inventorizacija baigta",
+      "summary": "Rasta {found} · ne vietoje {misplaced} · trūksta {missing}",
+      "alreadyOpen": "Šiai lokacijai inventorizacija jau pradėta",
+      "failed": "Nepavyko išsaugoti — bandyk dar kartą"
     },
     "countersign": {
       "title": "Peržiūrėk ir pasirašyk",

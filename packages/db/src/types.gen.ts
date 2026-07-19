@@ -785,6 +785,120 @@ export type Database = {
           },
         ]
       }
+      inventory_scans: {
+        Row: {
+          expected_location_id: string | null
+          id: string
+          result: string
+          scanned_at: string
+          scanned_by: string
+          session_id: string
+          tool_id: string
+        }
+        Insert: {
+          expected_location_id?: string | null
+          id?: string
+          result: string
+          scanned_at?: string
+          scanned_by: string
+          session_id: string
+          tool_id: string
+        }
+        Update: {
+          expected_location_id?: string | null
+          id?: string
+          result?: string
+          scanned_at?: string
+          scanned_by?: string
+          session_id?: string
+          tool_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_scans_expected_location_id_fkey"
+            columns: ["expected_location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_scans_scanned_by_fkey"
+            columns: ["scanned_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_scans_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_scans_tool_id_fkey"
+            columns: ["tool_id"]
+            isOneToOne: false
+            referencedRelation: "tools"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_sessions: {
+        Row: {
+          closed_at: string | null
+          id: string
+          location_id: string
+          org_id: string
+          report: Json | null
+          started_at: string
+          started_by: string
+          status: string
+        }
+        Insert: {
+          closed_at?: string | null
+          id?: string
+          location_id: string
+          org_id: string
+          report?: Json | null
+          started_at?: string
+          started_by: string
+          status?: string
+        }
+        Update: {
+          closed_at?: string | null
+          id?: string
+          location_id?: string
+          org_id?: string
+          report?: Json | null
+          started_at?: string
+          started_by?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "inventory_sessions_location_id_fkey"
+            columns: ["location_id"]
+            isOneToOne: false
+            referencedRelation: "locations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_sessions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "inventory_sessions_started_by_fkey"
+            columns: ["started_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       locations: {
         Row: {
           address: string | null
@@ -3206,6 +3320,28 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      add_inspection_schedule: {
+        Args: {
+          due: string
+          itype: string
+          months: number
+          target_tool: string
+        }
+        Returns: string
+      }
+      add_tool_component: {
+        Args: {
+          component_name: string
+          component_qty?: number
+          serial?: string
+          target_tool: string
+        }
+        Returns: string
+      }
+      add_tool_photo: {
+        Args: { path: string; target_tool: string }
+        Returns: undefined
+      }
       assert_location_editor: {
         Args: { target_org: string }
         Returns: undefined
@@ -3214,6 +3350,10 @@ export type Database = {
       assign_site_member: {
         Args: { manager?: boolean; target_site: string; target_user: string }
         Returns: undefined
+      }
+      close_inventory_session: {
+        Args: { mark_missing_lost?: boolean; target_session: string }
+        Returns: Json
       }
       countersign_handover: {
         Args: { act_id: string; note?: string; signature_path: string }
@@ -3252,21 +3392,55 @@ export type Database = {
         Returns: undefined
       }
       perform_handover: { Args: { args: Json }; Returns: Json }
+      record_inventory_scan: {
+        Args: { target_session: string; target_tool: string }
+        Returns: Json
+      }
+      remind: {
+        Args: {
+          e_id: string
+          e_type: string
+          kind: string
+          r_body: string
+          r_title: string
+          target_org: string
+          target_user: string
+        }
+        Returns: undefined
+      }
       remove_site_assignment: {
         Args: { target_site: string; target_user: string }
         Returns: undefined
       }
+      remove_tool_component: {
+        Args: { component_id: string }
+        Returns: undefined
+      }
+      run_daily_reminders: { Args: never; Returns: Json }
       set_act_pdf_path: {
         Args: { act_id: string; pdf_path: string }
         Returns: undefined
       }
       shares_org_with: { Args: { other: string }; Returns: boolean }
+      start_inventory_session: {
+        Args: { target_location: string }
+        Returns: string
+      }
       update_location: {
         Args: { location_id: string; payload: Json }
         Returns: undefined
       }
       update_tool: {
         Args: { payload: Json; tool_id: string }
+        Returns: undefined
+      }
+      write_off_tool: {
+        Args: {
+          note?: string
+          photo_paths?: Json
+          reason: string
+          target_tool: string
+        }
         Returns: undefined
       }
     }
