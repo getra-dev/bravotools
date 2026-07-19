@@ -3,8 +3,10 @@ import { Platform, SafeAreaView, StatusBar as RNStatusBar, View } from 'react-na
 import { StatusBar } from 'expo-status-bar';
 import type { Session } from '@supabase/supabase-js';
 import { rnTheme } from '@bravotools/theme';
+import * as Network from 'expo-network';
 import './src/i18n';
 import { supabase } from './src/lib/supabase';
+import { syncOutbox } from './src/lib/outbox';
 import { LoginScreen } from './src/screens/LoginScreen';
 import { MyScreen } from './src/screens/MyScreen';
 import { ScanScreen } from './src/screens/ScanScreen';
@@ -42,6 +44,20 @@ export default function App() {
     });
     return () => subscription.unsubscribe();
   }, []);
+
+  // SPEC 2.6: replay the outbox when connectivity returns + on a slow tick
+  useEffect(() => {
+    if (!session) return;
+    void syncOutbox();
+    const networkSub = Network.addNetworkStateListener((state) => {
+      if (state.isConnected) void syncOutbox();
+    });
+    const timer = setInterval(() => void syncOutbox(), 30_000);
+    return () => {
+      networkSub.remove();
+      clearInterval(timer);
+    };
+  }, [session]);
 
   let content = null;
   if (ready) {

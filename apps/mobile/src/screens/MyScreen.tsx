@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Pressable, RefreshControl, ScrollView, Text, View } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
+import { onOutboxChange, pendingCount, syncOutbox } from '../lib/outbox';
 import { theme, ui } from '../ui';
 
 export type PendingAct = {
@@ -45,6 +46,9 @@ export function MyScreen({
   const [pending, setPending] = useState<PendingAct[]>([]);
   const [tools, setTools] = useState<HeldTool[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [outbox, setOutbox] = useState(pendingCount());
+
+  useEffect(() => onOutboxChange(() => setOutbox(pendingCount())), []);
 
   const load = useCallback(async () => {
     // roles per org (for supply-side return confirmations)
@@ -162,6 +166,31 @@ export function MyScreen({
       <Pressable style={[ui.primaryButton, { minHeight: 64 }]} onPress={onScan}>
         <Text style={[ui.primaryButtonText, { fontSize: 18 }]}>{t('mobile.my.scanCta')}</Text>
       </Pressable>
+
+      {outbox > 0 ? (
+        <Pressable
+          onPress={() => {
+            void syncOutbox().then(() => {
+              setOutbox(pendingCount());
+              void load();
+            });
+          }}
+          style={{
+            marginTop: theme.spacing.md,
+            borderRadius: theme.radius.button,
+            borderWidth: 1,
+            borderColor: theme.colors.steel,
+            padding: theme.spacing.lg,
+          }}
+        >
+          <Text style={[ui.stampText, { color: theme.colors.steel }]}>
+            {t('mobile.my.outboxStamp', { count: outbox })}
+          </Text>
+          <Text style={{ color: theme.colors.paper, fontWeight: '700', marginTop: 4 }}>
+            {t('mobile.my.syncNow')}
+          </Text>
+        </Pressable>
+      ) : null}
 
       <Text style={ui.label}>{t('mobile.my.pendingTitle')}</Text>
       {pending.length === 0 ? (

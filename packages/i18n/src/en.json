@@ -335,7 +335,9 @@
       "rentalDueStamp": "Return by {date}",
       "rentalOverdueStamp": "Overdue {days} d.",
       "scanCta": "Scan",
-      "initiatedBy": "{name} · {date}"
+      "initiatedBy": "{name} · {date}",
+      "outboxStamp": "Waiting to sync: {count}",
+      "syncNow": "Sync now"
     },
     "countersign": {
       "title": "Review and sign",
@@ -394,6 +396,8 @@
       "successTitle": "Act signed",
       "successBody": "Handover act {act} is saved. The PDF is available in the web console.",
       "backHome": "Back to home",
+      "queuedTitle": "Saved offline",
+      "queuedBody": "No connection — the handover is stored on this phone and will sync automatically when you are back online. The act gets its number after sync.",
       "failed": "Could not save the handover — check connection and try again",
       "uploadFailed": "Photo upload failed — try again"
     },

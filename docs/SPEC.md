@@ -113,6 +113,11 @@ server-side when online (react-pdf), stored, linked.
 - AC: airplane-mode full handover, reconnect → all rows + PDF appear; double
   sync produces zero duplicates.
 
+- 2.6 IMPLEMENTATION NOTE (2026-07-19): sync replays the SAME idempotent
+  RPCs (initiate/perform, keyed by client movement uuid) instead of a
+  separate /api/sync endpoint — identical guarantees (inserts only,
+  duplicate uuid = skip), one code path fewer to maintain.
+
 ### 2.7 Push & reminders (E1 scope)
 - OWNER AMENDMENT (2026-07-19): + missing_components notification to supply
   manager/admin/owner when a return flags lost components (see 2.4c);

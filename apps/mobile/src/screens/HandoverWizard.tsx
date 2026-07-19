@@ -15,6 +15,7 @@ import * as FileSystem from 'expo-file-system/legacy';
 import * as ExpoCrypto from 'expo-crypto';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
+import { enqueueHandover, isOffline, type HandoverJob } from '../lib/outbox';
 import { theme, ui } from '../ui';
 import { SignaturePad } from '../components/SignaturePad';
 import { CameraModal } from '../components/CameraModal';
@@ -102,12 +103,23 @@ export function HandoverWizard({
   const [error, setError] = useState<string | null>(null);
   const [actNumber, setActNumber] = useState<string | null>(null);
   const [pendingDone, setPendingDone] = useState(false);
+  const [queued, setQueued] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const remote =
     action === 'checkin' ? tool.external_holder === null : receiver?.kind !== 'external';
   const steps = stepsFor(action, tool.tracks_engine_hours, remote);
-  const step: Step = actNumber ? 'done' : saving ? 'saving' : steps[stepIndex];
+  const step: Step = actNumber || queued ? 'done' : saving ? 'saving' : steps[stepIndex];
+
+  const BUSINESS_ERRORS = [
+    'not_authenticated', 'not_allowed', 'invalid_action', 'tool_not_available',
+    'tool_not_checked_out', 'receiver_required', 'not_the_holder',
+    'photo_required', 'signatures_required', 'not_found',
+  ];
+  function isBusinessError(err: unknown): boolean {
+    const message = err instanceof Error ? err.message : String(err);
+    return BUSINESS_ERRORS.some((code) => message.includes(code));
+  }
   const title =
     action === 'checkout'
       ? t('mobile.handover.titleCheckout')
@@ -163,68 +175,108 @@ export function HandoverWizard({
     if (uploadError) throw new Error('upload_failed');
   }
 
-  async function submit(receiverSig: SignatureStrokes) {
-    setSaving(true);
-    setError(null);
+  // photos in job order: general first, then per-component (the outbox names
+  // them 1..N.jpg in this order when replaying)
+  function jobPhotos(): { uri: string; component_id?: string }[] {
+    return [
+      ...photos.map((uri) => ({ uri })),
+      ...Object.entries(componentPhotos).map(([componentId, uri]) => ({
+        uri,
+        component_id: componentId,
+      })),
+    ];
+  }
+
+  async function uploadJobAssets(job: HandoverJob): Promise<{ storage_path: string; component_id?: string }[]> {
+    const photoItems: { storage_path: string; component_id?: string }[] = [];
+    for (let i = 0; i < job.photos.length; i += 1) {
+      const photo = job.photos[i];
+      const b64 = await FileSystem.readAsStringAsync(photo.uri, { encoding: 'base64' });
+      const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+      const path = `${job.org_id}/${job.tool_id}/${job.movement_id}/${i + 1}.jpg`;
+      await uploadBytes('tool-photos', path, bytes, 'image/jpeg');
+      photoItems.push(
+        photo.component_id
+          ? { storage_path: path, component_id: photo.component_id }
+          : { storage_path: path },
+      );
+    }
+    for (const sig of job.signatures) {
+      await uploadBytes(
+        'signatures',
+        `${job.org_id}/acts/${job.act_id}/${sig.name}.json`,
+        utf8Bytes(sig.json),
+        'application/json',
+      );
+    }
+    return photoItems;
+  }
+
+  async function runOrQueue(job: HandoverJob, onSuccess: (actNo: string) => void) {
     try {
-      const movementId = ExpoCrypto.randomUUID();
-      const actId = ExpoCrypto.randomUUID();
-      const gps = await captureGps();
-
-      const photoItems: { storage_path: string; component_id?: string }[] = [];
-      const uploadPhoto = async (uri: string, name: string, componentId?: string) => {
-        const b64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
-        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-        const path = `${tool.org_id}/${tool.id}/${movementId}/${name}.jpg`;
-        await uploadBytes('tool-photos', path, bytes, 'image/jpeg');
-        photoItems.push(componentId ? { storage_path: path, component_id: componentId } : { storage_path: path });
-      };
-      for (let i = 0; i < photos.length; i += 1) {
-        await uploadPhoto(photos[i], String(i + 1));
-      }
-      const componentEntries = Object.entries(componentPhotos);
-      for (let i = 0; i < componentEntries.length; i += 1) {
-        const [componentId, uri] = componentEntries[i];
-        await uploadPhoto(uri, `c${i + 1}`, componentId);
-      }
-
-      const giverPath = `${tool.org_id}/acts/${actId}/giver.json`;
-      const receiverPath = `${tool.org_id}/acts/${actId}/receiver.json`;
-      await uploadBytes('signatures', giverPath, utf8Bytes(JSON.stringify(giverSig)), 'application/json');
-      await uploadBytes('signatures', receiverPath, utf8Bytes(JSON.stringify(receiverSig)), 'application/json');
-
-      const { data, error: rpcError } = await supabase.rpc('perform_handover', {
-        args: {
-          movement_id: movementId,
-          act_id: actId,
-          tool_id: tool.id,
-          action,
-          receiver_profile_id: receiver?.kind === 'profile' ? receiver.id : '',
-          receiver_external_id: receiver?.kind === 'external' ? receiver.id : '',
-          to_location_id: toLocation?.id ?? '',
-          engine_hours: tool.tracks_engine_hours ? engineHours.replace(',', '.') : '',
-          gps_lat: gps.lat === null ? '' : String(gps.lat),
-          gps_lng: gps.lng === null ? '' : String(gps.lng),
-          giver_note: giverNote,
-          receiver_note: receiverNote,
-          components: checklist.map((c) => ({
-            component_id: c.component_id,
-            included: c.included,
-            condition_note: c.condition_note,
-          })),
-          photos: photoItems,
-          giver_signature_path: giverPath,
-          receiver_signature_path: receiverPath,
-          performed_at: new Date().toISOString(),
-        },
-      });
+      if (await isOffline()) throw new Error('offline');
+      const photoItems = await uploadJobAssets(job);
+      const args = { ...job.args, photos: photoItems } as never;
+      const { data, error: rpcError } =
+        job.mode === 'initiate'
+          ? await supabase.rpc('initiate_handover', { args })
+          : await supabase.rpc('perform_handover', { args });
       if (rpcError) throw rpcError;
-      setActNumber((data as { act_number: string }).act_number);
-    } catch {
-      setError(t('mobile.handover.failed'));
+      onSuccess((data as { act_number: string }).act_number);
+    } catch (err) {
+      if (isBusinessError(err)) {
+        setError(t('mobile.handover.failed'));
+      } else {
+        // network trouble: keep everything on the phone, sync later (SPEC 2.6)
+        enqueueHandover(job);
+        setQueued(true);
+      }
     } finally {
       setSaving(false);
     }
+  }
+
+  async function submit(receiverSig: SignatureStrokes) {
+    setSaving(true);
+    setError(null);
+    const movementId = ExpoCrypto.randomUUID();
+    const actId = ExpoCrypto.randomUUID();
+    const gps = await captureGps();
+    const job: HandoverJob = {
+      mode: 'perform',
+      org_id: tool.org_id,
+      tool_id: tool.id,
+      movement_id: movementId,
+      act_id: actId,
+      args: {
+        movement_id: movementId,
+        act_id: actId,
+        tool_id: tool.id,
+        action,
+        receiver_profile_id: receiver?.kind === 'profile' ? receiver.id : '',
+        receiver_external_id: receiver?.kind === 'external' ? receiver.id : '',
+        to_location_id: toLocation?.id ?? '',
+        engine_hours: tool.tracks_engine_hours ? engineHours.replace(',', '.') : '',
+        gps_lat: gps.lat === null ? '' : String(gps.lat),
+        gps_lng: gps.lng === null ? '' : String(gps.lng),
+        giver_note: giverNote,
+        receiver_note: receiverNote,
+        components: checklist.map((c) => ({
+          component_id: c.component_id,
+          included: c.included,
+          condition_note: c.condition_note,
+        })),
+        giver_signature_path: `${tool.org_id}/acts/${actId}/giver.json`,
+        receiver_signature_path: `${tool.org_id}/acts/${actId}/receiver.json`,
+        performed_at: new Date().toISOString(),
+      },
+      photos: jobPhotos(),
+      signatures: [
+        { name: 'giver', json: JSON.stringify(giverSig) },
+        { name: 'receiver', json: JSON.stringify(receiverSig) },
+      ],
+    };
+    await runOrQueue(job, (actNo) => setActNumber(actNo));
   }
 
   // remote path (ADR-015): initiator signs their side only; the counterparty
@@ -232,66 +284,41 @@ export function HandoverWizard({
   async function submitInitiate(signature: SignatureStrokes) {
     setSaving(true);
     setError(null);
-    try {
-      const movementId = ExpoCrypto.randomUUID();
-      const actId = ExpoCrypto.randomUUID();
-      const gps = await captureGps();
-
-      const photoItems: { storage_path: string; component_id?: string }[] = [];
-      const uploadPhoto = async (uri: string, name: string, componentId?: string) => {
-        const b64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
-        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
-        const path = `${tool.org_id}/${tool.id}/${movementId}/${name}.jpg`;
-        await uploadBytes('tool-photos', path, bytes, 'image/jpeg');
-        photoItems.push(componentId ? { storage_path: path, component_id: componentId } : { storage_path: path });
-      };
-      for (let i = 0; i < photos.length; i += 1) {
-        await uploadPhoto(photos[i], String(i + 1));
-      }
-      const componentEntries = Object.entries(componentPhotos);
-      for (let i = 0; i < componentEntries.length; i += 1) {
-        const [componentId, uri] = componentEntries[i];
-        await uploadPhoto(uri, `c${i + 1}`, componentId);
-      }
-
-      const signaturePath = `${tool.org_id}/acts/${actId}/initiator.json`;
-      await uploadBytes(
-        'signatures',
-        signaturePath,
-        utf8Bytes(JSON.stringify(signature)),
-        'application/json',
-      );
-
-      const { data, error: rpcError } = await supabase.rpc('initiate_handover', {
-        args: {
-          movement_id: movementId,
-          act_id: actId,
-          tool_id: tool.id,
-          action,
-          receiver_profile_id: receiver?.kind === 'profile' ? receiver.id : '',
-          to_location_id: toLocation?.id ?? '',
-          engine_hours: tool.tracks_engine_hours ? engineHours.replace(',', '.') : '',
-          gps_lat: gps.lat === null ? '' : String(gps.lat),
-          gps_lng: gps.lng === null ? '' : String(gps.lng),
-          note: giverNote,
-          components: checklist.map((c) => ({
-            component_id: c.component_id,
-            included: c.included,
-            condition_note: c.condition_note,
-          })),
-          photos: photoItems,
-          signature_path: signaturePath,
-          performed_at: new Date().toISOString(),
-        },
-      });
-      if (rpcError) throw rpcError;
+    const movementId = ExpoCrypto.randomUUID();
+    const actId = ExpoCrypto.randomUUID();
+    const gps = await captureGps();
+    const job: HandoverJob = {
+      mode: 'initiate',
+      org_id: tool.org_id,
+      tool_id: tool.id,
+      movement_id: movementId,
+      act_id: actId,
+      args: {
+        movement_id: movementId,
+        act_id: actId,
+        tool_id: tool.id,
+        action,
+        receiver_profile_id: receiver?.kind === 'profile' ? receiver.id : '',
+        to_location_id: toLocation?.id ?? '',
+        engine_hours: tool.tracks_engine_hours ? engineHours.replace(',', '.') : '',
+        gps_lat: gps.lat === null ? '' : String(gps.lat),
+        gps_lng: gps.lng === null ? '' : String(gps.lng),
+        note: giverNote,
+        components: checklist.map((c) => ({
+          component_id: c.component_id,
+          included: c.included,
+          condition_note: c.condition_note,
+        })),
+        signature_path: `${tool.org_id}/acts/${actId}/initiator.json`,
+        performed_at: new Date().toISOString(),
+      },
+      photos: jobPhotos(),
+      signatures: [{ name: 'initiator', json: JSON.stringify(signature) }],
+    };
+    await runOrQueue(job, (actNo) => {
       setPendingDone(true);
-      setActNumber((data as { act_number: string }).act_number);
-    } catch {
-      setError(t('mobile.handover.failed'));
-    } finally {
-      setSaving(false);
-    }
+      setActNumber(actNo);
+    });
   }
 
   const holderName =
@@ -429,20 +456,34 @@ export function HandoverWizard({
             <Text style={[ui.value, { marginTop: 16 }]}>{t('mobile.handover.saving')}</Text>
           </View>
         ) : null}
-        {step === 'done' && actNumber ? (
+        {step === 'done' ? (
           <View style={{ marginTop: 32 }}>
-            <View style={[ui.stamp, { borderColor: pendingDone ? theme.colors.hi : theme.colors.ok }]}>
-              <Text style={[ui.stampText, { color: pendingDone ? theme.colors.hi : theme.colors.ok }]}>
-                {pendingDone
-                  ? t('mobile.handover.pendingDoneTitle')
-                  : t('mobile.handover.successTitle')}
+            <View
+              style={[
+                ui.stamp,
+                { borderColor: queued ? theme.colors.steel : pendingDone ? theme.colors.hi : theme.colors.ok },
+              ]}
+            >
+              <Text
+                style={[
+                  ui.stampText,
+                  { color: queued ? theme.colors.steel : pendingDone ? theme.colors.hi : theme.colors.ok },
+                ]}
+              >
+                {queued
+                  ? t('mobile.handover.queuedTitle')
+                  : pendingDone
+                    ? t('mobile.handover.pendingDoneTitle')
+                    : t('mobile.handover.successTitle')}
               </Text>
             </View>
-            <Text style={[ui.title, { fontSize: 22 }]}>{actNumber}</Text>
+            {actNumber ? <Text style={[ui.title, { fontSize: 22 }]}>{actNumber}</Text> : null}
             <Text style={[ui.value, { marginTop: 8 }]}>
-              {pendingDone
-                ? t('mobile.handover.pendingDoneBody', { act: actNumber })
-                : t('mobile.handover.successBody', { act: actNumber })}
+              {queued
+                ? t('mobile.handover.queuedBody')
+                : pendingDone
+                  ? t('mobile.handover.pendingDoneBody', { act: actNumber })
+                  : t('mobile.handover.successBody', { act: actNumber })}
             </Text>
             <Pressable style={ui.primaryButton} onPress={onDone}>
               <Text style={ui.primaryButtonText}>{t('mobile.handover.backHome')}</Text>

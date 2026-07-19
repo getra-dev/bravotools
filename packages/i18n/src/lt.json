@@ -335,7 +335,9 @@
       "rentalDueStamp": "Grąžinti iki {date}",
       "rentalOverdueStamp": "Vėluojama {days} d.",
       "scanCta": "Skenuoti",
-      "initiatedBy": "{name} · {date}"
+      "initiatedBy": "{name} · {date}",
+      "outboxStamp": "Laukia sinchronizacijos: {count}",
+      "syncNow": "Sinchronizuoti dabar"
     },
     "countersign": {
       "title": "Peržiūrėk ir pasirašyk",
@@ -394,6 +396,8 @@
       "successTitle": "Aktas pasirašytas",
       "successBody": "Perdavimo aktas {act} išsaugotas. PDF rasi web pulte.",
       "backHome": "Grįžti į pradžią",
+      "queuedTitle": "Išsaugota be ryšio",
+      "queuedBody": "Ryšio nėra — perdavimas išsaugotas telefone ir susisinchronizuos automatiškai, kai atsiras tinklas. Akto numeris bus suteiktas po sinchronizacijos.",
       "failed": "Nepavyko išsaugoti perdavimo — patikrink ryšį ir bandyk dar kartą",
       "uploadFailed": "Nuotraukos įkėlimas nepavyko — bandyk dar kartą"
     },
