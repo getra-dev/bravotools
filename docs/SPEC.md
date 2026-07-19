@@ -181,6 +181,23 @@ E2 surface (or at 2.8 if a second E1 tab ships earlier).
   tool in one guided pass. Pairs with the future "ordered / in transit"
   states question (see E2 delivery_tasks).
 
+### 2.10 Rented tools lifecycle — OWNER ADDITION (2026-07-19)
+
+Rented machines are NOT our inventory but ARE our responsibility while on
+hire; the dispute-proof moments are intake and give-back:
+- **Rental intake (paėmimas):** quick-create/scan at the vendor desk with
+  ownership=rented, vendor, daily rate, due date + MANDATORY condition
+  photos and engine-hours reading at pickup. This baseline wins later
+  damage/hours disputes.
+- **Return to VENDOR (grąžinimas nuomotojui):** dedicated flow (distinct
+  from returning to our warehouse): condition photos, engine hours, target
+  = vendor location, tool → returned_to_vendor, reminders stop; the return
+  movement date becomes system_period_end evidence for E3 invoice
+  reconciliation (billed days vs actual).
+- Ordering + pickup/dropoff logistics ride on E2 delivery_tasks (3.4);
+  reconciliation itself is E3 (§4).
+- Stocktake counts active rentals normally; returned_to_vendor excluded.
+
 Definition of E1 done: Sivysta imports registry, prints stickers, and field
 crew completes real handovers offline for 2 weeks without prompting.
 
