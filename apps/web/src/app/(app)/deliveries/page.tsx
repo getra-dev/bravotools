@@ -2,7 +2,11 @@ import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSessionContext } from '@/lib/org';
-import { planDeliveryAction, assignDeliveryAction } from '@/lib/logistics-actions';
+import {
+  planDeliveryAction,
+  assignDeliveryAction,
+  setStopOrderAction,
+} from '@/lib/logistics-actions';
 
 const STAMP =
   'inline-block rounded-stamp border px-1.5 py-px font-mono text-[10px] uppercase tracking-[1px]';
@@ -35,6 +39,7 @@ export default async function DeliveriesPage({
         .from('delivery_tasks')
         .select(
           `id, status, priority, scheduled_date, est_weight_kg, est_volume_m3, requires_crane,
+           vehicle_id, stop_order,
            order:orders(order_number, is_hot),
            dropoff:locations!delivery_tasks_dropoff_location_id_fkey(name),
            vehicle:vehicles(name, capacity_kg),
@@ -80,6 +85,27 @@ export default async function DeliveriesPage({
   );
   const suggestions = new Map(suggestionEntries);
 
+  // group assigned tasks into routes = (vehicle, date) → pick list + trip sheet
+  const routeGroups = new Map<
+    string,
+    { vehicleId: string; vehicleName: string; date: string; stops: NonNullable<typeof tasks> }
+  >();
+  for (const task of tasks ?? []) {
+    if (!task.vehicle_id || !task.scheduled_date) continue;
+    const key = `${task.vehicle_id}|${task.scheduled_date}`;
+    const g = routeGroups.get(key) ?? {
+      vehicleId: task.vehicle_id,
+      vehicleName: task.vehicle?.name ?? '',
+      date: task.scheduled_date,
+      stops: [],
+    };
+    g.stops.push(task);
+    routeGroups.set(key, g);
+  }
+  for (const g of routeGroups.values()) {
+    g.stops.sort((a, b) => (a.stop_order ?? 999) - (b.stop_order ?? 999));
+  }
+
   return (
     <main>
       <h1 className="text-2xl font-extrabold tracking-tight">{t('title')}</h1>
@@ -110,6 +136,69 @@ export default async function DeliveriesPage({
                   <span className="text-hi">+ {t('plan')}</span>
                 </button>
               </form>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {/* routes = vehicle + date → pick list + trip sheet + stop order */}
+      {routeGroups.size > 0 ? (
+        <section className="mt-8">
+          <h2 className={H2}>{t('routes')}</h2>
+          <div className="mt-2 space-y-3">
+            {[...routeGroups.values()].map((g) => (
+              <div key={`${g.vehicleId}|${g.date}`} className="rounded-card border border-line/30 bg-white p-3">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-sm font-bold">
+                    {t('routeFor', { vehicle: g.vehicleName, date: g.date })}
+                  </span>
+                  <a
+                    href={`/api/deliveries/picklist?vehicle=${g.vehicleId}&date=${g.date}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="ml-auto rounded-button-sm border border-line/40 px-2.5 py-1 text-xs font-bold hover:border-ink"
+                  >
+                    {t('picklistCta')}
+                  </a>
+                  <a
+                    href={`/api/deliveries/tripsheet?vehicle=${g.vehicleId}&date=${g.date}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="rounded-button-sm border border-line/40 px-2.5 py-1 text-xs font-bold hover:border-ink"
+                  >
+                    {t('tripsheetCta')}
+                  </a>
+                </div>
+                <ol className="mt-2 space-y-1">
+                  {g.stops.map((stop, idx) => (
+                    <li key={stop.id} className="flex items-center gap-2 text-sm">
+                      <span className="font-mono text-xs text-dim">{idx + 1}.</span>
+                      <span className="flex-1">
+                        {stop.dropoff?.name ?? '—'}
+                        <span className="text-dim"> · {stop.order?.order_number ?? ''}</span>
+                      </span>
+                      {isSupply ? (
+                        <span className="flex gap-1">
+                          <form action={setStopOrderAction}>
+                            <input type="hidden" name="taskId" value={stop.id} />
+                            <input type="hidden" name="stopOrder" value={idx} />
+                            <button className="h-6 w-6 rounded-button-sm border border-line/40 text-xs" aria-label={t('reorderUp')}>
+                              {t('reorderUp')}
+                            </button>
+                          </form>
+                          <form action={setStopOrderAction}>
+                            <input type="hidden" name="taskId" value={stop.id} />
+                            <input type="hidden" name="stopOrder" value={idx + 2} />
+                            <button className="h-6 w-6 rounded-button-sm border border-line/40 text-xs" aria-label={t('reorderDown')}>
+                              {t('reorderDown')}
+                            </button>
+                          </form>
+                        </span>
+                      ) : null}
+                    </li>
+                  ))}
+                </ol>
+              </div>
             ))}
           </div>
         </section>

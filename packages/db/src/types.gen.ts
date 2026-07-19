@@ -306,6 +306,7 @@ export type Database = {
           requires_crane: boolean
           scheduled_date: string | null
           status: string
+          stop_order: number | null
           tool_id: string | null
           trip_id: string | null
           vehicle_id: string | null
@@ -330,6 +331,7 @@ export type Database = {
           requires_crane?: boolean
           scheduled_date?: string | null
           status?: string
+          stop_order?: number | null
           tool_id?: string | null
           trip_id?: string | null
           vehicle_id?: string | null
@@ -354,6 +356,7 @@ export type Database = {
           requires_crane?: boolean
           scheduled_date?: string | null
           status?: string
+          stop_order?: number | null
           tool_id?: string | null
           trip_id?: string | null
           vehicle_id?: string | null
@@ -3578,6 +3581,10 @@ export type Database = {
       }
       set_order_line_eta: {
         Args: { order_item_id: string; p_date: string }
+        Returns: undefined
+      }
+      set_stop_order: {
+        Args: { p_order: number; task_id: string }
         Returns: undefined
       }
       set_vendor_price: { Args: { args: Json }; Returns: undefined }

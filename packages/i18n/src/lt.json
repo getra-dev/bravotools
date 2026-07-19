@@ -1080,6 +1080,37 @@
     "need": "Apkrova: {pallets} paletės · ilgiausia {length} m",
     "suggests": "siūlo {vehicle} ({pct}% apkrova)",
     "suggested": "siūloma",
-    "noFit": "netelpa į jokį transportą — skaidyk arba samdyk"
+    "noFit": "netelpa į jokį transportą — skaidyk arba samdyk",
+    "picklist": {
+      "title": "Surinkimo lapas",
+      "date": "Data",
+      "vehicle": "Transportas",
+      "driver": "Vairuotojas",
+      "pickup": "Paimti iš",
+      "material": "Medžiaga",
+      "qty": "Kiekis",
+      "weight": "Svoris",
+      "total": "Viso",
+      "generated": "Sugeneruota BravoTools — pakrovimo lapas, ne gabenimo dokumentas."
+    },
+    "tripsheet": {
+      "title": "Kelionės lapas",
+      "date": "Data",
+      "vehicle": "Transportas",
+      "plate": "Valst. nr.",
+      "driver": "Vairuotojas",
+      "stop": "Sustojimas",
+      "order": "Užsakymas",
+      "odoStart": "Rida pradžia",
+      "odoEnd": "Rida pabaiga",
+      "km": "Viso km",
+      "generated": "Sugeneruota BravoTools."
+    },
+    "picklistCta": "Surinkimo lapas",
+    "tripsheetCta": "Kelionės lapas",
+    "reorderUp": "↑",
+    "reorderDown": "↓",
+    "routeFor": "Maršrutas — {vehicle} · {date}",
+    "routes": "Maršrutai"
   }
 }

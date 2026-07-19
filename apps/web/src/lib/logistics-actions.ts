@@ -86,3 +86,15 @@ export async function assignDeliveryAction(formData: FormData) {
   }
   redirect('/deliveries?notice=assigned');
 }
+
+export async function setStopOrderAction(formData: FormData) {
+  const ctx = await getSessionContext();
+  if (!ctx?.activeOrg) redirect('/onboarding');
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase.rpc('set_stop_order', {
+    task_id: String(formData.get('taskId') ?? ''),
+    p_order: Number(formData.get('stopOrder') ?? '0'),
+  });
+  if (error) redirect('/deliveries?error=save_failed');
+  redirect('/deliveries');
+}
