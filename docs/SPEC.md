@@ -198,6 +198,21 @@ hire; the dispute-proof moments are intake and give-back:
   reconciliation itself is E3 (§4).
 - Stocktake counts active rentals normally; returned_to_vendor excluded.
 
+### 2.11 Global history & archiving — OWNER ADDITION (2026-07-19)
+
+- **History journal (web):** one chronological view across ALL tools —
+  movements, acts, write-offs, rental intakes/returns, inventory closures —
+  grouped BY MONTH with filters (month, action type, location, person,
+  tool search). Today history lives only on each tool card; the journal
+  answers "kas vyko įmonėje liepą". Data source: tool_movements +
+  activity_log (no new tables).
+- **Archiving (display state, never deletion):** append-only stays sacred —
+  acts/movements are dispute evidence and are NEVER deleted. Archiving:
+  handover_acts.archived_at set by a bulk action (owner/admin: "archive all
+  signed acts up to DATE"); archived acts disappear from default lists and
+  tool cards (toggle "show archived" reveals them), PDFs remain in storage.
+  Optional later: yearly auto-archive via pg_cron.
+
 Definition of E1 done: Sivysta imports registry, prints stickers, and field
 crew completes real handovers offline for 2 weeks without prompting.
 
