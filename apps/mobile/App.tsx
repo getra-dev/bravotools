@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { View } from 'react-native';
+import { Platform, SafeAreaView, StatusBar as RNStatusBar, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import type { Session } from '@supabase/supabase-js';
 import { rnTheme } from '@bravotools/theme';
@@ -102,7 +102,15 @@ export default function App() {
 
   return (
     <View style={{ flex: 1, backgroundColor: rnTheme.colors.ink }}>
-      {content}
+      {/* keep content below the notch / status bar on both platforms */}
+      <SafeAreaView
+        style={{
+          flex: 1,
+          paddingTop: Platform.OS === 'android' ? (RNStatusBar.currentHeight ?? 0) : 0,
+        }}
+      >
+        {content}
+      </SafeAreaView>
       <StatusBar style="light" />
     </View>
   );
