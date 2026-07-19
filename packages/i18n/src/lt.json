@@ -393,7 +393,7 @@
       "saving": "Saugoma…",
       "successTitle": "Aktas pasirašytas",
       "successBody": "Perdavimo aktas {act} išsaugotas. PDF rasi web pulte.",
-      "scanNext": "Skenuoti kitą",
+      "backHome": "Grįžti į pradžią",
       "failed": "Nepavyko išsaugoti perdavimo — patikrink ryšį ir bandyk dar kartą",
       "uploadFailed": "Nuotraukos įkėlimas nepavyko — bandyk dar kartą"
     },

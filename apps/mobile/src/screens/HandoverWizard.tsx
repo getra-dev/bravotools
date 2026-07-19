@@ -445,7 +445,7 @@ export function HandoverWizard({
                 : t('mobile.handover.successBody', { act: actNumber })}
             </Text>
             <Pressable style={ui.primaryButton} onPress={onDone}>
-              <Text style={ui.primaryButtonText}>{t('mobile.handover.scanNext')}</Text>
+              <Text style={ui.primaryButtonText}>{t('mobile.handover.backHome')}</Text>
             </Pressable>
           </View>
         ) : null}

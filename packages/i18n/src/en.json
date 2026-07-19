@@ -393,7 +393,7 @@
       "saving": "Saving…",
       "successTitle": "Act signed",
       "successBody": "Handover act {act} is saved. The PDF is available in the web console.",
-      "scanNext": "Scan next",
+      "backHome": "Back to home",
       "failed": "Could not save the handover — check connection and try again",
       "uploadFailed": "Photo upload failed — try again"
     },
