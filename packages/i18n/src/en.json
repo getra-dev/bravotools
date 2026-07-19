@@ -49,7 +49,8 @@
     "members": "Members",
     "requests": "Requests",
     "orders": "Orders",
-    "vendors": "Vendors"
+    "vendors": "Vendors",
+    "materials": "Materials"
   },
   "inventory": {
     "title": "Stocktakes",
@@ -842,6 +843,64 @@
         "name_required": "Enter the vendor name",
         "invalid_method": "Pick a valid order method",
         "not_allowed": "Only the owner, admin or supply manager can manage vendors",
+        "save_failed": "Could not save — try again"
+      }
+    }
+  },
+  "materials": {
+    "title": "Materials",
+    "newCta": "New material",
+    "empty": "No materials yet",
+    "colName": "Name",
+    "colMode": "Type",
+    "colCategory": "Category",
+    "colUnit": "Unit",
+    "colVendors": "Vendors",
+    "colBestPrice": "Best price",
+    "days": "{count} d",
+    "modes": {
+      "stock": "Stock item",
+      "order": "Special order"
+    },
+    "form": {
+      "newTitle": "New material",
+      "editTitle": "Edit material",
+      "name": "Name",
+      "unit": "Base unit",
+      "category": "Category",
+      "supplyMode": "Type",
+      "modes": {
+        "stock": "Stock item",
+        "order": "Special order"
+      },
+      "create": "Create material",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "errors": {
+        "name_required": "Enter the material name",
+        "not_allowed": "Only the owner, admin or supply manager can manage materials",
+        "save_failed": "Could not save — try again"
+      }
+    },
+    "detail": {
+      "edit": "Edit",
+      "unit": "Unit",
+      "vendorPrices": "Who can supply this",
+      "noPrices": "No vendor prices yet — add one below",
+      "vendor": "Vendor",
+      "price": "Price",
+      "lead": "Lead",
+      "available": "Availability",
+      "inStock": "Available",
+      "outStock": "Out",
+      "pickVendor": "Pick vendor…",
+      "setPrice": "Set price",
+      "priceHistory": "Price history",
+      "priceSaved": "Price saved",
+      "errors": {
+        "invalid_price": "Enter a valid price",
+        "vendor_not_found": "Vendor not found",
+        "not_allowed": "Not allowed",
         "save_failed": "Could not save — try again"
       }
     }

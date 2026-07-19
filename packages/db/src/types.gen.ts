@@ -1020,6 +1020,61 @@ export type Database = {
           },
         ]
       }
+      material_price_points: {
+        Row: {
+          id: string
+          material_id: string
+          observed_at: string
+          org_id: string
+          price: number
+          source: string
+          unit: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          id?: string
+          material_id: string
+          observed_at?: string
+          org_id: string
+          price: number
+          source?: string
+          unit?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          id?: string
+          material_id?: string
+          observed_at?: string
+          org_id?: string
+          price?: number
+          source?: string
+          unit?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "material_price_points_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_price_points_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "material_price_points_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       material_request_items: {
         Row: {
           base_qty: number | null
@@ -1152,6 +1207,7 @@ export type Database = {
           max_length_m: number | null
           notes: string | null
           org_id: string
+          supply_mode: string
           unit_volume_m3: number | null
           unit_weight_kg: number | null
         }
@@ -1165,6 +1221,7 @@ export type Database = {
           max_length_m?: number | null
           notes?: string | null
           org_id: string
+          supply_mode?: string
           unit_volume_m3?: number | null
           unit_weight_kg?: number | null
         }
@@ -1178,6 +1235,7 @@ export type Database = {
           max_length_m?: number | null
           notes?: string | null
           org_id?: string
+          supply_mode?: string
           unit_volume_m3?: number | null
           unit_weight_kg?: number | null
         }
@@ -3391,6 +3449,7 @@ export type Database = {
       create_material: {
         Args: {
           m_category?: string
+          m_mode?: string
           m_name: string
           m_unit?: string
           target_org: string
@@ -3461,6 +3520,7 @@ export type Database = {
         Args: { act_id: string; pdf_path: string }
         Returns: undefined
       }
+      set_vendor_price: { Args: { args: Json }; Returns: undefined }
       shares_org_with: { Args: { other: string }; Returns: boolean }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
@@ -3479,6 +3539,10 @@ export type Database = {
       }
       update_location: {
         Args: { location_id: string; payload: Json }
+        Returns: undefined
+      }
+      update_material: {
+        Args: { material_id: string; payload: Json }
         Returns: undefined
       }
       update_order_status: {

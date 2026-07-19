@@ -49,7 +49,8 @@
     "members": "Nariai",
     "requests": "Poreikiai",
     "orders": "Užsakymai",
-    "vendors": "Tiekėjai"
+    "vendors": "Tiekėjai",
+    "materials": "Medžiagos"
   },
   "inventory": {
     "title": "Inventorizacijos",
@@ -842,6 +843,64 @@
         "name_required": "Įvesk tiekėjo pavadinimą",
         "invalid_method": "Pasirink teisingą užsakymo būdą",
         "not_allowed": "Tiekėjus valdyti gali tik savininkas, administratorius arba tiekimo vadovas",
+        "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+      }
+    }
+  },
+  "materials": {
+    "title": "Medžiagos",
+    "newCta": "Nauja medžiaga",
+    "empty": "Medžiagų dar nėra",
+    "colName": "Pavadinimas",
+    "colMode": "Tipas",
+    "colCategory": "Kategorija",
+    "colUnit": "Vnt.",
+    "colVendors": "Tiekėjai",
+    "colBestPrice": "Geriausia kaina",
+    "days": "{count} d.",
+    "modes": {
+      "stock": "Sandėlio prekė",
+      "order": "Užsakoma prekė"
+    },
+    "form": {
+      "newTitle": "Nauja medžiaga",
+      "editTitle": "Redaguoti medžiagą",
+      "name": "Pavadinimas",
+      "unit": "Bazinis vnt.",
+      "category": "Kategorija",
+      "supplyMode": "Tipas",
+      "modes": {
+        "stock": "Sandėlio prekė",
+        "order": "Užsakoma prekė"
+      },
+      "create": "Sukurti medžiagą",
+      "save": "Išsaugoti pakeitimus",
+      "cancel": "Atšaukti",
+      "errors": {
+        "name_required": "Įvesk medžiagos pavadinimą",
+        "not_allowed": "Medžiagas valdyti gali tik savininkas, administratorius arba tiekimo vadovas",
+        "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+      }
+    },
+    "detail": {
+      "edit": "Redaguoti",
+      "unit": "Vnt.",
+      "vendorPrices": "Kas gali tiekti",
+      "noPrices": "Tiekėjų kainų dar nėra — pridėk žemiau",
+      "vendor": "Tiekėjas",
+      "price": "Kaina",
+      "lead": "Terminas",
+      "available": "Prieinamumas",
+      "inStock": "Turi",
+      "outStock": "Neturi",
+      "pickVendor": "Pasirink tiekėją…",
+      "setPrice": "Nustatyti kainą",
+      "priceHistory": "Kainų istorija",
+      "priceSaved": "Kaina išsaugota",
+      "errors": {
+        "invalid_price": "Įvesk teisingą kainą",
+        "vendor_not_found": "Tiekėjas nerastas",
+        "not_allowed": "Neturi teisės",
         "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
       }
     }
