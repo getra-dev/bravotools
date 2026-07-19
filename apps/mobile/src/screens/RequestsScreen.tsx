@@ -81,9 +81,16 @@ function toIsoDate(d: Date): string {
   ).padStart(2, '0')}`;
 }
 
-export function RequestsScreen({ userId }: { userId: string }) {
+export function RequestsScreen({
+  userId,
+  onImmersive,
+}: {
+  userId: string;
+  onImmersive: (immersive: boolean) => void;
+}) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<'list' | 'new'>('list');
+  const [detail, setDetail] = useState<MaterialRequest | null>(null);
   const [requests, setRequests] = useState<MaterialRequest[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
   const [refreshing, setRefreshing] = useState(false);
@@ -136,6 +143,12 @@ export function RequestsScreen({ userId }: { userId: string }) {
     void load();
   }, [load]);
 
+  // form/detail take the full screen — hide the bottom tabs so nothing
+  // sits under them (owner-reported: form bottom was unreachable)
+  useEffect(() => {
+    onImmersive(mode !== 'list' || detail !== null);
+  }, [mode, detail, onImmersive]);
+
   function setRow(index: number, patch: Partial<ItemRow>) {
     setRows((prev) => prev.map((row, i) => (i === index ? { ...row, ...patch } : row)));
   }
@@ -175,13 +188,70 @@ export function RequestsScreen({ userId }: { userId: string }) {
     }
   }
 
+  if (detail) {
+    return (
+      <ScrollView
+        style={{ flex: 1, backgroundColor: theme.colors.ink }}
+        contentContainerStyle={[ui.screen, { paddingBottom: 140 }]}
+      >
+        <Text style={ui.brand}>{t('common.appName')}</Text>
+        <Text style={ui.title}>{detail.site?.name ?? t('mobile.requests.title')}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm, marginTop: theme.spacing.sm }}>
+          {detail.is_hot ? (
+            <View style={[ui.stamp, { borderColor: theme.colors.hot, marginTop: 0 }]}>
+              <Text style={[ui.stampText, { color: theme.colors.hot }]}>
+                {t('mobile.requests.hotStamp')}
+              </Text>
+            </View>
+          ) : null}
+          <View
+            style={[
+              ui.stamp,
+              { borderColor: STATUS_COLOR[detail.status] ?? theme.colors.line, marginTop: 0 },
+            ]}
+          >
+            <Text
+              style={[ui.stampText, { color: STATUS_COLOR[detail.status] ?? theme.colors.dim }]}
+            >
+              {t(`mobile.requests.status.${detail.status}`)}
+            </Text>
+          </View>
+        </View>
+        <Text style={[ui.mono, { marginTop: theme.spacing.md }]}>
+          {new Date(detail.created_at).toLocaleDateString('lt-LT')}
+          {detail.needed_by ? `  →  ${detail.needed_by}` : ''}
+        </Text>
+
+        <Text style={ui.label}>{t('mobile.requests.itemsLabel')}</Text>
+        {detail.items.map((item) => (
+          <View key={item.id} style={[card, { marginTop: theme.spacing.sm }]}>
+            <Text style={[ui.value, { marginTop: 0 }]}>{item.raw_text}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: theme.spacing.xs }}>
+              <Text style={[ui.mono, { flex: 1 }]}>
+                {item.qty ? `${item.qty} ${item.unit ?? ''}` : '—'}
+              </Text>
+              <Text style={{ color: theme.colors.dim, fontSize: 12, fontWeight: '700' }}>
+                {t(`mobile.requests.itemStatus.${item.status}`)}
+              </Text>
+            </View>
+          </View>
+        ))}
+
+        <Pressable style={ui.primaryButton} onPress={() => setDetail(null)}>
+          <Text style={ui.primaryButtonText}>{t('mobile.handover.back')}</Text>
+        </Pressable>
+      </ScrollView>
+    );
+  }
+
   if (mode === 'new') {
     const canSubmit =
       site !== null && filledRows.length > 0 && (!isHot || hotReason !== null) && !saving;
     return (
       <ScrollView
         style={{ flex: 1, backgroundColor: theme.colors.ink }}
-        contentContainerStyle={[ui.screen, { paddingBottom: 48 }]}
+        contentContainerStyle={[ui.screen, { paddingBottom: 140 }]}
+        keyboardShouldPersistTaps="handled"
       >
         <Text style={ui.brand}>{t('common.appName')}</Text>
         <Text style={ui.title}>{t('mobile.requests.newCta')}</Text>
@@ -477,7 +547,7 @@ export function RequestsScreen({ userId }: { userId: string }) {
       ) : null}
 
       {requests.map((req) => (
-        <View key={req.id} style={[card, { marginTop: theme.spacing.md }]}>
+        <Pressable key={req.id} style={[card, { marginTop: theme.spacing.md }]} onPress={() => setDetail(req)}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
             <Text style={[ui.value, { fontWeight: '800', flex: 1 }]}>
               {req.site?.name ?? '—'}
@@ -515,7 +585,7 @@ export function RequestsScreen({ userId }: { userId: string }) {
               </Text>
             </View>
           ))}
-        </View>
+        </Pressable>
       ))}
     </ScrollView>
   );

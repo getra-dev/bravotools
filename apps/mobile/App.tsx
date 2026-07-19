@@ -93,6 +93,8 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [ready, setReady] = useState(false);
   const [route, setRoute] = useState<Route>({ name: 'my' });
+  // requests screen reports when its form/detail takes the full screen
+  const [requestsImmersive, setRequestsImmersive] = useState(false);
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
@@ -177,7 +179,9 @@ export default function App() {
         />
       );
     } else if (route.name === 'requests') {
-      content = <RequestsScreen userId={session.user.id} />;
+      content = (
+        <RequestsScreen userId={session.user.id} onImmersive={setRequestsImmersive} />
+      );
     } else if (route.name === 'unknown') {
       content = (
         <UnknownCodeScreen code={route.code} onScanAgain={() => setRoute({ name: 'scan' })} />
@@ -211,7 +215,8 @@ export default function App() {
         }}
       >
         {content}
-        {session && (route.name === 'my' || route.name === 'requests') ? (
+        {session &&
+        (route.name === 'my' || (route.name === 'requests' && !requestsImmersive)) ? (
           <TabBar
             active={route.name}
             onSelect={(tab) => setRoute(tab === 'my' ? { name: 'my' } : { name: 'requests' })}
