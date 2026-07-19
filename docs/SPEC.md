@@ -281,6 +281,35 @@ crew completes real handovers offline for 2 weeks without prompting.
   "photo dispatch note" → AI diff vs order (mismatch shortlist), shorts
   logged as delivery_issues with photo; buttons picked_up/delivered;
   receiver signs on driver phone. Trip start/end with odometer.
+- BUILT WITHOUT AI (2026-07-19, 3.4a+b): /vehicles admin (capacity kg/m³,
+  max item length, crane, pallets, type), plan_delivery (weight/volume
+  est), assign vehicle+driver+date, dispatcher /deliveries with load bar,
+  mobile DriverScreen (today's stops, trip odometer, picked_up/delivered).
+- OWNER AMENDMENTS (2026-07-19, later work — 3.4c bundle):
+  * Material physical params: expose the existing weight/volume/max-length
+    on the /materials form, and ADD width, units_per_pallet, pallet_type.
+    Vehicles already carry capacity/crane/pallets/length (built in 3.4a) —
+    optionally add pallet-count capacity + width.
+  * Greedy vehicle suggestion on plan/assign: sum weight/volume/pallets +
+    max item length across the stop(s) → hard filters (crane, length,
+    pallets, capacity) → suggest the smallest fitting vehicle ≤85%; warn
+    over 85%; one site = one vehicle/day (crane split surfaced).
+  * Trips as a first-class group: dispatcher bundles the day's tasks into
+    one trip; add delivery_tasks.stop_order for route sequencing.
+  * Pick list (surinkimo lapas) PDF: line items aggregated per trip,
+    grouped by pickup location (warehouse/vendor) with summed qty — load
+    once for many orders.
+  * Trip / route sheet (kelionės lapas) PDF: ordered stops with addresses,
+    per-stop manifest, trip-log fields (date, vehicle, driver, odometer
+    in/out, km). LT semi-formal fleet doc.
+  * Crane as a service: the fiskaras (crane truck) also does crane
+    unload/lift-to-height — extra service + time. Add delivery_tasks
+    crane_lift_height_m, est_crane_minutes, crane_billable; feeds vehicle
+    filter (has_crane), the trip-time estimate, and a billable service
+    line (site_services / E3 money layer). Capture + sheet now; invoicing
+    is E3.
+  Suggested order: material params → greedy suggestion → trips+stop_order
+  → pick list + trip sheet PDFs → crane service capture.
 
 ### 3.5 Receiving (foreman)
 - Exception-first: all lines default delivered; groups by category;
