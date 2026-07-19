@@ -467,7 +467,9 @@
     "errors": {
       "not_allowed": "Neturi teisės to daryti",
       "save_failed": "Nepavyko išsaugoti — bandyk dar kartą",
-      "order_closed": "Šis užsakymas uždarytas"
+      "order_closed": "Šis užsakymas uždarytas",
+      "no_vendor_email": "Tiekėjas neturi el. pašto adreso",
+      "send_failed": "Nepavyko išsiųsti laiško — patikrink pašto serverį"
     },
     "fulfillment": "{delivered} / {total}",
     "issuesTitle": "Pristatymo trūkumai",
@@ -478,6 +480,35 @@
       "damaged": "Pažeista",
       "quality": "Kokybės problema",
       "not_delivered": "Nepristatyta"
+    },
+    "sendCta": "Siųsti tiekėjui",
+    "resend": "Siųsti pakartotinai",
+    "sent": "Išsiųsta",
+    "noEmail": "Tiekėjas be el. pašto",
+    "sentAt": "✓ Išsiųsta {date} → {to}",
+    "pdf": {
+      "title": "Užsakymas tiekėjui",
+      "orderNo": "Užsakymo nr.",
+      "date": "Data",
+      "neededBy": "Reikia iki",
+      "vendor": "Tiekėjas",
+      "shipTo": "Pristatyti į",
+      "buyer": "Užsakė",
+      "lineNo": "Nr.",
+      "description": "Pavadinimas",
+      "qty": "Kiekis",
+      "unit": "Vnt.",
+      "unitPrice": "Vnt. kaina",
+      "lineTotal": "Suma",
+      "total": "Viso",
+      "notes": "Pastabos",
+      "generated": "Sugeneruota BravoTools — dokumentas įsigalioja tik abiem šalims patvirtinus.",
+      "hot": "SKUBUS UŽSAKYMAS",
+      "emailSubject": "Užsakymas {number}",
+      "emailBody": "Sveiki, {vendor},\n\nSiunčiame užsakymą {number} iš {org} (PDF priede).\nPrašome atsakymu patvirtinti prieinamumą ir pristatymo datą.\n\nAčiū."
+    },
+    "notices": {
+      "sent": "Užsakymas išsiųstas tiekėjui"
     }
   },
   "mobile": {

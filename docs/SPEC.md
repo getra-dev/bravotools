@@ -254,6 +254,13 @@ crew completes real handovers offline for 2 weeks without prompting.
   estimates (AI suggested).
 
 ### 3.3 Dispatcher pult (web)
+- BUILT WITHOUT AI (2026-07-19, E2-D): order → vendor email with a
+  generated PO PDF is live. Local delivery goes to the inbucket/mailpit
+  catcher (SMTP :55325, view :55324); on the ADR-014 promotion gate set
+  RESEND_API_KEY and the mailer switches with no caller change. Each
+  send writes an outbound_messages proof row (to, subject, message-id,
+  PDF path) and advances requested/approved → ordered. Still AI-gated:
+  the attention queue ranking, inbound quote/confirmation parsing, RFQ.
 - Attention queue: exceptions only, AI-ranked (hot, needed_by proximity,
   vendor silent >24h, duplicates, delivery issues). Each card: root cause
   line + 1-3 prepared actions (side-effects listed) — see personas mockup.

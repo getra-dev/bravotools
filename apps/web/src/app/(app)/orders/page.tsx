@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSessionContext } from '@/lib/org';
 import { updateOrderStatusAction } from '@/lib/request-actions';
+import { sendOrderToVendorAction } from '@/lib/order-email-actions';
 
 const STAMP =
   'inline-block rounded-stamp border px-1.5 py-px font-mono text-[10px] uppercase tracking-[1px]';
@@ -33,7 +34,13 @@ const NEXT: Record<string, { status: string; key: 'approve' | 'markOrdered' | 'm
   ],
   partially_delivered: [{ status: 'delivered', key: 'markDelivered' }],
 };
-const ERROR_KEYS = new Set(['not_allowed', 'save_failed', 'order_closed']);
+const ERROR_KEYS = new Set([
+  'not_allowed',
+  'save_failed',
+  'order_closed',
+  'no_vendor_email',
+  'send_failed',
+]);
 
 export default async function OrdersPage({
   searchParams,
@@ -50,12 +57,12 @@ export default async function OrdersPage({
   const orgId = ctx.activeOrg.orgId;
   const isSupply = ['owner', 'admin', 'supply_manager'].includes(ctx.activeOrg.role);
 
-  const [{ data: orders }, { data: issues }] = await Promise.all([
+  const [{ data: orders }, { data: issues }, { data: sentMsgs }] = await Promise.all([
     supabase
       .from('orders')
       .select(
         `id, order_number, status, is_hot, needed_by, created_at,
-         site:locations(name), vendor:vendors!orders_vendor_id_fkey(name),
+         site:locations(name), vendor:vendors!orders_vendor_id_fkey(name, email),
          items:order_items(id, description, quantity, delivered_quantity, unit)`,
       )
       .eq('org_id', orgId)
@@ -65,6 +72,13 @@ export default async function OrdersPage({
       .from('delivery_issues')
       .select('id, order_item_id, issue_type, qty_affected, description, status')
       .eq('org_id', orgId),
+    supabase
+      .from('outbound_messages')
+      .select('entity_id, to_address, status_updated_at')
+      .eq('org_id', orgId)
+      .eq('entity_type', 'order')
+      .eq('channel', 'email')
+      .order('status_updated_at', { ascending: false }),
   ]);
 
   const issuesByItem = new Map<string, NonNullable<typeof issues>>();
@@ -73,6 +87,17 @@ export default async function OrdersPage({
     const bucket = issuesByItem.get(issue.order_item_id) ?? [];
     bucket.push(issue);
     issuesByItem.set(issue.order_item_id, bucket);
+  }
+
+  // latest email per order (list is newest-first, so first write wins)
+  const sentByOrder = new Map<string, { to_address: string | null; status_updated_at: string | null }>();
+  for (const msg of sentMsgs ?? []) {
+    if (msg.entity_id && !sentByOrder.has(msg.entity_id)) {
+      sentByOrder.set(msg.entity_id, {
+        to_address: msg.to_address,
+        status_updated_at: msg.status_updated_at,
+      });
+    }
   }
 
   const byStatus = new Map<string, NonNullable<typeof orders>>();
@@ -88,7 +113,7 @@ export default async function OrdersPage({
 
       {notice ? (
         <p className="mt-4 rounded-button-sm border border-ok/40 bg-ok/10 px-3 py-2 text-sm">
-          {tReq('notices.order_created')}
+          {notice === 'sent' ? t('notices.sent') : tReq('notices.order_created')}
         </p>
       ) : null}
       {error ? (
@@ -124,6 +149,16 @@ export default async function OrdersPage({
                     {order.vendor?.name ? ` · ${t('vendor')}: ${order.vendor.name}` : ''}
                     {order.needed_by ? ` · ${t('neededBy')}: ${order.needed_by}` : ''}
                   </p>
+                  {sentByOrder.has(order.id) ? (
+                    <p className="mt-1 text-[11px] text-ok">
+                      {t('sentAt', {
+                        date: sentByOrder.get(order.id)!.status_updated_at
+                          ? new Date(sentByOrder.get(order.id)!.status_updated_at!).toLocaleDateString('lt-LT')
+                          : '',
+                        to: sentByOrder.get(order.id)!.to_address ?? '',
+                      })}
+                    </p>
+                  ) : null}
                   <ul className="mt-2 space-y-0.5">
                     {order.items.map((item) => {
                       const itemIssues = issuesByItem.get(item.id) ?? [];
@@ -158,6 +193,16 @@ export default async function OrdersPage({
                   </ul>
                   {isSupply && !['delivered', 'cancelled'].includes(order.status) ? (
                     <div className="mt-2 flex flex-wrap gap-2 border-t border-line/20 pt-2">
+                      {order.vendor?.email ? (
+                        <form action={sendOrderToVendorAction}>
+                          <input type="hidden" name="orderId" value={order.id} />
+                          <button className="h-7 rounded-button-sm bg-hi px-2.5 text-[11px] font-bold text-ink">
+                            {sentByOrder.has(order.id) ? t('resend') : t('sendCta')}
+                          </button>
+                        </form>
+                      ) : (
+                        <span className={`${STAMP} border-line text-dim`}>{t('noEmail')}</span>
+                      )}
                       {(NEXT[order.status] ?? []).map((step) => (
                         <form key={step.status} action={updateOrderStatusAction}>
                           <input type="hidden" name="orderId" value={order.id} />

@@ -3429,6 +3429,7 @@ export type Database = {
         Args: { target_session: string; target_tool: string }
         Returns: Json
       }
+      record_order_sent: { Args: { args: Json }; Returns: Json }
       remind: {
         Args: {
           e_id: string
