@@ -15,6 +15,8 @@ import { ToolScreen } from './src/screens/ToolScreen';
 import { HandoverWizard } from './src/screens/HandoverWizard';
 import { CountersignScreen } from './src/screens/CountersignScreen';
 import { InventoryScreen } from './src/screens/InventoryScreen';
+import { RentalIntakeScreen } from './src/screens/RentalIntakeScreen';
+import { ReturnVendorScreen } from './src/screens/ReturnVendorScreen';
 import { UnknownCodeScreen } from './src/screens/UnknownCodeScreen';
 import { fetchToolById } from './src/lib/tools';
 import type { HandoverAction, ScannedTool } from './src/types';
@@ -27,6 +29,8 @@ type Route =
   | { name: 'handover'; tool: ScannedTool; action: HandoverAction }
   | { name: 'countersign'; actId: string }
   | { name: 'inventory' }
+  | { name: 'rentalIntake' }
+  | { name: 'returnVendor'; tool: ScannedTool }
   | { name: 'unknown'; code: string };
 
 export default function App() {
@@ -88,6 +92,7 @@ export default function App() {
           tool={route.tool}
           onScanAgain={() => setRoute({ name: 'scan' })}
           onHandover={(action) => setRoute({ name: 'handover', tool: route.tool, action })}
+          onReturnVendor={(tool) => setRoute({ name: 'returnVendor', tool })}
         />
       );
     } else if (route.name === 'handover') {
@@ -105,6 +110,16 @@ export default function App() {
       );
     } else if (route.name === 'inventory') {
       content = <InventoryScreen onDone={() => setRoute({ name: 'my' })} />;
+    } else if (route.name === 'rentalIntake') {
+      content = <RentalIntakeScreen onDone={() => setRoute({ name: 'my' })} />;
+    } else if (route.name === 'returnVendor') {
+      content = (
+        <ReturnVendorScreen
+          tool={route.tool}
+          onDone={() => setRoute({ name: 'my' })}
+          onCancel={() => setRoute({ name: 'tool', tool: route.tool })}
+        />
+      );
     } else if (route.name === 'unknown') {
       content = (
         <UnknownCodeScreen code={route.code} onScanAgain={() => setRoute({ name: 'scan' })} />
@@ -121,6 +136,7 @@ export default function App() {
             });
           }}
           onInventory={() => setRoute({ name: 'inventory' })}
+          onRentalIntake={() => setRoute({ name: 'rentalIntake' })}
           onSignOut={() => void supabase.auth.signOut()}
         />
       );

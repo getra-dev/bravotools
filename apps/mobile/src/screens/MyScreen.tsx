@@ -46,6 +46,7 @@ export function MyScreen({
   onCountersign,
   onOpenTool,
   onInventory,
+  onRentalIntake,
   onSignOut,
 }: {
   userId: string;
@@ -53,6 +54,7 @@ export function MyScreen({
   onCountersign: (actId: string) => void;
   onOpenTool: (toolId: string) => void;
   onInventory: () => void;
+  onRentalIntake: () => void;
   onSignOut: () => void;
 }) {
   const { t } = useTranslation();
@@ -372,9 +374,14 @@ export function MyScreen({
       )}
 
       {isSupply ? (
-        <Pressable style={ui.secondaryButton} onPress={onInventory}>
-          <Text style={ui.secondaryButtonText}>{t('mobile.my.inventoryCta')}</Text>
-        </Pressable>
+        <>
+          <Pressable style={ui.secondaryButton} onPress={onRentalIntake}>
+            <Text style={ui.secondaryButtonText}>{t('mobile.rental.intakeCta')}</Text>
+          </Pressable>
+          <Pressable style={ui.secondaryButton} onPress={onInventory}>
+            <Text style={ui.secondaryButtonText}>{t('mobile.my.inventoryCta')}</Text>
+          </Pressable>
+        </>
       ) : null}
       <Pressable style={ui.secondaryButton} onPress={onSignOut}>
         <Text style={ui.secondaryButtonText}>{t('mobile.scan.signOut')}</Text>

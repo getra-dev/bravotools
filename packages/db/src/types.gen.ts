@@ -3416,6 +3416,8 @@ export type Database = {
         Args: { component_id: string }
         Returns: undefined
       }
+      rental_intake: { Args: { args: Json }; Returns: Json }
+      return_to_vendor: { Args: { args: Json }; Returns: Json }
       run_daily_reminders: { Args: never; Returns: Json }
       set_act_pdf_path: {
         Args: { act_id: string; pdf_path: string }

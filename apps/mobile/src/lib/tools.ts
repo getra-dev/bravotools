@@ -1,7 +1,7 @@
 import { supabase } from './supabase';
 import type { ScannedTool } from '../types';
 
-const TOOL_SELECT = `id, org_id, name, qr_code, status, serial_number, tracks_engine_hours, engine_hours,
+const TOOL_SELECT = `id, org_id, name, qr_code, status, ownership, serial_number, tracks_engine_hours, engine_hours,
   category:tool_categories(name),
   location:locations!tools_current_location_id_fkey(name),
   holder:profiles!tools_current_holder_id_fkey(full_name),

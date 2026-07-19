@@ -20,10 +20,12 @@ export function ToolScreen({
   tool: initialTool,
   onScanAgain,
   onHandover,
+  onReturnVendor,
 }: {
   tool: ScannedTool;
   onScanAgain: () => void;
   onHandover: (action: HandoverAction) => void;
+  onReturnVendor: (tool: ScannedTool) => void;
 }) {
   const { t } = useTranslation();
   const [tool, setTool] = useState(initialTool);
@@ -64,7 +66,7 @@ export function ToolScreen({
     const { data } = await supabase
       .from('tools')
       .select(
-        `id, org_id, name, qr_code, status, serial_number, tracks_engine_hours, engine_hours,
+        `id, org_id, name, qr_code, status, ownership, serial_number, tracks_engine_hours, engine_hours,
          category:tool_categories(name),
          location:locations!tools_current_location_id_fkey(name),
          holder:profiles!tools_current_holder_id_fkey(full_name),
@@ -165,6 +167,16 @@ export function ToolScreen({
             <Text style={ui.secondaryButtonText}>{t('mobile.handover.titleTransfer')}</Text>
           </Pressable>
         </>
+      ) : null}
+      {tool.ownership === 'rented' && ['available', 'checked_out'].includes(tool.status) ? (
+        <Pressable
+          style={[ui.secondaryButton, { borderColor: theme.colors.hot }]}
+          onPress={() => onReturnVendor(tool)}
+        >
+          <Text style={[ui.secondaryButtonText, { color: theme.colors.hot }]}>
+            {t('mobile.rental.returnCta')}
+          </Text>
+        </Pressable>
       ) : null}
 
       <Pressable style={ui.secondaryButton} onPress={onScanAgain}>

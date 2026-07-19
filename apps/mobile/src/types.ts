@@ -4,6 +4,7 @@ export type ScannedTool = {
   name: string;
   qr_code: string | null;
   status: string;
+  ownership: string;
   serial_number: string | null;
   tracks_engine_hours: boolean;
   engine_hours: number | null;
