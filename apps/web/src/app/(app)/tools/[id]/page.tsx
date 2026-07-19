@@ -28,10 +28,18 @@ function daysFromToday(date: string): number {
   return Math.ceil((Date.parse(date) - Date.now()) / 86_400_000);
 }
 
-export default async function ToolDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function ToolDetailPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ archived?: string }>;
+}) {
   const ctx = await getSessionContext();
   if (!ctx?.activeOrg) redirect('/onboarding');
   const { id } = await params;
+  const { archived } = await searchParams;
+  const showArchived = archived === '1';
   const t = await getTranslations('tools');
   const tActPdf = await getTranslations('actPdf');
   const tWriteoff = await getTranslations('writeoff');
@@ -107,13 +115,17 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
     .filter((p) => p.url !== null);
 
   const movementIds = (movements ?? []).map((m) => m.id);
-  const { data: acts } = movementIds.length
-    ? await supabase
+  let actsQuery = movementIds.length
+    ? supabase
         .from('handover_acts')
-        .select('id, act_number, status, created_at')
+        .select('id, act_number, status, created_at, archived_at')
         .in('movement_id', movementIds)
         .order('created_at', { ascending: false })
-    : { data: [] as { id: string; act_number: string; status: string; created_at: string }[] };
+    : null;
+  if (actsQuery && !showArchived) actsQuery = actsQuery.is('archived_at', null);
+  const { data: acts } = actsQuery
+    ? await actsQuery
+    : { data: [] as { id: string; act_number: string; status: string; created_at: string; archived_at: string | null }[] };
 
   const holderName = tool.holder?.full_name ?? tool.external_holder?.full_name ?? null;
   const warrantyDays = tool.warranty_until ? daysFromToday(tool.warranty_until) : null;
@@ -434,9 +446,17 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
 
         <div className="space-y-4">
           <section className="rounded-card border border-line/30 bg-white p-4">
-            <h2 className="font-mono text-xs uppercase tracking-[1.5px] text-dim">
-              {t('detail.actsTitle')}
-            </h2>
+            <div className="flex items-center justify-between">
+              <h2 className="font-mono text-xs uppercase tracking-[1.5px] text-dim">
+                {t('detail.actsTitle')}
+              </h2>
+              <Link
+                href={showArchived ? `/tools/${tool.id}` : `/tools/${tool.id}?archived=1`}
+                className="font-mono text-[10px] uppercase tracking-[1px] text-dim underline"
+              >
+                {showArchived ? t('detail.hideArchivedActs') : t('detail.showArchivedActs')}
+              </Link>
+            </div>
             {acts && acts.length > 0 ? (
               <ul className="mt-3 space-y-2">
                 {acts.map((a) => (
@@ -445,6 +465,11 @@ export default async function ToolDetailPage({ params }: { params: Promise<{ id:
                       {a.act_number}
                     </span>
                     <span className="flex items-center gap-2">
+                      {a.archived_at ? (
+                        <span className={`${STAMP} border-line text-dim`}>
+                          {t('detail.archivedStamp')}
+                        </span>
+                      ) : null}
                       <span className={`${STAMP} border-line text-ink`}>
                         {t(`detail.actStatus.${a.status}` as Parameters<typeof t>[0])}
                       </span>

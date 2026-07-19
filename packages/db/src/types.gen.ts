@@ -539,6 +539,7 @@ export type Database = {
       handover_acts: {
         Row: {
           act_number: string
+          archived_at: string | null
           created_at: string
           external_receiver_id: string | null
           giver_id: string | null
@@ -555,6 +556,7 @@ export type Database = {
         }
         Insert: {
           act_number: string
+          archived_at?: string | null
           created_at?: string
           external_receiver_id?: string | null
           giver_id?: string | null
@@ -571,6 +573,7 @@ export type Database = {
         }
         Update: {
           act_number?: string
+          archived_at?: string | null
           created_at?: string
           external_receiver_id?: string | null
           giver_id?: string | null
@@ -3341,6 +3344,10 @@ export type Database = {
       add_tool_photo: {
         Args: { path: string; target_tool: string }
         Returns: undefined
+      }
+      archive_acts: {
+        Args: { target_org: string; up_to: string }
+        Returns: Json
       }
       assert_location_editor: {
         Args: { target_org: string }

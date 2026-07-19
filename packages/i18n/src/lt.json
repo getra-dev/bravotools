@@ -107,6 +107,26 @@
     "photoAdd": "Įkelti nuotrauką",
     "photoLabel": "Įrankio nuotrauka (jpg)"
   },
+  "history": {
+    "title": "Istorija",
+    "allActions": "Visi veiksmai",
+    "allLocations": "Visos lokacijos",
+    "allPeople": "Visi žmonės",
+    "searchPlaceholder": "Įrankis: pavadinimas ar kodas",
+    "monthEvents": "Įvykių: {count}",
+    "empty": "Įvykių pagal filtrus nėra",
+    "limitNote": "Rodomi paskutiniai {count} įvykių — susiaurink filtrus",
+    "inventoryClosed": "Inventorizacija uždaryta",
+    "byPerson": "atliko {name}",
+    "archiveTitle": "Aktų archyvavimas",
+    "archiveUpTo": "Pasirašyti aktai iki",
+    "archiveAction": "Archyvuoti",
+    "archivedNotice": "Archyvuota aktų: {count}",
+    "archiveErrors": {
+      "not_allowed": "Archyvuoti gali tik savininkas arba administratorius",
+      "save_failed": "Nepavyko archyvuoti — bandyk dar kartą"
+    }
+  },
   "map": {
     "title": "Žemėlapis",
     "toolsHere": "Įrankių: {count}",
@@ -267,6 +287,9 @@
       "repairsTitle": "Serviso istorija",
       "movementsTitle": "Judėjimo istorija",
       "actsTitle": "Perdavimo aktai",
+      "showArchivedActs": "Rodyti archyvuotus",
+      "hideArchivedActs": "Slėpti archyvuotus",
+      "archivedStamp": "Archyvuotas",
       "emptySection": "Kol kas nieko",
       "byPerson": "atliko {name}",
       "toPlace": "į {place}",

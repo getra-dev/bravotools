@@ -107,6 +107,26 @@
     "photoAdd": "Upload photo",
     "photoLabel": "Tool photo (jpg)"
   },
+  "history": {
+    "title": "History",
+    "allActions": "All actions",
+    "allLocations": "All locations",
+    "allPeople": "All people",
+    "searchPlaceholder": "Tool: name or code",
+    "monthEvents": "{count} events",
+    "empty": "No events match",
+    "limitNote": "Showing the latest {count} events — narrow the filters for more",
+    "inventoryClosed": "Stocktake closed",
+    "byPerson": "by {name}",
+    "archiveTitle": "Archive acts",
+    "archiveUpTo": "Signed acts up to",
+    "archiveAction": "Archive",
+    "archivedNotice": "Acts archived: {count}",
+    "archiveErrors": {
+      "not_allowed": "Only the owner or admin can archive",
+      "save_failed": "Could not archive — try again"
+    }
+  },
   "map": {
     "title": "Map",
     "toolsHere": "{count} tools",
@@ -267,6 +287,9 @@
       "repairsTitle": "Service history",
       "movementsTitle": "Movement timeline",
       "actsTitle": "Handover acts",
+      "showArchivedActs": "Show archived",
+      "hideArchivedActs": "Hide archived",
+      "archivedStamp": "Archived",
       "emptySection": "Nothing yet",
       "byPerson": "by {name}",
       "toPlace": "to {place}",
