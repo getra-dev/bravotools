@@ -289,6 +289,41 @@ crew completes real handovers offline for 2 weeks without prompting.
   delivered_quantity updated, issues → delivery_issues, remainder →
   backorder suggestion in queue.
 
+### 3.6 Vendor relationship hub — "Vendor 360" (OWNER AMENDMENT 2026-07-19, later work)
+Owner-requested. The vendor detail page becomes the single place to
+track everything about a vendor. Buildable WITHOUT AI except where noted.
+- **Contacts (multiple per vendor).** New `vendor_contacts` table:
+  vendor_id, name, position, email, phone, `handles` text[] (what they
+  cover — e.g. one contact for blocks, another for stone wool),
+  is_primary. One vendor = many responsible people. RPCs create/update/
+  remove, gated is_supply; select is_org_member.
+  - PO email auto-routing: when sending an order (E2-D), pick the contact
+    whose `handles` intersects the order's material categories; fall back
+    to is_primary; then to vendors.email. Surface which contact it went
+    to in the outbound_messages proof.
+- **Trading history.** Consolidated ledger on the vendor page: orders to
+  this vendor + vendor_invoices, one timeline, running totals (ordered €,
+  invoiced €, delivered/outstanding). Data already exists (orders +
+  vendor_invoices) — this is a read/aggregate view.
+- **Credit limit.** New `vendors.credit_limit numeric`. Exposure =
+  open-order value (unpaid/undelivered) + unpaid vendor_invoices; show a
+  bar on the vendor page and warn on the order-create/send step when a
+  new PO would push exposure over the limit (soft warning, not a block).
+- **Contracts.** New `vendor_contracts` table: vendor_id, number,
+  valid_from, valid_to, terms text, file_storage_path (new storage
+  bucket, org-prefix RLS like the others). List + upload + validity
+  badge (active / expiring / expired) on the vendor page; expiring
+  contract → reminder (reuse run_daily_reminders / notifications).
+- **Vendor invoices.** `vendor_invoices` + `vendor_invoice_lines` tables
+  already exist. Buildable now: list on the vendor page + manual add
+  (number, date, total, PDF upload) + open/paid status.
+  - AI / E3 (needs ANTHROPIC_API_KEY): auto-parse invoice PDF →
+    vendor_invoice_lines, reconcile against order/movement lines,
+    per-line verdict — this is the §4 money layer, do NOT build without
+    the key.
+- Suggested build order when activated: contacts (+PO routing) → trading
+  history + invoice list → credit limit → contracts.
+
 ---
 
 ## 4. Etapas 3 — Money layer (summary spec)
