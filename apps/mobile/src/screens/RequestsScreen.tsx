@@ -103,6 +103,7 @@ export function RequestsScreen({
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [isHot, setIsHot] = useState(false);
   const [hotReason, setHotReason] = useState<string | null>(null);
+  const [reasonPickerOpen, setReasonPickerOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -348,7 +349,17 @@ export function RequestsScreen({
         </Pressable>
 
         <Pressable
-          onPress={() => setIsHot((prev) => !prev)}
+          onPress={() => {
+            setIsHot((prev) => {
+              const next = !prev;
+              if (next) {
+                setReasonPickerOpen(true); // pick the reason right away
+              } else {
+                setHotReason(null);
+              }
+              return next;
+            });
+          }}
           style={{
             minHeight: 44,
             justifyContent: 'center',
@@ -367,32 +378,24 @@ export function RequestsScreen({
         {isHot ? (
           <View>
             <Text style={ui.label}>{t('mobile.requests.hotReason')}</Text>
-            {HOT_REASONS.map((reason) => (
-              <Pressable
-                key={reason}
-                onPress={() => setHotReason(reason)}
+            <Pressable
+              style={[dropdownField, { borderColor: theme.colors.hot }]}
+              onPress={() => setReasonPickerOpen(true)}
+            >
+              <Text
                 style={{
-                  minHeight: 40,
-                  justifyContent: 'center',
-                  paddingHorizontal: theme.spacing.lg,
-                  borderRadius: theme.radius.buttonSm,
-                  borderWidth: 1,
-                  borderColor: hotReason === reason ? theme.colors.hot : theme.colors.line,
-                  backgroundColor: theme.colors.panel2,
-                  marginTop: theme.spacing.sm,
+                  flex: 1,
+                  color: hotReason ? theme.colors.paper : theme.colors.dim,
+                  fontSize: 15,
+                  fontWeight: hotReason ? '700' : '400',
                 }}
               >
-                <Text
-                  style={{
-                    color: theme.colors.paper,
-                    fontSize: 14,
-                    fontWeight: hotReason === reason ? '800' : '400',
-                  }}
-                >
-                  {t(`mobile.requests.reasons.${reason}`)}
-                </Text>
-              </Pressable>
-            ))}
+                {hotReason
+                  ? t(`mobile.requests.reasons.${hotReason}`)
+                  : t('mobile.requests.pickReason')}
+              </Text>
+              <Text style={{ color: theme.colors.dim, fontSize: 12 }}>{CARET}</Text>
+            </Pressable>
           </View>
         ) : null}
 
@@ -438,6 +441,37 @@ export function RequestsScreen({
                   </Pressable>
                 ))}
               </ScrollView>
+            </View>
+          </Pressable>
+        </Modal>
+
+        <Modal visible={reasonPickerOpen} transparent animationType="fade">
+          <Pressable
+            style={{ flex: 1, backgroundColor: theme.colors.scrim, justifyContent: 'center', padding: 24 }}
+            onPress={() => setReasonPickerOpen(false)}
+          >
+            <View style={card}>
+              <Text style={[ui.label, { marginTop: 0 }]}>{t('mobile.requests.hotReason')}</Text>
+              {HOT_REASONS.map((reason) => (
+                <Pressable
+                  key={reason}
+                  onPress={() => {
+                    setHotReason(reason);
+                    setReasonPickerOpen(false);
+                  }}
+                  style={{ minHeight: 48, justifyContent: 'center' }}
+                >
+                  <Text
+                    style={{
+                      color: hotReason === reason ? theme.colors.hot : theme.colors.paper,
+                      fontSize: 16,
+                      fontWeight: hotReason === reason ? '800' : '400',
+                    }}
+                  >
+                    {t(`mobile.requests.reasons.${reason}`)}
+                  </Text>
+                </Pressable>
+              ))}
             </View>
           </Pressable>
         </Modal>

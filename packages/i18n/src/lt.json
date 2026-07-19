@@ -575,7 +575,8 @@
         "duplicate": "Dublikatas"
       },
       "hotStamp": "HOT",
-      "failed": "Nepavyko išsiųsti — bandyk dar kartą"
+      "failed": "Nepavyko išsiųsti — bandyk dar kartą",
+      "pickReason": "Pasirink priežastį…"
     },
     "rental": {
       "intakeCta": "Nuomos paėmimas",

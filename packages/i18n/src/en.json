@@ -575,7 +575,8 @@
         "duplicate": "Duplicate"
       },
       "hotStamp": "HOT",
-      "failed": "Could not send — try again"
+      "failed": "Could not send — try again",
+      "pickReason": "Pick a reason…"
     },
     "rental": {
       "intakeCta": "Rental pickup",
