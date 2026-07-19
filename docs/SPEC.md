@@ -308,8 +308,17 @@ crew completes real handovers offline for 2 weeks without prompting.
     filter (has_crane), the trip-time estimate, and a billable service
     line (site_services / E3 money layer). Capture + sheet now; invoicing
     is E3.
+  * External / hired transport: delivery_tasks.delivery_method already
+    has own_vehicle | vendor_delivers | hired — wire it. Plan/assign lets
+    the dispatcher pick the method. vendor_delivers = no own vehicle, ETA
+    from the vendor PO. hired = pick a carrier (a vendor with a transport
+    type — add 'transport' to the vendor type set, or free-text) + cost,
+    and optionally ORDER transport by email reusing the PO-email mailer
+    (outbound_messages proof). Greedy own-vehicle suggestion only applies
+    when method = own_vehicle.
   Suggested order: material params → greedy suggestion → trips+stop_order
-  → pick list + trip sheet PDFs → crane service capture.
+  → pick list + trip sheet PDFs → crane service capture → external/hired
+  transport method.
 
 ### 3.5 Receiving (foreman)
 - Exception-first: all lines default delivered; groups by category;
