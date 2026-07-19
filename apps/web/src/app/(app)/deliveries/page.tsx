@@ -6,6 +6,7 @@ import {
   planDeliveryAction,
   assignDeliveryAction,
   setStopOrderAction,
+  setDeliveryCraneAction,
 } from '@/lib/logistics-actions';
 
 const STAMP =
@@ -39,7 +40,7 @@ export default async function DeliveriesPage({
         .from('delivery_tasks')
         .select(
           `id, status, priority, scheduled_date, est_weight_kg, est_volume_m3, requires_crane,
-           vehicle_id, stop_order,
+           crane_lift_height_m, est_crane_minutes, crane_billable, vehicle_id, stop_order,
            order:orders(order_number, is_hot),
            dropoff:locations!delivery_tasks_dropoff_location_id_fkey(name),
            vehicle:vehicles(name, capacity_kg),
@@ -226,7 +227,11 @@ export default async function DeliveriesPage({
                       <span className={`${STAMP} border-hot/50 text-hot`}>{t('urgent')}</span>
                     ) : null}
                     {task.requires_crane ? (
-                      <span className={`${STAMP} border-hi/50 text-hi`}>{t('crane')}</span>
+                      <span className={`${STAMP} border-hi/50 text-hi`} title={task.crane_lift_height_m ? `${task.crane_lift_height_m} m` : undefined}>
+                        {t('crane')}
+                        {task.est_crane_minutes ? ` ${task.est_crane_minutes}′` : ''}
+                        {task.crane_billable ? ' €' : ''}
+                      </span>
                     ) : null}
                     <span className={`${STAMP} ml-auto ${STATUS_STYLE[task.status] ?? 'border-line text-dim'}`}>
                       {t(`status.${task.status}` as Parameters<typeof t>[0])}
@@ -247,6 +252,25 @@ export default async function DeliveriesPage({
                         style={{ width: `${Math.min(pct, 100)}%` }}
                       />
                     </div>
+                  ) : null}
+
+                  {isSupply && task.status !== 'delivered' ? (
+                    <form action={setDeliveryCraneAction} className="mt-2 flex flex-wrap items-center gap-2 text-xs">
+                      <input type="hidden" name="taskId" value={task.id} />
+                      <label className="flex items-center gap-1">
+                        <input type="checkbox" name="requiresCrane" defaultChecked={task.requires_crane ?? false} className="h-3.5 w-3.5" />
+                        {t('craneNeeded')}
+                      </label>
+                      <input name="liftHeight" inputMode="decimal" defaultValue={task.crane_lift_height_m ?? ''} placeholder={t('craneHeight')} className={`${INPUT} w-24`} />
+                      <input name="craneMinutes" inputMode="numeric" defaultValue={task.est_crane_minutes ?? ''} placeholder={t('craneMinutes')} className={`${INPUT} w-24`} />
+                      <label className="flex items-center gap-1">
+                        <input type="checkbox" name="craneBillable" defaultChecked={task.crane_billable ?? false} className="h-3.5 w-3.5" />
+                        {t('craneBillable')}
+                      </label>
+                      <button className="h-7 rounded-button-sm border border-line/40 px-2 text-[11px] font-bold">
+                        {t('craneSave')}
+                      </button>
+                    </form>
                   ) : null}
 
                   {isSupply && task.status === 'assigned' ? (

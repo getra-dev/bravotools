@@ -288,11 +288,14 @@ export type Database = {
       delivery_tasks: {
         Row: {
           assigned_to: string | null
+          crane_billable: boolean
+          crane_lift_height_m: number | null
           created_at: string
           created_via: string
           delivered_at: string | null
           delivery_method: string
           dropoff_location_id: string
+          est_crane_minutes: number | null
           est_volume_m3: number | null
           est_weight_kg: number | null
           id: string
@@ -313,11 +316,14 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          crane_billable?: boolean
+          crane_lift_height_m?: number | null
           created_at?: string
           created_via?: string
           delivered_at?: string | null
           delivery_method?: string
           dropoff_location_id: string
+          est_crane_minutes?: number | null
           est_volume_m3?: number | null
           est_weight_kg?: number | null
           id?: string
@@ -338,11 +344,14 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          crane_billable?: boolean
+          crane_lift_height_m?: number | null
           created_at?: string
           created_via?: string
           delivered_at?: string | null
           delivery_method?: string
           dropoff_location_id?: string
+          est_crane_minutes?: number | null
           est_volume_m3?: number | null
           est_weight_kg?: number | null
           id?: string
@@ -3579,6 +3588,7 @@ export type Database = {
         Args: { act_id: string; pdf_path: string }
         Returns: undefined
       }
+      set_delivery_crane: { Args: { args: Json }; Returns: undefined }
       set_order_line_eta: {
         Args: { order_item_id: string; p_date: string }
         Returns: undefined

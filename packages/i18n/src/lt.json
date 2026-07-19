@@ -1104,13 +1104,19 @@
       "odoStart": "Rida pradžia",
       "odoEnd": "Rida pabaiga",
       "km": "Viso km",
-      "generated": "Sugeneruota BravoTools."
+      "generated": "Sugeneruota BravoTools.",
+      "crane": "Kranas"
     },
     "picklistCta": "Surinkimo lapas",
     "tripsheetCta": "Kelionės lapas",
     "reorderUp": "↑",
     "reorderDown": "↓",
     "routeFor": "Maršrutas — {vehicle} · {date}",
-    "routes": "Maršrutai"
+    "routes": "Maršrutai",
+    "craneNeeded": "Kranas",
+    "craneHeight": "Aukštis m",
+    "craneMinutes": "Krano min",
+    "craneBillable": "Apmokestinti",
+    "craneSave": "Saugoti"
   }
 }

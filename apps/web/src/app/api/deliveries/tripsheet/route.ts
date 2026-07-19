@@ -41,6 +41,7 @@ export async function GET(request: NextRequest) {
       driver: t('driver'),
       stop: t('stop'),
       order: t('order'),
+      crane: t('crane'),
       odoStart: t('odoStart'),
       odoEnd: t('odoEnd'),
       km: t('km'),
@@ -56,6 +57,8 @@ export async function GET(request: NextRequest) {
       site: task.site,
       address: task.address,
       orderNumber: task.orderNumber,
+      craneHeightM: task.craneHeightM,
+      craneMinutes: task.craneMinutes,
       lines: task.lines,
     })),
   };

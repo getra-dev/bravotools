@@ -105,14 +105,17 @@ export async function renderPickList(d: PickListData): Promise<Buffer> {
 export type TripSheetData = {
   labels: {
     title: string; date: string; vehicle: string; plate: string; driver: string;
-    stop: string; order: string; odoStart: string; odoEnd: string; km: string; generated: string;
+    stop: string; order: string; crane: string; odoStart: string; odoEnd: string; km: string; generated: string;
   };
   orgName: string;
   dateText: string;
   vehicleName: string;
   plate: string;
   driverName: string;
-  stops: { seq: number; site: string; address: string; orderNumber: string; lines: Line[] }[];
+  stops: {
+    seq: number; site: string; address: string; orderNumber: string;
+    craneHeightM: number | null; craneMinutes: number | null; lines: Line[];
+  }[];
 };
 
 export async function renderTripSheet(d: TripSheetData): Promise<Buffer> {
@@ -138,6 +141,13 @@ export async function renderTripSheet(d: TripSheetData): Promise<Buffer> {
               </Text>
             </View>
             {stop.address ? <Text style={{ color: tokens.color.dim }}>{stop.address}</Text> : null}
+            {stop.craneMinutes || stop.craneHeightM ? (
+              <Text style={{ color: tokens.color.hi, marginTop: 2 }}>
+                {`${labels.crane}: ${stop.craneHeightM ? `${stop.craneHeightM} m` : ''}${
+                  stop.craneMinutes ? ` · ${stop.craneMinutes} min` : ''
+                }`}
+              </Text>
+            ) : null}
             {stop.lines.map((l, li) => (
               <View key={li} style={{ flexDirection: 'row', marginTop: 2 }}>
                 <Text style={s.cDesc}>{l.description}</Text>

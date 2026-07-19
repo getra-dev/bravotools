@@ -8,6 +8,8 @@ export type LoadedTask = {
   site: string;
   address: string;
   pickup: string;
+  craneHeightM: number | null;
+  craneMinutes: number | null;
   lines: TaskLine[];
 };
 
@@ -21,7 +23,7 @@ export async function loadTasksForVehicleDay(
   const { data: tasks } = await supabase
     .from('delivery_tasks')
     .select(
-      `id, stop_order, order_id,
+      `id, stop_order, order_id, crane_lift_height_m, est_crane_minutes,
        order:orders(order_number),
        dropoff:locations!delivery_tasks_dropoff_location_id_fkey(name, address),
        pickup:locations!delivery_tasks_pickup_location_id_fkey(name)`,
@@ -46,6 +48,8 @@ export async function loadTasksForVehicleDay(
       site: task.dropoff?.name ?? '',
       address: task.dropoff?.address ?? '',
       pickup: task.pickup?.name ?? '—',
+      craneHeightM: task.crane_lift_height_m,
+      craneMinutes: task.est_crane_minutes,
       lines: (items ?? []).map((i) => ({
         description: i.description,
         qty: i.quantity,

@@ -98,3 +98,20 @@ export async function setStopOrderAction(formData: FormData) {
   if (error) redirect('/deliveries?error=save_failed');
   redirect('/deliveries');
 }
+
+export async function setDeliveryCraneAction(formData: FormData) {
+  const ctx = await getSessionContext();
+  if (!ctx?.activeOrg) redirect('/onboarding');
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase.rpc('set_delivery_crane', {
+    args: {
+      task_id: String(formData.get('taskId') ?? ''),
+      requires_crane: formData.get('requiresCrane') === 'on',
+      lift_height_m: String(formData.get('liftHeight') ?? '').trim(),
+      est_minutes: String(formData.get('craneMinutes') ?? '').trim(),
+      billable: formData.get('craneBillable') === 'on',
+    },
+  });
+  if (error) redirect('/deliveries?error=save_failed');
+  redirect('/deliveries?notice=assigned');
+}
