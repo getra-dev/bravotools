@@ -63,7 +63,7 @@ export default async function OrdersPage({
       .select(
         `id, order_number, status, is_hot, needed_by, created_at,
          site:locations(name), vendor:vendors!orders_vendor_id_fkey(name, email),
-         items:order_items(id, description, quantity, delivered_quantity, unit)`,
+         items:order_items(id, description, quantity, delivered_quantity, unit, expected_date)`,
       )
       .eq('org_id', orgId)
       .order('created_at', { ascending: false })
@@ -163,6 +163,9 @@ export default async function OrdersPage({
                     {order.items.map((item) => {
                       const itemIssues = issuesByItem.get(item.id) ?? [];
                       const delivered = item.delivered_quantity ?? 0;
+                      const remaining = item.quantity - delivered;
+                      const today = new Date().toISOString().slice(0, 10);
+                      const overdue = remaining > 0 && item.expected_date != null && item.expected_date < today;
                       return (
                         <li key={item.id} className="text-sm">
                           {item.description}
@@ -174,6 +177,13 @@ export default async function OrdersPage({
                               : item.quantity}{' '}
                             {item.unit}
                           </span>
+                          {remaining > 0 && item.expected_date ? (
+                            <span
+                              className={`${STAMP} ml-1.5 ${overdue ? 'border-hot/50 text-hot' : 'border-line text-dim'}`}
+                            >
+                              {t('eta', { date: item.expected_date })}
+                            </span>
+                          ) : null}
                           {delivered > 0 && delivered >= item.quantity ? (
                             <span className={`${STAMP} ml-1.5 border-ok/50 text-ok`}>OK</span>
                           ) : null}

@@ -51,7 +51,8 @@
     "orders": "Užsakymai",
     "vendors": "Tiekėjai",
     "materials": "Medžiagos",
-    "stock": "Atsargos"
+    "stock": "Atsargos",
+    "awaiting": "Laukiama"
   },
   "inventory": {
     "title": "Inventorizacijos",
@@ -513,7 +514,8 @@
     },
     "notices": {
       "sent": "Užsakymas išsiųstas tiekėjui"
-    }
+    },
+    "eta": "Iki {date}"
   },
   "mobile": {
     "home": {
@@ -946,6 +948,26 @@
       "invalid_qty": "Įvesk teisingą kiekį",
       "invalid_type": "Neteisingas judėjimas",
       "not_allowed": "Atsargas koreguoti gali tik tiekimo pusė",
+      "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+    }
+  },
+  "awaiting": {
+    "title": "Laukiama pristatymo",
+    "lineCount": "Neatvykę: {count} poz.",
+    "overdueCount": "Vėluoja: {count}",
+    "empty": "Neatvykusių nėra — viskas pristatyta",
+    "colMaterial": "Medžiaga",
+    "colRemaining": "Liko",
+    "colVendor": "Tiekėjas",
+    "colSite": "Objektas",
+    "colOrder": "Užsakymas",
+    "colExpected": "Laukiama",
+    "hot": "HOT",
+    "noDate": "be datos",
+    "save": "Saugoti",
+    "etaSaved": "Data išsaugota",
+    "errors": {
+      "not_allowed": "Datas nustatyti gali tik tiekimo pusė",
       "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
     }
   }

@@ -1386,7 +1386,9 @@ export type Database = {
           catalog_item_id: string | null
           delivered_quantity: number
           description: string
+          expected_date: string | null
           id: string
+          material_id: string | null
           notes: string | null
           order_id: string
           quantity: number
@@ -1397,7 +1399,9 @@ export type Database = {
           catalog_item_id?: string | null
           delivered_quantity?: number
           description: string
+          expected_date?: string | null
           id?: string
+          material_id?: string | null
           notes?: string | null
           order_id: string
           quantity: number
@@ -1408,7 +1412,9 @@ export type Database = {
           catalog_item_id?: string | null
           delivered_quantity?: number
           description?: string
+          expected_date?: string | null
           id?: string
+          material_id?: string | null
           notes?: string | null
           order_id?: string
           quantity?: number
@@ -1421,6 +1427,13 @@ export type Database = {
             columns: ["catalog_item_id"]
             isOneToOne: false
             referencedRelation: "vendor_catalog_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "materials"
             referencedColumns: ["id"]
           },
           {
@@ -3524,6 +3537,10 @@ export type Database = {
       run_daily_reminders: { Args: never; Returns: Json }
       set_act_pdf_path: {
         Args: { act_id: string; pdf_path: string }
+        Returns: undefined
+      }
+      set_order_line_eta: {
+        Args: { order_item_id: string; p_date: string }
         Returns: undefined
       }
       set_vendor_price: { Args: { args: Json }; Returns: undefined }
