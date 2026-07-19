@@ -6,7 +6,7 @@ import { getSessionContext } from '@/lib/org';
 import {
   confirmMatchAction,
   createMaterialAndConfirmAction,
-  createOrderAction,
+  createSplitOrdersAction,
 } from '@/lib/request-actions';
 
 const STAMP =
@@ -70,10 +70,15 @@ export default async function RequestsPage({
     .limit(100);
   if (!showClosed) query = query.in('status', ['open', 'processing']);
 
-  const [{ data: requests }, { data: materials }, { data: vendors }] = await Promise.all([
+  const [{ data: requests }, { data: materials }, { data: vendors }, { data: catalog }] = await Promise.all([
     query,
     supabase.from('materials').select('id, canonical_name, base_unit').eq('org_id', orgId).order('canonical_name'),
     supabase.from('vendors').select('id, name').eq('org_id', orgId).order('name'),
+    supabase
+      .from('vendor_catalog_items')
+      .select('material_id, vendor_id, price')
+      .eq('org_id', orgId)
+      .not('material_id', 'is', null),
   ]);
 
   // fuzzy suggestions for every still-pending line (pg_trgm via RPC)
@@ -90,6 +95,18 @@ export default async function RequestsPage({
     }),
   );
   const suggestions = new Map(suggestionEntries);
+
+  // cheapest catalog vendor per material → default assignment for split
+  const cheapestVendor = new Map<string, string>();
+  const bestPrice = new Map<string, number>();
+  for (const row of catalog ?? []) {
+    if (!row.material_id || row.price == null) continue;
+    const prev = bestPrice.get(row.material_id);
+    if (prev === undefined || row.price < prev) {
+      bestPrice.set(row.material_id, row.price);
+      cheapestVendor.set(row.material_id, row.vendor_id);
+    }
+  }
 
   // own stock for the materials on these requests (matched or top-suggested)
   // → dispatcher sees "we already have N somewhere" before ordering
@@ -288,25 +305,63 @@ export default async function RequestsPage({
                 })}
               </ul>
 
-              {actionable && confirmedCount > 0 ? (
-                <form action={createOrderAction} className="mt-3 flex items-center gap-2 border-t border-line/20 pt-3">
-                  <input type="hidden" name="requestId" value={req.id} />
-                  <label className="sr-only" htmlFor={`vendor-${req.id}`}>
-                    {t('vendor')}
-                  </label>
-                  <select id={`vendor-${req.id}`} name="vendorId" className={INPUT} defaultValue="">
-                    <option value="">{t('noVendor')}</option>
-                    {(vendors ?? []).map((v) => (
-                      <option key={v.id} value={v.id}>
-                        {v.name}
-                      </option>
-                    ))}
-                  </select>
-                  <button className="h-8 rounded-button-sm bg-hi px-3 text-xs font-bold text-ink">
-                    {t('orderCta')} ({confirmedCount})
-                  </button>
-                </form>
-              ) : null}
+              {actionable && confirmedCount > 0
+                ? (() => {
+                    const confirmed = req.items.filter((i) => i.status === 'confirmed');
+                    // distinct vendors defaulted → how many POs this will make
+                    const defaultVendors = new Set(
+                      confirmed.map((i) =>
+                        i.material_id ? (cheapestVendor.get(i.material_id) ?? '') : '',
+                      ),
+                    );
+                    const poCount = [...defaultVendors].filter(Boolean).length || 1;
+                    return (
+                      <form
+                        action={createSplitOrdersAction}
+                        className="mt-3 space-y-2 border-t border-line/20 pt-3"
+                      >
+                        <input type="hidden" name="requestId" value={req.id} />
+                        <p className="font-mono text-[10px] uppercase tracking-[1px] text-dim">
+                          {t('assignVendors')}
+                        </p>
+                        {confirmed.map((item) => {
+                          const def = item.material_id ? cheapestVendor.get(item.material_id) : undefined;
+                          return (
+                            <div key={item.id} className="flex flex-wrap items-center gap-2">
+                              <input type="hidden" name="items" value={item.id} />
+                              <span className="min-w-[180px] flex-1 text-sm">
+                                {item.material?.canonical_name ?? item.raw_text}
+                                <span className="text-dim">
+                                  {' '}
+                                  · {item.qty ?? ''} {item.unit ?? ''}
+                                </span>
+                              </span>
+                              <select
+                                name={`vendor__${item.id}`}
+                                required
+                                defaultValue={def ?? ''}
+                                className={INPUT}
+                              >
+                                <option value="" disabled>
+                                  {t('pickVendorLine')}
+                                </option>
+                                {(vendors ?? []).map((v) => (
+                                  <option key={v.id} value={v.id}>
+                                    {v.name}
+                                    {def === v.id ? ` · ${t('cheapest')}` : ''}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          );
+                        })}
+                        <button className="h-8 rounded-button-sm bg-hi px-3 text-xs font-bold text-ink">
+                          {t('createOrders', { count: poCount })}
+                        </button>
+                      </form>
+                    );
+                  })()
+                : null}
             </section>
           );
         })}

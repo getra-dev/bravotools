@@ -97,3 +97,56 @@ export async function updateOrderStatusAction(formData: FormData) {
   }
   redirect('/orders');
 }
+
+export async function createSplitOrdersAction(formData: FormData) {
+  const ctx = await getSessionContext();
+  if (!ctx?.activeOrg) redirect('/onboarding');
+  const requestId = String(formData.get('requestId') ?? '');
+  const itemIds = formData.getAll('items').map(String);
+  const assignments = itemIds
+    .map((itemId) => ({
+      item_id: itemId,
+      vendor_id: String(formData.get(`vendor__${itemId}`) ?? ''),
+    }))
+    .filter((a) => a.vendor_id);
+  if (assignments.length === 0) redirect('/requests?error=no_confirmed_items');
+
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase.rpc('create_orders_split', {
+    req_id: requestId,
+    assignments,
+  });
+  if (error) {
+    redirect(
+      `/requests?error=${errorCode(error.message, [
+        'not_allowed',
+        'line_unassigned',
+        'request_closed',
+        'no_confirmed_items',
+      ])}`,
+    );
+  }
+  redirect('/orders?notice=order_created');
+}
+
+export async function reorderShortfallAction(formData: FormData) {
+  const ctx = await getSessionContext();
+  if (!ctx?.activeOrg) redirect('/onboarding');
+  const itemId = String(formData.get('itemId') ?? '');
+  const vendorId = String(formData.get('vendorId') ?? '');
+
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase.rpc('reorder_shortfall', {
+    args: { order_item_id: itemId, vendor_id: vendorId },
+  });
+  if (error) {
+    redirect(
+      `/orders?error=${errorCode(error.message, [
+        'not_allowed',
+        'vendor_not_found',
+        'nothing_to_reorder',
+      ])}`,
+    );
+  }
+  redirect('/orders?notice=order_created');
+}

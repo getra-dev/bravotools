@@ -3403,6 +3403,21 @@ export type Database = {
         }
         Returns: string
       }
+      add_line_to_order: {
+        Args: {
+          p_base_unit: string
+          p_canonical: string
+          p_item_id: string
+          p_material_id: string
+          p_order: string
+          p_qty: number
+          p_raw_text: string
+          p_unit: string
+          p_vendor: string
+          p_vendor_lead: number
+        }
+        Returns: undefined
+      }
       add_material_alias: {
         Args: { material_id: string; p_alias: string }
         Returns: undefined
@@ -3479,6 +3494,10 @@ export type Database = {
         Args: { p_vendor?: string; req_id: string }
         Returns: Json
       }
+      create_orders_split: {
+        Args: { assignments: Json; req_id: string }
+        Returns: Json
+      }
       create_organization: { Args: { org_name: string }; Returns: string }
       create_tool: {
         Args: { payload: Json; target_org: string }
@@ -3533,6 +3552,7 @@ export type Database = {
         Returns: undefined
       }
       rental_intake: { Args: { args: Json }; Returns: Json }
+      reorder_shortfall: { Args: { args: Json }; Returns: Json }
       return_to_vendor: { Args: { args: Json }; Returns: Json }
       run_daily_reminders: { Args: never; Returns: Json }
       set_act_pdf_path: {

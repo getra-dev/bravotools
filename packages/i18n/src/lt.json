@@ -442,7 +442,11 @@
       "confirmed": "Eilutė patvirtinta",
       "order_created": "Užsakymas sukurtas"
     },
-    "inStock": "Sandėly: {qty} ({where})"
+    "inStock": "Sandėly: {qty} ({where})",
+    "assignVendors": "Priskirk tiekėją kiekvienai eilutei (skaidoma į atskirus užsakymus)",
+    "pickVendorLine": "Tiekėjas…",
+    "cheapest": "pigiausias",
+    "createOrders": "Sukurti užsakymus ({count})"
   },
   "orders": {
     "title": "Užsakymai",
@@ -515,7 +519,9 @@
     "notices": {
       "sent": "Užsakymas išsiųstas tiekėjui"
     },
-    "eta": "Iki {date}"
+    "eta": "Iki {date}",
+    "reorderPick": "Užsakyti iš…",
+    "reorder": "Užsakyti kitur {qty}"
   },
   "mobile": {
     "home": {

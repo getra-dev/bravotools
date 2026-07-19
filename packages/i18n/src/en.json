@@ -442,7 +442,11 @@
       "confirmed": "Line confirmed",
       "order_created": "Order created"
     },
-    "inStock": "In stock: {qty} ({where})"
+    "inStock": "In stock: {qty} ({where})",
+    "assignVendors": "Assign a vendor to each line (split into separate orders)",
+    "pickVendorLine": "Vendor…",
+    "cheapest": "cheapest",
+    "createOrders": "Create orders ({count})"
   },
   "orders": {
     "title": "Orders",
@@ -515,7 +519,9 @@
     "notices": {
       "sent": "Order sent to the vendor"
     },
-    "eta": "ETA {date}"
+    "eta": "ETA {date}",
+    "reorderPick": "Re-order from…",
+    "reorder": "Re-order {qty}"
   },
   "mobile": {
     "home": {

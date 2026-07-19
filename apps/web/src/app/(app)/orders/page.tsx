@@ -4,6 +4,7 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSessionContext } from '@/lib/org';
 import { updateOrderStatusAction } from '@/lib/request-actions';
 import { sendOrderToVendorAction } from '@/lib/order-email-actions';
+import { reorderShortfallAction } from '@/lib/request-actions';
 
 const STAMP =
   'inline-block rounded-stamp border px-1.5 py-px font-mono text-[10px] uppercase tracking-[1px]';
@@ -57,7 +58,7 @@ export default async function OrdersPage({
   const orgId = ctx.activeOrg.orgId;
   const isSupply = ['owner', 'admin', 'supply_manager'].includes(ctx.activeOrg.role);
 
-  const [{ data: orders }, { data: issues }, { data: sentMsgs }] = await Promise.all([
+  const [{ data: orders }, { data: issues }, { data: sentMsgs }, { data: allVendors }] = await Promise.all([
     supabase
       .from('orders')
       .select(
@@ -71,7 +72,8 @@ export default async function OrdersPage({
     supabase
       .from('delivery_issues')
       .select('id, order_item_id, issue_type, qty_affected, description, status')
-      .eq('org_id', orgId),
+      .eq('org_id', orgId)
+      .in('status', ['open', 'vendor_notified', 'redelivery']),
     supabase
       .from('outbound_messages')
       .select('entity_id, to_address, status_updated_at')
@@ -79,6 +81,7 @@ export default async function OrdersPage({
       .eq('entity_type', 'order')
       .eq('channel', 'email')
       .order('status_updated_at', { ascending: false }),
+    supabase.from('vendors').select('id, name').eq('org_id', orgId).order('name'),
   ]);
 
   const issuesByItem = new Map<string, NonNullable<typeof issues>>();
@@ -197,6 +200,26 @@ export default async function OrdersPage({
                               {issue.qty_affected ? ` ${issue.qty_affected}` : ''}
                             </span>
                           ))}
+                          {isSupply &&
+                          remaining > 0 &&
+                          itemIssues.some((i) => ['open', 'vendor_notified'].includes(i.status)) ? (
+                            <form action={reorderShortfallAction} className="mt-1 flex items-center gap-1">
+                              <input type="hidden" name="itemId" value={item.id} />
+                              <select name="vendorId" required className="h-7 rounded-button-sm border border-line/40 bg-paper px-1.5 text-[11px]" defaultValue="">
+                                <option value="" disabled>
+                                  {t('reorderPick')}
+                                </option>
+                                {(allVendors ?? []).map((v) => (
+                                  <option key={v.id} value={v.id}>
+                                    {v.name}
+                                  </option>
+                                ))}
+                              </select>
+                              <button className="h-7 rounded-button-sm border border-hi/50 px-2 text-[11px] font-bold text-hi">
+                                {t('reorder', { qty: remaining })}
+                              </button>
+                            </form>
+                          ) : null}
                         </li>
                       );
                     })}
