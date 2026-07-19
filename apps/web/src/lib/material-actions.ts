@@ -58,3 +58,24 @@ export async function setVendorPriceAction(formData: FormData) {
   if (error) redirect(`/materials/${materialId}?error=${errorCode(error.message)}`);
   redirect(`/materials/${materialId}?notice=price_set`);
 }
+
+export async function addAliasAction(formData: FormData) {
+  const materialId = String(formData.get('materialId') ?? '');
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase.rpc('add_material_alias', {
+    material_id: materialId,
+    p_alias: String(formData.get('alias') ?? '').trim(),
+  });
+  if (error) redirect(`/materials/${materialId}?error=${errorCode(error.message)}`);
+  redirect(`/materials/${materialId}?notice=alias_added`);
+}
+
+export async function removeAliasAction(formData: FormData) {
+  const materialId = String(formData.get('materialId') ?? '');
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase.rpc('remove_material_alias', {
+    alias_id: String(formData.get('aliasId') ?? ''),
+  });
+  if (error) redirect(`/materials/${materialId}?error=${errorCode(error.message)}`);
+  redirect(`/materials/${materialId}?notice=alias_removed`);
+}

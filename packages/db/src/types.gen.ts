@@ -3390,6 +3390,10 @@ export type Database = {
         }
         Returns: string
       }
+      add_material_alias: {
+        Args: { material_id: string; p_alias: string }
+        Returns: undefined
+      }
       add_tool_component: {
         Args: {
           component_name: string
@@ -3506,6 +3510,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      remove_material_alias: { Args: { alias_id: string }; Returns: undefined }
       remove_site_assignment: {
         Args: { target_site: string; target_user: string }
         Returns: undefined

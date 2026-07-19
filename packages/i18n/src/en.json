@@ -903,7 +903,23 @@
         "invalid_price": "Enter a valid price",
         "vendor_not_found": "Vendor not found",
         "not_allowed": "Not allowed",
-        "save_failed": "Could not save — try again"
+        "save_failed": "Could not save — try again",
+        "alias_required": "Enter a name"
+      },
+      "aliases": "Alternative names",
+      "aliasesHint": "How a vendor or accounting may call this — the matcher recognises requests written this way.",
+      "noAliases": "No alternative names yet",
+      "aliasPlaceholder": "e.g. GKP 12.5",
+      "addAlias": "Add",
+      "removeAlias": "Remove",
+      "aliasSource": {
+        "manual": "manual",
+        "learned": "learned"
+      },
+      "notices": {
+        "priceSaved": "Price saved",
+        "aliasAdded": "Alternative name added",
+        "aliasRemoved": "Alternative name removed"
       }
     }
   },

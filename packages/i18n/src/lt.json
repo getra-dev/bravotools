@@ -903,7 +903,23 @@
         "invalid_price": "Įvesk teisingą kainą",
         "vendor_not_found": "Tiekėjas nerastas",
         "not_allowed": "Neturi teisės",
-        "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+        "save_failed": "Nepavyko išsaugoti — bandyk dar kartą",
+        "alias_required": "Įvesk pavadinimą"
+      },
+      "aliases": "Alternatyvūs pavadinimai",
+      "aliasesHint": "Kaip tai vadina tiekėjas ar buhalterija — atpažinimas suras taip užrašytus poreikius.",
+      "noAliases": "Alternatyvių pavadinimų dar nėra",
+      "aliasPlaceholder": "pvz. GKP 12.5",
+      "addAlias": "Pridėti",
+      "removeAlias": "Šalinti",
+      "aliasSource": {
+        "manual": "rankinis",
+        "learned": "išmoktas"
+      },
+      "notices": {
+        "priceSaved": "Kaina išsaugota",
+        "aliasAdded": "Alternatyvus pavadinimas pridėtas",
+        "aliasRemoved": "Alternatyvus pavadinimas pašalintas"
       }
     }
   },

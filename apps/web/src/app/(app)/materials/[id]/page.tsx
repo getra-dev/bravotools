@@ -3,7 +3,7 @@ import { getTranslations } from 'next-intl/server';
 import { notFound, redirect } from 'next/navigation';
 import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSessionContext } from '@/lib/org';
-import { setVendorPriceAction } from '@/lib/material-actions';
+import { setVendorPriceAction, addAliasAction, removeAliasAction } from '@/lib/material-actions';
 
 const STAMP =
   'inline-block rounded-stamp border px-1.5 py-px font-mono text-[10px] uppercase tracking-[1px]';
@@ -34,7 +34,7 @@ export default async function MaterialDetailPage({
     .maybeSingle();
   if (!material) notFound();
 
-  const [{ data: prices }, { data: vendors }, { data: history }] = await Promise.all([
+  const [{ data: prices }, { data: vendors }, { data: history }, { data: aliases }] = await Promise.all([
     supabase
       .from('vendor_catalog_items')
       .select('vendor_id, price, unit, lead_time_days, is_available, vendor:vendors!vendor_catalog_items_vendor_id_fkey(name)')
@@ -53,6 +53,11 @@ export default async function MaterialDetailPage({
       .eq('material_id', id)
       .order('observed_at', { ascending: false })
       .limit(20),
+    supabase
+      .from('material_aliases')
+      .select('id, alias, source')
+      .eq('material_id', id)
+      .order('alias'),
   ]);
 
   const best = (prices ?? []).reduce<number | null>(
@@ -88,7 +93,9 @@ export default async function MaterialDetailPage({
 
       {notice ? (
         <p className="mt-4 max-w-2xl rounded-button-sm border border-ok/40 bg-ok/10 px-3 py-2 text-sm">
-          {t('detail.priceSaved')}
+          {t(
+            `detail.notices.${notice === 'alias_added' ? 'aliasAdded' : notice === 'alias_removed' ? 'aliasRemoved' : 'priceSaved'}` as Parameters<typeof t>[0],
+          )}
         </p>
       ) : null}
       {error ? (
@@ -159,6 +166,47 @@ export default async function MaterialDetailPage({
             <input name="lead_time_days" inputMode="numeric" placeholder={t('detail.lead')} className={`${INPUT} w-20`} />
             <button className="h-8 rounded-button-sm bg-ink px-3 text-xs font-bold text-paper">
               {t('detail.setPrice')}
+            </button>
+          </form>
+        ) : null}
+      </section>
+
+      {/* alternative names — how vendors / accounting call this */}
+      <section className="mt-8 max-w-2xl">
+        <h2 className={H2}>{t('detail.aliases')}</h2>
+        <p className="mt-1 text-xs text-dim">{t('detail.aliasesHint')}</p>
+        {(aliases ?? []).length > 0 ? (
+          <div className="mt-2 flex flex-wrap gap-2">
+            {(aliases ?? []).map((a) => (
+              <span
+                key={a.id}
+                className="inline-flex items-center gap-1.5 rounded-stamp border border-line px-2 py-1 text-xs"
+              >
+                {a.alias}
+                <span className="font-mono text-[9px] uppercase tracking-[1px] text-dim">
+                  {t(`detail.aliasSource.${a.source === 'manual' ? 'manual' : 'learned'}` as Parameters<typeof t>[0])}
+                </span>
+                {isSupply ? (
+                  <form action={removeAliasAction} className="inline">
+                    <input type="hidden" name="materialId" value={material.id} />
+                    <input type="hidden" name="aliasId" value={a.id} />
+                    <button className="text-hot" aria-label={t('detail.removeAlias')} title={t('detail.removeAlias')}>
+                      {'✕'}
+                    </button>
+                  </form>
+                ) : null}
+              </span>
+            ))}
+          </div>
+        ) : (
+          <p className="mt-2 text-sm text-dim">{t('detail.noAliases')}</p>
+        )}
+        {isSupply ? (
+          <form action={addAliasAction} className="mt-3 flex flex-wrap items-center gap-2">
+            <input type="hidden" name="materialId" value={material.id} />
+            <input name="alias" required placeholder={t('detail.aliasPlaceholder')} className={`${INPUT} w-64`} />
+            <button className="h-8 rounded-button-sm bg-ink px-3 text-xs font-bold text-paper">
+              {t('detail.addAlias')}
             </button>
           </form>
         ) : null}
