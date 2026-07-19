@@ -61,6 +61,25 @@ export default async function DeliveriesPage({
   const plannedOrderIds = new Set((tasks ?? []).map((task) => task.order?.order_number));
   const toPlan = (openOrders ?? []).filter((o) => !plannedOrderIds.has(o.order_number));
 
+  // greedy vehicle suggestion for each task still needing a vehicle
+  type Suggestion = {
+    weight_kg: number;
+    pallets: number;
+    max_length_m: number;
+    needs_crane: boolean;
+    vehicle_id: string | null;
+    vehicle_name: string | null;
+    load_pct: number | null;
+  };
+  const needsVehicle = (tasks ?? []).filter((t) => t.status === 'assigned' && !t.vehicle);
+  const suggestionEntries = await Promise.all(
+    needsVehicle.map(async (task) => {
+      const { data } = await supabase.rpc('suggest_delivery_vehicle', { task_id: task.id });
+      return [task.id, (data as unknown as Suggestion) ?? null] as const;
+    }),
+  );
+  const suggestions = new Map(suggestionEntries);
+
   return (
     <main>
       <h1 className="text-2xl font-extrabold tracking-tight">{t('title')}</h1>
@@ -142,14 +161,38 @@ export default async function DeliveriesPage({
                   ) : null}
 
                   {isSupply && task.status === 'assigned' ? (
+                    (() => {
+                      const sug = suggestions.get(task.id);
+                      const noFit = sug != null && sug.vehicle_id == null;
+                      const heavy = sug?.load_pct != null && sug.load_pct > 85;
+                      return (
                     <form action={assignDeliveryAction} className="mt-2 flex flex-wrap items-center gap-2 border-t border-line/20 pt-2">
                       <input type="hidden" name="taskId" value={task.id} />
-                      <select name="vehicleId" className={INPUT} defaultValue="">
+                      {sug ? (
+                        <span className="w-full font-mono text-[10px] uppercase tracking-[1px] text-dim">
+                          {t('need', {
+                            pallets: sug.pallets,
+                            length: sug.max_length_m,
+                          })}
+                          {noFit ? (
+                            <span className="ml-2 text-hot">{t('noFit')}</span>
+                          ) : sug.vehicle_name ? (
+                            <span className={heavy ? 'ml-2 text-hot' : 'ml-2 text-ok'}>
+                              {t('suggests', {
+                                vehicle: sug.vehicle_name,
+                                pct: sug.load_pct ?? 0,
+                              })}
+                            </span>
+                          ) : null}
+                        </span>
+                      ) : null}
+                      <select name="vehicleId" className={INPUT} defaultValue={sug?.vehicle_id ?? ''}>
                         <option value="">{t('pickVehicle')}</option>
                         {(vehicles ?? []).map((v) => (
                           <option key={v.id} value={v.id}>
                             {v.name}
                             {v.capacity_kg ? ` (${v.capacity_kg} kg)` : ''}
+                            {sug?.vehicle_id === v.id ? ` · ${t('suggested')}` : ''}
                           </option>
                         ))}
                       </select>
@@ -166,6 +209,8 @@ export default async function DeliveriesPage({
                         {t('assign')}
                       </button>
                     </form>
+                      );
+                    })()
                   ) : null}
                 </div>
               );

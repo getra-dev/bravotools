@@ -1076,6 +1076,10 @@
       "already_planned": "Šis užsakymas jau turi pristatymą",
       "not_allowed": "Neturi teisės",
       "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
-    }
+    },
+    "need": "Apkrova: {pallets} paletės · ilgiausia {length} m",
+    "suggests": "siūlo {vehicle} ({pct}% apkrova)",
+    "suggested": "siūloma",
+    "noFit": "netelpa į jokį transportą — skaidyk arba samdyk"
   }
 }

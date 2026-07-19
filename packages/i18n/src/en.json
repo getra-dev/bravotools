@@ -1076,6 +1076,10 @@
       "already_planned": "This order already has a delivery",
       "not_allowed": "Not allowed",
       "save_failed": "Could not save — try again"
-    }
+    },
+    "need": "Load: {pallets} pallets · longest {length} m",
+    "suggests": "suggests {vehicle} ({pct}% load)",
+    "suggested": "suggested",
+    "noFit": "no vehicle fits — split or hire"
   }
 }

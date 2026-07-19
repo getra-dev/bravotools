@@ -3589,6 +3589,7 @@ export type Database = {
         Returns: string
       }
       start_trip: { Args: { args: Json }; Returns: string }
+      suggest_delivery_vehicle: { Args: { task_id: string }; Returns: Json }
       suggest_material_matches: {
         Args: { raw: string; target_org: string }
         Returns: {
