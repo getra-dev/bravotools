@@ -1207,9 +1207,12 @@ export type Database = {
           max_length_m: number | null
           notes: string | null
           org_id: string
+          pallet_type: string | null
           supply_mode: string
           unit_volume_m3: number | null
           unit_weight_kg: number | null
+          unit_width_m: number | null
+          units_per_pallet: number | null
         }
         Insert: {
           base_unit?: string
@@ -1221,9 +1224,12 @@ export type Database = {
           max_length_m?: number | null
           notes?: string | null
           org_id: string
+          pallet_type?: string | null
           supply_mode?: string
           unit_volume_m3?: number | null
           unit_weight_kg?: number | null
+          unit_width_m?: number | null
+          units_per_pallet?: number | null
         }
         Update: {
           base_unit?: string
@@ -1235,9 +1241,12 @@ export type Database = {
           max_length_m?: number | null
           notes?: string | null
           org_id?: string
+          pallet_type?: string | null
           supply_mode?: string
           unit_volume_m3?: number | null
           unit_weight_kg?: number | null
+          unit_width_m?: number | null
+          units_per_pallet?: number | null
         }
         Relationships: [
           {

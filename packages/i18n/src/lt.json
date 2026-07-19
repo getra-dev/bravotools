@@ -910,7 +910,15 @@
         "name_required": "Įvesk medžiagos pavadinimą",
         "not_allowed": "Medžiagas valdyti gali tik savininkas, administratorius arba tiekimo vadovas",
         "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
-      }
+      },
+      "physical": "Fiziniai parametrai (transportui)",
+      "physicalHint": "Naudojami parenkant tinkamą transportą planuojant pristatymus.",
+      "weight": "Svoris/vnt (kg)",
+      "volume": "Tūris/vnt (m³)",
+      "length": "Ilgis (m)",
+      "width": "Plotis (m)",
+      "perPallet": "Kiekis paletėje",
+      "palletType": "Paletės tipas"
     },
     "detail": {
       "edit": "Redaguoti",

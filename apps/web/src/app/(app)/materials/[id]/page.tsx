@@ -29,10 +29,20 @@ export default async function MaterialDetailPage({
   const orgId = ctx.activeOrg.orgId;
   const { data: material } = await supabase
     .from('materials')
-    .select('id, canonical_name, category, base_unit, supply_mode')
+    .select(
+      'id, canonical_name, category, base_unit, supply_mode, unit_weight_kg, unit_volume_m3, max_length_m, unit_width_m, units_per_pallet, pallet_type',
+    )
     .eq('id', id)
     .maybeSingle();
   if (!material) notFound();
+  const phys = [
+    material.unit_weight_kg != null ? `${material.unit_weight_kg} kg` : null,
+    material.unit_volume_m3 != null ? `${material.unit_volume_m3} m³` : null,
+    material.max_length_m != null ? `L ${material.max_length_m} m` : null,
+    material.unit_width_m != null ? `W ${material.unit_width_m} m` : null,
+    material.units_per_pallet != null ? `${material.units_per_pallet}/pal` : null,
+    material.pallet_type ? material.pallet_type : null,
+  ].filter(Boolean);
 
   const [{ data: prices }, { data: vendors }, { data: history }, { data: aliases }] = await Promise.all([
     supabase
@@ -90,6 +100,12 @@ export default async function MaterialDetailPage({
           {t('detail.unit')}: {material.base_unit}
         </span>
       </div>
+
+      {phys.length > 0 ? (
+        <p className="mt-2 font-mono text-[11px] uppercase tracking-[1px] text-dim">
+          {phys.join(' · ')}
+        </p>
+      ) : null}
 
       {notice ? (
         <p className="mt-4 max-w-2xl rounded-button-sm border border-ok/40 bg-ok/10 px-3 py-2 text-sm">

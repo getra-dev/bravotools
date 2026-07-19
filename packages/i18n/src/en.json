@@ -910,7 +910,15 @@
         "name_required": "Enter the material name",
         "not_allowed": "Only the owner, admin or supply manager can manage materials",
         "save_failed": "Could not save — try again"
-      }
+      },
+      "physical": "Physical params (transport)",
+      "physicalHint": "Used to pick the right vehicle when planning deliveries.",
+      "weight": "Weight/unit (kg)",
+      "volume": "Volume/unit (m³)",
+      "length": "Length (m)",
+      "width": "Width (m)",
+      "perPallet": "Units per pallet",
+      "palletType": "Pallet type"
     },
     "detail": {
       "edit": "Edit",
