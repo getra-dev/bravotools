@@ -52,7 +52,9 @@
     "vendors": "Vendors",
     "materials": "Materials",
     "stock": "Stock",
-    "awaiting": "Awaiting"
+    "awaiting": "Awaiting",
+    "vehicles": "Vehicles",
+    "deliveries": "Deliveries"
   },
   "inventory": {
     "title": "Stocktakes",
@@ -974,6 +976,79 @@
     "etaSaved": "Expected date saved",
     "errors": {
       "not_allowed": "Only supply side can set dates",
+      "save_failed": "Could not save — try again"
+    }
+  },
+  "vehicles": {
+    "title": "Vehicles",
+    "newCta": "New vehicle",
+    "empty": "No vehicles yet",
+    "colName": "Name",
+    "colType": "Type",
+    "colCapacity": "Capacity",
+    "colStatus": "Status",
+    "crane": "crane",
+    "status": {
+      "available": "Available",
+      "in_use": "In use",
+      "in_service": "In service",
+      "unavailable": "Unavailable"
+    },
+    "form": {
+      "newTitle": "New vehicle",
+      "editTitle": "Edit vehicle",
+      "name": "Name",
+      "plate": "Plate number",
+      "type": "Type",
+      "capacityKg": "Capacity (kg)",
+      "capacityM3": "Capacity (m³)",
+      "maxLength": "Max item length (m)",
+      "hasCrane": "Has crane",
+      "pallets": "Carries pallets",
+      "create": "Create vehicle",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "types": {
+        "van": "Van",
+        "truck": "Truck",
+        "crane_truck": "Crane truck",
+        "trailer": "Trailer",
+        "other": "Other"
+      },
+      "errors": {
+        "name_required": "Enter the vehicle name",
+        "invalid_type": "Pick a valid type",
+        "not_allowed": "Only the owner, admin or supply manager can manage vehicles",
+        "save_failed": "Could not save — try again"
+      }
+    }
+  },
+  "deliveries": {
+    "title": "Deliveries",
+    "toPlan": "Orders to plan",
+    "plan": "Plan",
+    "planned": "Planned deliveries",
+    "empty": "No planned deliveries",
+    "urgent": "Urgent",
+    "crane": "crane",
+    "noEstimate": "no estimate",
+    "load": "load {pct}%",
+    "pickVehicle": "Vehicle…",
+    "pickDriver": "Driver…",
+    "assign": "Assign",
+    "status": {
+      "assigned": "Assigned",
+      "picked_up": "Picked up",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "notices": {
+      "planned": "Delivery planned",
+      "assigned": "Delivery assigned"
+    },
+    "errors": {
+      "already_planned": "This order already has a delivery",
+      "not_allowed": "Not allowed",
       "save_failed": "Could not save — try again"
     }
   }

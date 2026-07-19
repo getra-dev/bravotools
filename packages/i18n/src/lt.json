@@ -52,7 +52,9 @@
     "vendors": "Tiekėjai",
     "materials": "Medžiagos",
     "stock": "Atsargos",
-    "awaiting": "Laukiama"
+    "awaiting": "Laukiama",
+    "vehicles": "Transportas",
+    "deliveries": "Pristatymai"
   },
   "inventory": {
     "title": "Inventorizacijos",
@@ -974,6 +976,79 @@
     "etaSaved": "Data išsaugota",
     "errors": {
       "not_allowed": "Datas nustatyti gali tik tiekimo pusė",
+      "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+    }
+  },
+  "vehicles": {
+    "title": "Transportas",
+    "newCta": "Nauja transporto priemonė",
+    "empty": "Transporto priemonių dar nėra",
+    "colName": "Pavadinimas",
+    "colType": "Tipas",
+    "colCapacity": "Talpa",
+    "colStatus": "Būsena",
+    "crane": "kranas",
+    "status": {
+      "available": "Laisva",
+      "in_use": "Naudojama",
+      "in_service": "Servise",
+      "unavailable": "Neprieinama"
+    },
+    "form": {
+      "newTitle": "Nauja transporto priemonė",
+      "editTitle": "Redaguoti transportą",
+      "name": "Pavadinimas",
+      "plate": "Valst. nr.",
+      "type": "Tipas",
+      "capacityKg": "Talpa (kg)",
+      "capacityM3": "Talpa (m³)",
+      "maxLength": "Maks. ilgis (m)",
+      "hasCrane": "Su kranu",
+      "pallets": "Veža paletes",
+      "create": "Sukurti",
+      "save": "Išsaugoti pakeitimus",
+      "cancel": "Atšaukti",
+      "types": {
+        "van": "Furgonas",
+        "truck": "Sunkvežimis",
+        "crane_truck": "Sunkvežimis su kranu",
+        "trailer": "Priekaba",
+        "other": "Kita"
+      },
+      "errors": {
+        "name_required": "Įvesk pavadinimą",
+        "invalid_type": "Pasirink teisingą tipą",
+        "not_allowed": "Transportą valdyti gali tik savininkas, administratorius arba tiekimo vadovas",
+        "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+      }
+    }
+  },
+  "deliveries": {
+    "title": "Pristatymai",
+    "toPlan": "Užsakymai planavimui",
+    "plan": "Planuoti",
+    "planned": "Suplanuoti pristatymai",
+    "empty": "Suplanuotų pristatymų nėra",
+    "urgent": "Skubu",
+    "crane": "kranas",
+    "noEstimate": "be įverčio",
+    "load": "apkrova {pct}%",
+    "pickVehicle": "Transportas…",
+    "pickDriver": "Vairuotojas…",
+    "assign": "Priskirti",
+    "status": {
+      "assigned": "Priskirta",
+      "picked_up": "Paimta",
+      "delivered": "Pristatyta",
+      "cancelled": "Atšaukta"
+    },
+    "notices": {
+      "planned": "Pristatymas suplanuotas",
+      "assigned": "Pristatymas priskirtas"
+    },
+    "errors": {
+      "already_planned": "Šis užsakymas jau turi pristatymą",
+      "not_allowed": "Neturi teisės",
       "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
     }
   }

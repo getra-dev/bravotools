@@ -3445,6 +3445,7 @@ export type Database = {
         Returns: undefined
       }
       assert_tool_editor: { Args: { target_org: string }; Returns: undefined }
+      assign_delivery: { Args: { args: Json }; Returns: undefined }
       assign_site_member: {
         Args: { manager?: boolean; target_site: string; target_user: string }
         Returns: undefined
@@ -3503,10 +3504,15 @@ export type Database = {
         Args: { payload: Json; target_org: string }
         Returns: string
       }
+      create_vehicle: {
+        Args: { payload: Json; target_org: string }
+        Returns: string
+      }
       create_vendor: {
         Args: { payload: Json; target_org: string }
         Returns: string
       }
+      end_trip: { Args: { args: Json }; Returns: undefined }
       import_tools: { Args: { rows: Json; target_org: string }; Returns: Json }
       initiate_handover: { Args: { args: Json }; Returns: Json }
       invite_member: {
@@ -3516,6 +3522,7 @@ export type Database = {
       is_assigned_to_site: { Args: { check_site: string }; Returns: boolean }
       is_org_member: { Args: { check_org: string }; Returns: boolean }
       is_supply: { Args: { target_org: string }; Returns: boolean }
+      mark_delivery: { Args: { args: Json }; Returns: undefined }
       next_act_number: { Args: { target_org: string }; Returns: string }
       next_order_number: { Args: { target_org: string }; Returns: string }
       next_tool_qr: { Args: { target_org: string }; Returns: string }
@@ -3524,6 +3531,7 @@ export type Database = {
         Returns: undefined
       }
       perform_handover: { Args: { args: Json }; Returns: Json }
+      plan_delivery: { Args: { args: Json }; Returns: string }
       receive_order: { Args: { args: Json }; Returns: Json }
       record_inventory_scan: {
         Args: { target_session: string; target_tool: string }
@@ -3571,6 +3579,7 @@ export type Database = {
         Args: { target_location: string }
         Returns: string
       }
+      start_trip: { Args: { args: Json }; Returns: string }
       suggest_material_matches: {
         Args: { raw: string; target_org: string }
         Returns: {
@@ -3594,6 +3603,10 @@ export type Database = {
       }
       update_tool: {
         Args: { payload: Json; tool_id: string }
+        Returns: undefined
+      }
+      update_vehicle: {
+        Args: { payload: Json; vehicle_id: string }
         Returns: undefined
       }
       update_vendor: {
