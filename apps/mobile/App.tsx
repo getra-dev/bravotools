@@ -24,15 +24,17 @@ import { HandoverWizard } from './src/screens/HandoverWizard';
 import { CountersignScreen } from './src/screens/CountersignScreen';
 import { InventoryScreen } from './src/screens/InventoryScreen';
 import { RequestsScreen } from './src/screens/RequestsScreen';
+import { ReceiveOrderScreen } from './src/screens/ReceiveOrderScreen';
 import { RentalIntakeScreen } from './src/screens/RentalIntakeScreen';
 import { ReturnVendorScreen } from './src/screens/ReturnVendorScreen';
 import { UnknownCodeScreen } from './src/screens/UnknownCodeScreen';
 import { fetchToolById } from './src/lib/tools';
-import type { HandoverAction, ScannedTool } from './src/types';
+import type { HandoverAction, IncomingOrder, ScannedTool } from './src/types';
 
 type Route =
   | { name: 'my' }
   | { name: 'requests' }
+  | { name: 'receiveOrder'; order: IncomingOrder }
   | { name: 'scan' }
   | { name: 'search' }
   | { name: 'tool'; tool: ScannedTool }
@@ -180,7 +182,19 @@ export default function App() {
       );
     } else if (route.name === 'requests') {
       content = (
-        <RequestsScreen userId={session.user.id} onImmersive={setRequestsImmersive} />
+        <RequestsScreen
+          userId={session.user.id}
+          onImmersive={setRequestsImmersive}
+          onReceiveOrder={(order) => setRoute({ name: 'receiveOrder', order })}
+        />
+      );
+    } else if (route.name === 'receiveOrder') {
+      content = (
+        <ReceiveOrderScreen
+          order={route.order}
+          onDone={() => setRoute({ name: 'requests' })}
+          onCancel={() => setRoute({ name: 'requests' })}
+        />
       );
     } else if (route.name === 'unknown') {
       content = (

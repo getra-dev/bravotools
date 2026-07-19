@@ -32,3 +32,22 @@ export type SignatureStrokes = {
   height: number;
   strokes: { x: number; y: number }[][];
 };
+
+export type IncomingOrderItem = {
+  id: string;
+  description: string;
+  quantity: number;
+  delivered_quantity: number | null;
+  unit: string | null;
+};
+
+export type IncomingOrder = {
+  id: string;
+  org_id: string;
+  order_number: string;
+  status: string;
+  is_hot: boolean;
+  needed_by: string | null;
+  site: { name: string } | null;
+  items: IncomingOrderItem[];
+};

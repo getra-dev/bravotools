@@ -13,6 +13,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { theme, ui } from '../ui';
+import type { IncomingOrder } from '../types';
 
 type Site = { id: string; name: string };
 type RequestItem = { id: string; raw_text: string; status: string; qty: number | null; unit: string | null };
@@ -84,14 +85,17 @@ function toIsoDate(d: Date): string {
 export function RequestsScreen({
   userId,
   onImmersive,
+  onReceiveOrder,
 }: {
   userId: string;
   onImmersive: (immersive: boolean) => void;
+  onReceiveOrder: (order: IncomingOrder) => void;
 }) {
   const { t } = useTranslation();
   const [mode, setMode] = useState<'list' | 'new'>('list');
   const [detail, setDetail] = useState<MaterialRequest | null>(null);
   const [requests, setRequests] = useState<MaterialRequest[]>([]);
+  const [incoming, setIncoming] = useState<IncomingOrder[]>([]);
   const [sites, setSites] = useState<Site[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -108,7 +112,7 @@ export function RequestsScreen({
   const [error, setError] = useState<string | null>(null);
 
   const load = useCallback(async () => {
-    const [reqRes, assignRes, memberRes] = await Promise.all([
+    const [reqRes, orderRes, assignRes, memberRes] = await Promise.all([
       supabase
         .from('material_requests')
         .select(
@@ -116,10 +120,19 @@ export function RequestsScreen({
         )
         .order('created_at', { ascending: false })
         .limit(50),
+      supabase
+        .from('orders')
+        .select(
+          'id, org_id, order_number, status, is_hot, needed_by, site:locations(name), items:order_items(id, description, quantity, delivered_quantity, unit)',
+        )
+        .in('status', ['approved', 'ordered', 'partially_delivered'])
+        .order('created_at', { ascending: false })
+        .limit(30),
       supabase.from('site_assignments').select('site:locations(id, name)').eq('user_id', userId),
       supabase.from('memberships').select('role').eq('user_id', userId),
     ]);
     setRequests((reqRes.data as unknown as MaterialRequest[]) ?? []);
+    setIncoming((orderRes.data as unknown as IncomingOrder[]) ?? []);
     const assigned = ((assignRes.data ?? []) as unknown as { site: Site | null }[])
       .map((row) => row.site)
       .filter((s): s is Site => s !== null);
@@ -573,6 +586,45 @@ export function RequestsScreen({
       <Pressable style={ui.primaryButton} onPress={() => setMode('new')}>
         <Text style={ui.primaryButtonText}>{t('mobile.requests.newCta')}</Text>
       </Pressable>
+
+      {incoming.length > 0 ? (
+        <View>
+          <Text style={ui.label}>{t('mobile.receiving.incomingTitle')}</Text>
+          {incoming.map((order) => {
+            const remaining = order.items.reduce(
+              (sum, item) => sum + Math.max(item.quantity - (item.delivered_quantity ?? 0), 0),
+              0,
+            );
+            return (
+              <Pressable
+                key={order.id}
+                style={[card, { marginTop: theme.spacing.sm, borderColor: theme.colors.blue }]}
+                onPress={() => onReceiveOrder(order)}
+              >
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: theme.spacing.sm }}>
+                  <Text style={[ui.value, { fontWeight: '800', flex: 1, marginTop: 0 }]}>
+                    {order.order_number}
+                  </Text>
+                  {order.is_hot ? (
+                    <Text style={{ color: theme.colors.hot, fontWeight: '900', fontSize: 12 }}>
+                      {t('mobile.requests.hotStamp')}
+                    </Text>
+                  ) : null}
+                  <Text style={{ color: theme.colors.blue, fontWeight: '800', fontSize: 12 }}>
+                    {t(`mobile.receiving.status.${order.status}`)}
+                  </Text>
+                </View>
+                <Text style={ui.mono}>
+                  {order.site?.name ?? ''} · {t('mobile.receiving.itemsLeft', { count: remaining })}
+                </Text>
+                <Text style={{ color: theme.colors.hi, fontWeight: '700', fontSize: 13, marginTop: theme.spacing.sm }}>
+                  {t('mobile.receiving.receiveCta')}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      ) : null}
 
       {requests.length === 0 ? (
         <Text style={[ui.value, { marginTop: theme.spacing.lg }]}>

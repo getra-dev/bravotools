@@ -468,6 +468,16 @@
       "not_allowed": "You are not allowed to do this",
       "save_failed": "Could not save — try again",
       "order_closed": "This order is closed"
+    },
+    "fulfillment": "{delivered} / {total}",
+    "issuesTitle": "Delivery issues",
+    "issueTypes": {
+      "short_qty": "Short quantity",
+      "over_qty": "Over quantity",
+      "wrong_item": "Wrong item",
+      "damaged": "Damaged",
+      "quality": "Quality issue",
+      "not_delivered": "Not delivered"
     }
   },
   "mobile": {
@@ -687,6 +697,35 @@
       "body": "Code {code} is not registered in your organization.",
       "hint": "Register this sticker: create the tool in the web console (Tools → New tool). Linking an existing sticker from the phone lands with SPEC 2.4.",
       "scanAgain": "Scan again"
+    },
+    "receiving": {
+      "incomingTitle": "Incoming orders",
+      "receiveCta": "Receive delivery →",
+      "itemsLeft": "{count} left to receive",
+      "status": {
+        "approved": "Approved",
+        "ordered": "Ordered",
+        "partially_delivered": "Partially delivered"
+      },
+      "title": "Receive delivery",
+      "hint": "Everything is pre-filled as fully received — adjust only the lines with a problem.",
+      "expected": "Expected: {qty} {unit}",
+      "received": "Received",
+      "issue": "Problem",
+      "issueTypes": {
+        "short_qty": "Short quantity",
+        "over_qty": "Over quantity",
+        "wrong_item": "Wrong item",
+        "damaged": "Damaged",
+        "quality": "Quality issue",
+        "not_delivered": "Not delivered"
+      },
+      "notePlaceholder": "Note (optional)",
+      "addPhoto": "Add photo",
+      "submit": "Confirm receiving",
+      "doneTitle": "Receiving saved",
+      "partialHint": "the rest stays open for the next delivery",
+      "failed": "Could not save — try again"
     }
   },
   "members": {

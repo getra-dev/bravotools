@@ -3424,6 +3424,7 @@ export type Database = {
         Returns: undefined
       }
       perform_handover: { Args: { args: Json }; Returns: Json }
+      receive_order: { Args: { args: Json }; Returns: Json }
       record_inventory_scan: {
         Args: { target_session: string; target_tool: string }
         Returns: Json

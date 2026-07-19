@@ -50,16 +50,30 @@ export default async function OrdersPage({
   const orgId = ctx.activeOrg.orgId;
   const isSupply = ['owner', 'admin', 'supply_manager'].includes(ctx.activeOrg.role);
 
-  const { data: orders } = await supabase
-    .from('orders')
-    .select(
-      `id, order_number, status, is_hot, needed_by, created_at,
-       site:locations(name), vendor:vendors!orders_vendor_id_fkey(name),
-       items:order_items(id, description, quantity, unit)`,
-    )
-    .eq('org_id', orgId)
-    .order('created_at', { ascending: false })
-    .limit(200);
+  const [{ data: orders }, { data: issues }] = await Promise.all([
+    supabase
+      .from('orders')
+      .select(
+        `id, order_number, status, is_hot, needed_by, created_at,
+         site:locations(name), vendor:vendors!orders_vendor_id_fkey(name),
+         items:order_items(id, description, quantity, delivered_quantity, unit)`,
+      )
+      .eq('org_id', orgId)
+      .order('created_at', { ascending: false })
+      .limit(200),
+    supabase
+      .from('delivery_issues')
+      .select('id, order_item_id, issue_type, qty_affected, description, status')
+      .eq('org_id', orgId),
+  ]);
+
+  const issuesByItem = new Map<string, NonNullable<typeof issues>>();
+  for (const issue of issues ?? []) {
+    if (!issue.order_item_id) continue;
+    const bucket = issuesByItem.get(issue.order_item_id) ?? [];
+    bucket.push(issue);
+    issuesByItem.set(issue.order_item_id, bucket);
+  }
 
   const byStatus = new Map<string, NonNullable<typeof orders>>();
   for (const order of orders ?? []) {
@@ -111,15 +125,36 @@ export default async function OrdersPage({
                     {order.needed_by ? ` · ${t('neededBy')}: ${order.needed_by}` : ''}
                   </p>
                   <ul className="mt-2 space-y-0.5">
-                    {order.items.map((item) => (
-                      <li key={item.id} className="text-sm">
-                        {item.description}
-                        <span className="text-dim">
-                          {' '}
-                          · {item.quantity} {item.unit}
-                        </span>
-                      </li>
-                    ))}
+                    {order.items.map((item) => {
+                      const itemIssues = issuesByItem.get(item.id) ?? [];
+                      const delivered = item.delivered_quantity ?? 0;
+                      return (
+                        <li key={item.id} className="text-sm">
+                          {item.description}
+                          <span className="text-dim">
+                            {' '}
+                            ·{' '}
+                            {delivered > 0
+                              ? t('fulfillment', { delivered, total: item.quantity })
+                              : item.quantity}{' '}
+                            {item.unit}
+                          </span>
+                          {delivered > 0 && delivered >= item.quantity ? (
+                            <span className={`${STAMP} ml-1.5 border-ok/50 text-ok`}>OK</span>
+                          ) : null}
+                          {itemIssues.map((issue) => (
+                            <span
+                              key={issue.id}
+                              className={`${STAMP} ml-1.5 border-hot/50 text-hot`}
+                              title={issue.description ?? undefined}
+                            >
+                              {t(`issueTypes.${issue.issue_type}` as Parameters<typeof t>[0])}
+                              {issue.qty_affected ? ` ${issue.qty_affected}` : ''}
+                            </span>
+                          ))}
+                        </li>
+                      );
+                    })}
                   </ul>
                   {isSupply && !['delivered', 'cancelled'].includes(order.status) ? (
                     <div className="mt-2 flex flex-wrap gap-2 border-t border-line/20 pt-2">

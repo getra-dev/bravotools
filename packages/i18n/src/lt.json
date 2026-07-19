@@ -468,6 +468,16 @@
       "not_allowed": "Neturi teisės to daryti",
       "save_failed": "Nepavyko išsaugoti — bandyk dar kartą",
       "order_closed": "Šis užsakymas uždarytas"
+    },
+    "fulfillment": "{delivered} / {total}",
+    "issuesTitle": "Pristatymo trūkumai",
+    "issueTypes": {
+      "short_qty": "Trūksta kiekio",
+      "over_qty": "Kiekio per daug",
+      "wrong_item": "Ne ta prekė",
+      "damaged": "Pažeista",
+      "quality": "Kokybės problema",
+      "not_delivered": "Nepristatyta"
     }
   },
   "mobile": {
@@ -687,6 +697,35 @@
       "body": "Kodas {code} tavo organizacijoje neužregistruotas.",
       "hint": "Užregistruok šį lipduką: sukurk įrankį web pulte (Įrankiai → Naujas įrankis). Lipduko susiejimas iš telefono atkeliauja su SPEC 2.4.",
       "scanAgain": "Skenuoti dar kartą"
+    },
+    "receiving": {
+      "incomingTitle": "Atvykstantys užsakymai",
+      "receiveCta": "Priimti pristatymą →",
+      "itemsLeft": "Liko priimti: {count}",
+      "status": {
+        "approved": "Patvirtinta",
+        "ordered": "Užsakyta",
+        "partially_delivered": "Dalinai pristatyta"
+      },
+      "title": "Priimti pristatymą",
+      "hint": "Viskas užpildyta kaip pilnai gauta — koreguok tik eilutes su problema.",
+      "expected": "Laukiama: {qty} {unit}",
+      "received": "Gauta",
+      "issue": "Problema",
+      "issueTypes": {
+        "short_qty": "Trūksta kiekio",
+        "over_qty": "Kiekio per daug",
+        "wrong_item": "Ne ta prekė",
+        "damaged": "Pažeista",
+        "quality": "Kokybės problema",
+        "not_delivered": "Nepristatyta"
+      },
+      "notePlaceholder": "Pastaba (nebūtina)",
+      "addPhoto": "Pridėti nuotrauką",
+      "submit": "Patvirtinti priėmimą",
+      "doneTitle": "Priėmimas išsaugotas",
+      "partialHint": "likutis lieka atviras kitam pristatymui",
+      "failed": "Nepavyko išsaugoti — bandyk dar kartą"
     }
   },
   "members": {
