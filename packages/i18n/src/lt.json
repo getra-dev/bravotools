@@ -337,7 +337,9 @@
       "scanCta": "Skenuoti",
       "initiatedBy": "{name} · {date}",
       "outboxStamp": "Laukia sinchronizacijos: {count}",
-      "syncNow": "Sinchronizuoti dabar"
+      "syncNow": "Sinchronizuoti dabar",
+      "remindersTitle": "Priminimai",
+      "markAllRead": "Pažymėti visus skaitytais"
     },
     "countersign": {
       "title": "Peržiūrėk ir pasirašyk",

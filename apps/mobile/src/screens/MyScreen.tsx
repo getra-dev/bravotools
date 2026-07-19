@@ -14,6 +14,15 @@ export type PendingAct = {
   initiatedAt: string;
 };
 
+type Reminder = {
+  id: string;
+  type: string;
+  title: string;
+  body: string | null;
+  createdAt: string;
+  toolId: string | null;
+};
+
 type HeldTool = {
   id: string;
   name: string;
@@ -35,15 +44,18 @@ export function MyScreen({
   userId,
   onScan,
   onCountersign,
+  onOpenTool,
   onSignOut,
 }: {
   userId: string;
   onScan: () => void;
   onCountersign: (actId: string) => void;
+  onOpenTool: (toolId: string) => void;
   onSignOut: () => void;
 }) {
   const { t } = useTranslation();
   const [pending, setPending] = useState<PendingAct[]>([]);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
   const [tools, setTools] = useState<HeldTool[]>([]);
   const [refreshing, setRefreshing] = useState(false);
   const [outbox, setOutbox] = useState(pendingCount());
@@ -94,6 +106,27 @@ export function MyScreen({
       });
     }
     setPending(mine);
+
+    // reminders: unread, excluding signature-request/act notifications
+    // (those already surface as pending acts above)
+    const { data: notes } = await supabase
+      .from('notifications')
+      .select('id, type, title, body, created_at, entity_type, entity_id')
+      .eq('user_id', userId)
+      .is('read_at', null)
+      .neq('entity_type', 'handover_act')
+      .order('created_at', { ascending: false })
+      .limit(20);
+    setReminders(
+      (notes ?? []).map((n) => ({
+        id: n.id,
+        type: n.type,
+        title: n.title,
+        body: n.body,
+        createdAt: n.created_at.slice(0, 16).replace('T', ' '),
+        toolId: n.entity_type === 'tool' ? n.entity_id : null,
+      })),
+    );
 
     const { data: held } = await supabase
       .from('tools')
@@ -222,6 +255,56 @@ export function MyScreen({
           </Pressable>
         ))
       )}
+
+      {reminders.length > 0 ? (
+        <>
+          <Text style={ui.label}>{t('mobile.my.remindersTitle')}</Text>
+          {reminders.map((reminder) => {
+            const color =
+              reminder.type === 'rental_due' || reminder.type === 'system'
+                ? theme.colors.hot
+                : theme.colors.hi;
+            return (
+              <Pressable
+                key={reminder.id}
+                onPress={() => {
+                  if (reminder.toolId) onOpenTool(reminder.toolId);
+                }}
+                style={{
+                  marginTop: theme.spacing.sm,
+                  borderRadius: theme.radius.button,
+                  borderWidth: 1,
+                  borderColor: theme.colors.line,
+                  backgroundColor: theme.colors.panel2,
+                  padding: theme.spacing.lg,
+                }}
+              >
+                <Text style={{ color, fontSize: 15, fontWeight: '700' }}>{reminder.title}</Text>
+                {reminder.body ? (
+                  <Text style={{ color: theme.colors.steel, fontSize: 13, marginTop: 2 }}>
+                    {reminder.body}
+                  </Text>
+                ) : null}
+                <Text style={[ui.mono, { marginTop: 4 }]}>{reminder.createdAt}</Text>
+              </Pressable>
+            );
+          })}
+          <Pressable
+            style={[ui.secondaryButton, { marginTop: theme.spacing.sm }]}
+            onPress={() => {
+              void supabase
+                .from('notifications')
+                .update({ read_at: new Date().toISOString() })
+                .eq('user_id', userId)
+                .is('read_at', null)
+                .neq('entity_type', 'handover_act')
+                .then(() => void load());
+            }}
+          >
+            <Text style={ui.secondaryButtonText}>{t('mobile.my.markAllRead')}</Text>
+          </Pressable>
+        </>
+      ) : null}
 
       <Text style={ui.label}>{t('mobile.my.toolsTitle')}</Text>
       {tools.length === 0 ? (

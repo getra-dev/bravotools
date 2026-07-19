@@ -15,6 +15,7 @@ import { ToolScreen } from './src/screens/ToolScreen';
 import { HandoverWizard } from './src/screens/HandoverWizard';
 import { CountersignScreen } from './src/screens/CountersignScreen';
 import { UnknownCodeScreen } from './src/screens/UnknownCodeScreen';
+import { fetchToolById } from './src/lib/tools';
 import type { HandoverAction, ScannedTool } from './src/types';
 
 type Route =
@@ -110,6 +111,11 @@ export default function App() {
           userId={session.user.id}
           onScan={() => setRoute({ name: 'scan' })}
           onCountersign={(actId) => setRoute({ name: 'countersign', actId })}
+          onOpenTool={(toolId) => {
+            void fetchToolById(toolId).then((tool) => {
+              if (tool) setRoute({ name: 'tool', tool });
+            });
+          }}
           onSignOut={() => void supabase.auth.signOut()}
         />
       );

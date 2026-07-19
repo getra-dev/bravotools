@@ -337,7 +337,9 @@
       "scanCta": "Scan",
       "initiatedBy": "{name} · {date}",
       "outboxStamp": "Waiting to sync: {count}",
-      "syncNow": "Sync now"
+      "syncNow": "Sync now",
+      "remindersTitle": "Reminders",
+      "markAllRead": "Mark all as read"
     },
     "countersign": {
       "title": "Review and sign",
