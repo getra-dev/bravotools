@@ -288,6 +288,7 @@ export type Database = {
       delivery_tasks: {
         Row: {
           assigned_to: string | null
+          carrier_vendor_id: string | null
           crane_billable: boolean
           crane_lift_height_m: number | null
           created_at: string
@@ -311,11 +312,13 @@ export type Database = {
           status: string
           stop_order: number | null
           tool_id: string | null
+          transport_cost: number | null
           trip_id: string | null
           vehicle_id: string | null
         }
         Insert: {
           assigned_to?: string | null
+          carrier_vendor_id?: string | null
           crane_billable?: boolean
           crane_lift_height_m?: number | null
           created_at?: string
@@ -339,11 +342,13 @@ export type Database = {
           status?: string
           stop_order?: number | null
           tool_id?: string | null
+          transport_cost?: number | null
           trip_id?: string | null
           vehicle_id?: string | null
         }
         Update: {
           assigned_to?: string | null
+          carrier_vendor_id?: string | null
           crane_billable?: boolean
           crane_lift_height_m?: number | null
           created_at?: string
@@ -367,6 +372,7 @@ export type Database = {
           status?: string
           stop_order?: number | null
           tool_id?: string | null
+          transport_cost?: number | null
           trip_id?: string | null
           vehicle_id?: string | null
         }
@@ -376,6 +382,13 @@ export type Database = {
             columns: ["assigned_to"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "delivery_tasks_carrier_vendor_id_fkey"
+            columns: ["carrier_vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
             referencedColumns: ["id"]
           },
           {
@@ -3559,6 +3572,7 @@ export type Database = {
         Returns: Json
       }
       record_order_sent: { Args: { args: Json }; Returns: Json }
+      record_transport_sent: { Args: { args: Json }; Returns: undefined }
       remind: {
         Args: {
           e_id: string
@@ -3589,6 +3603,7 @@ export type Database = {
         Returns: undefined
       }
       set_delivery_crane: { Args: { args: Json }; Returns: undefined }
+      set_delivery_method: { Args: { args: Json }; Returns: undefined }
       set_order_line_eta: {
         Args: { order_item_id: string; p_date: string }
         Returns: undefined

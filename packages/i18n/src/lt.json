@@ -867,7 +867,8 @@
         "rental": "Nuoma",
         "service": "Servisas",
         "tools": "Įrankiai",
-        "subcontractor": "Subrangovas"
+        "subcontractor": "Subrangovas",
+        "transport": "Transportas"
       },
       "errors": {
         "name_required": "Įvesk tiekėjo pavadinimą",
@@ -1070,12 +1071,16 @@
     },
     "notices": {
       "planned": "Pristatymas suplanuotas",
-      "assigned": "Pristatymas priskirtas"
+      "assigned": "Pristatymas priskirtas",
+      "transport_sent": "Transportas užsakytas"
     },
     "errors": {
       "already_planned": "Šis užsakymas jau turi pristatymą",
       "not_allowed": "Neturi teisės",
-      "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+      "save_failed": "Nepavyko išsaugoti — bandyk dar kartą",
+      "carrier_required": "Pasirink vežėją",
+      "no_vendor_email": "Vežėjas be el. pašto",
+      "send_failed": "Nepavyko išsiųsti"
     },
     "need": "Apkrova: {pallets} paletės · ilgiausia {length} m",
     "suggests": "siūlo {vehicle} ({pct}% apkrova)",
@@ -1117,6 +1122,18 @@
     "craneHeight": "Aukštis m",
     "craneMinutes": "Krano min",
     "craneBillable": "Apmokestinti",
-    "craneSave": "Saugoti"
+    "craneSave": "Saugoti",
+    "method": "Transportas",
+    "methods": {
+      "own_vehicle": "Savas transportas",
+      "vendor_delivers": "Tiekėjas atveža",
+      "hired": "Samdytas vežėjas"
+    },
+    "carrier": "Vežėjas",
+    "carrierPick": "Vežėjas…",
+    "cost": "Kaina €",
+    "methodSave": "Nustatyti",
+    "sendTransport": "Užsakyti transportą",
+    "vendorDelivers": "Tiekėjas atveža — be savo transporto"
   }
 }

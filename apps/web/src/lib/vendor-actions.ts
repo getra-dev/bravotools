@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { getSupabaseServer } from './supabase/server';
 import { getSessionContext } from './org';
 
-const TYPES = ['materials', 'rental', 'tools', 'subcontractor', 'service'] as const;
+const TYPES = ['materials', 'rental', 'tools', 'subcontractor', 'transport', 'service'] as const;
 
 function payloadFrom(formData: FormData): Record<string, string | string[]> {
   const types = TYPES.filter((type) => formData.get(`type_${type}`) === 'on');

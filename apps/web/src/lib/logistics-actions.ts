@@ -115,3 +115,63 @@ export async function setDeliveryCraneAction(formData: FormData) {
   if (error) redirect('/deliveries?error=save_failed');
   redirect('/deliveries?notice=assigned');
 }
+
+export async function setDeliveryMethodAction(formData: FormData) {
+  const ctx = await getSessionContext();
+  if (!ctx?.activeOrg) redirect('/onboarding');
+  const supabase = await getSupabaseServer();
+  const { error } = await supabase.rpc('set_delivery_method', {
+    args: {
+      task_id: String(formData.get('taskId') ?? ''),
+      method: String(formData.get('method') ?? 'own_vehicle'),
+      carrier_vendor_id: String(formData.get('carrierId') ?? ''),
+      cost: String(formData.get('cost') ?? '').trim(),
+    },
+  });
+  if (error) {
+    const code = error.message.includes('carrier_required')
+      ? 'carrier_required'
+      : error.message.includes('not_allowed')
+        ? 'not_allowed'
+        : 'save_failed';
+    redirect(`/deliveries?error=${code}`);
+  }
+  redirect('/deliveries?notice=assigned');
+}
+
+export async function sendTransportRequestAction(formData: FormData) {
+  const ctx = await getSessionContext();
+  if (!ctx?.activeOrg) redirect('/onboarding');
+  const taskId = String(formData.get('taskId') ?? '');
+  const supabase = await getSupabaseServer();
+
+  const { data: task } = await supabase
+    .from('delivery_tasks')
+    .select(
+      `scheduled_date,
+       carrier:vendors!delivery_tasks_carrier_vendor_id_fkey(name, email),
+       dropoff:locations!delivery_tasks_dropoff_location_id_fkey(name, address),
+       order:orders(order_number)`,
+    )
+    .eq('id', taskId)
+    .maybeSingle();
+  const email = task?.carrier?.email?.trim();
+  if (!task || !email) redirect('/deliveries?error=no_vendor_email');
+
+  const { sendMail } = await import('./mailer');
+  const subject = `Transporto užsakymas — ${task.dropoff?.name ?? ''} ${task.scheduled_date ?? ''}`.trim();
+  const body = `Sveiki, ${task.carrier?.name ?? ''},\n\nPrašome atvežti/nuvežti krovinį:\nObjektas: ${task.dropoff?.name ?? ''}${task.dropoff?.address ? `, ${task.dropoff.address}` : ''}\nData: ${task.scheduled_date ?? '—'}\nSusijęs užsakymas: ${task.order?.order_number ?? '—'}\n\nPrašome patvirtinti.\nAčiū.`;
+
+  let messageId = '';
+  try {
+    const sent = await sendMail({ to: email, subject, text: body });
+    messageId = sent.messageId;
+  } catch {
+    redirect('/deliveries?error=send_failed');
+  }
+  const { error } = await supabase.rpc('record_transport_sent', {
+    args: { task_id: taskId, to_address: email, subject, provider_message_id: messageId },
+  });
+  if (error) redirect('/deliveries?error=save_failed');
+  redirect('/deliveries?notice=transport_sent');
+}

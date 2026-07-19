@@ -7,13 +7,22 @@ import {
   assignDeliveryAction,
   setStopOrderAction,
   setDeliveryCraneAction,
+  setDeliveryMethodAction,
+  sendTransportRequestAction,
 } from '@/lib/logistics-actions';
 
 const STAMP =
   'inline-block rounded-stamp border px-1.5 py-px font-mono text-[10px] uppercase tracking-[1px]';
 const H2 = 'font-mono text-[10px] uppercase tracking-[1.5px] text-dim';
 const INPUT = 'h-8 rounded-button-sm border border-line/40 bg-paper px-2 text-xs';
-const ERROR_KEYS = new Set(['already_planned', 'not_allowed', 'save_failed']);
+const ERROR_KEYS = new Set([
+  'already_planned',
+  'not_allowed',
+  'save_failed',
+  'carrier_required',
+  'no_vendor_email',
+  'send_failed',
+]);
 const STATUS_STYLE: Record<string, string> = {
   assigned: 'border-blue/50 text-blue',
   picked_up: 'border-hi/50 text-hi',
@@ -34,16 +43,18 @@ export default async function DeliveriesPage({
   const isSupply = ['owner', 'admin', 'supply_manager'].includes(ctx.activeOrg.role);
 
   const supabase = await getSupabaseServer();
-  const [{ data: tasks }, { data: openOrders }, { data: vehicles }, { data: members }] =
+  const [{ data: tasks }, { data: openOrders }, { data: vehicles }, { data: members }, { data: carriers }] =
     await Promise.all([
       supabase
         .from('delivery_tasks')
         .select(
           `id, status, priority, scheduled_date, est_weight_kg, est_volume_m3, requires_crane,
            crane_lift_height_m, est_crane_minutes, crane_billable, vehicle_id, stop_order,
+           delivery_method, transport_cost,
            order:orders(order_number, is_hot),
            dropoff:locations!delivery_tasks_dropoff_location_id_fkey(name),
            vehicle:vehicles(name, capacity_kg),
+           carrier:vendors!delivery_tasks_carrier_vendor_id_fkey(name, email),
            driver:profiles!delivery_tasks_assigned_to_fkey(full_name)`,
         )
         .eq('org_id', orgId)
@@ -62,6 +73,12 @@ export default async function DeliveriesPage({
         .eq('status', 'available')
         .order('name'),
       supabase.from('memberships').select('user_id, profiles(full_name)').eq('org_id', orgId),
+      supabase
+        .from('vendors')
+        .select('id, name')
+        .eq('org_id', orgId)
+        .contains('type', ['transport'])
+        .order('name'),
     ]);
 
   const plannedOrderIds = new Set((tasks ?? []).map((task) => task.order?.order_number));
@@ -113,7 +130,9 @@ export default async function DeliveriesPage({
 
       {notice ? (
         <p className="mt-4 rounded-button-sm border border-ok/40 bg-ok/10 px-3 py-2 text-sm">
-          {t(`notices.${notice === 'assigned' ? 'assigned' : 'planned'}`)}
+          {t(
+            `notices.${notice === 'assigned' ? 'assigned' : notice === 'transport_sent' ? 'transport_sent' : 'planned'}`,
+          )}
         </p>
       ) : null}
       {error ? (
@@ -255,6 +274,48 @@ export default async function DeliveriesPage({
                   ) : null}
 
                   {isSupply && task.status !== 'delivered' ? (
+                    <div className="mt-2 flex flex-wrap items-center gap-2 border-t border-line/20 pt-2 text-xs">
+                      <form action={setDeliveryMethodAction} className="flex flex-wrap items-center gap-2">
+                        <input type="hidden" name="taskId" value={task.id} />
+                        <select name="method" defaultValue={task.delivery_method ?? 'own_vehicle'} className={INPUT}>
+                          {(['own_vehicle', 'vendor_delivers', 'hired'] as const).map((m) => (
+                            <option key={m} value={m}>
+                              {t(`methods.${m}`)}
+                            </option>
+                          ))}
+                        </select>
+                        {task.delivery_method === 'hired' ? (
+                          <>
+                            <select name="carrierId" className={INPUT} defaultValue="">
+                              <option value="">{t('carrierPick')}</option>
+                              {(carriers ?? []).map((c) => (
+                                <option key={c.id} value={c.id}>
+                                  {c.name}
+                                </option>
+                              ))}
+                            </select>
+                            <input name="cost" inputMode="decimal" defaultValue={task.transport_cost ?? ''} placeholder={t('cost')} className={`${INPUT} w-20`} />
+                          </>
+                        ) : null}
+                        <button className="h-7 rounded-button-sm border border-line/40 px-2 text-[11px] font-bold">
+                          {t('methodSave')}
+                        </button>
+                      </form>
+                      {task.delivery_method === 'hired' && task.carrier?.email ? (
+                        <form action={sendTransportRequestAction}>
+                          <input type="hidden" name="taskId" value={task.id} />
+                          <button className="h-7 rounded-button-sm bg-hi px-2 text-[11px] font-bold text-ink">
+                            {t('sendTransport')}
+                          </button>
+                        </form>
+                      ) : null}
+                      {task.delivery_method === 'vendor_delivers' ? (
+                        <span className="text-dim">{t('vendorDelivers')}</span>
+                      ) : null}
+                    </div>
+                  ) : null}
+
+                  {isSupply && task.status !== 'delivered' && (task.delivery_method ?? 'own_vehicle') === 'own_vehicle' ? (
                     <form action={setDeliveryCraneAction} className="mt-2 flex flex-wrap items-center gap-2 text-xs">
                       <input type="hidden" name="taskId" value={task.id} />
                       <label className="flex items-center gap-1">
@@ -273,7 +334,7 @@ export default async function DeliveriesPage({
                     </form>
                   ) : null}
 
-                  {isSupply && task.status === 'assigned' ? (
+                  {isSupply && task.status === 'assigned' && (task.delivery_method ?? 'own_vehicle') === 'own_vehicle' ? (
                     (() => {
                       const sug = suggestions.get(task.id);
                       const noFit = sug != null && sug.vehicle_id == null;

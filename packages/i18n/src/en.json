@@ -867,7 +867,8 @@
         "rental": "Rental",
         "service": "Service",
         "tools": "Tools",
-        "subcontractor": "Subcontractor"
+        "subcontractor": "Subcontractor",
+        "transport": "Transport"
       },
       "errors": {
         "name_required": "Enter the vendor name",
@@ -1070,12 +1071,16 @@
     },
     "notices": {
       "planned": "Delivery planned",
-      "assigned": "Delivery assigned"
+      "assigned": "Delivery assigned",
+      "transport_sent": "Transport ordered"
     },
     "errors": {
       "already_planned": "This order already has a delivery",
       "not_allowed": "Not allowed",
-      "save_failed": "Could not save — try again"
+      "save_failed": "Could not save — try again",
+      "carrier_required": "Pick a carrier",
+      "no_vendor_email": "Carrier has no email",
+      "send_failed": "Could not send"
     },
     "need": "Load: {pallets} pallets · longest {length} m",
     "suggests": "suggests {vehicle} ({pct}% load)",
@@ -1117,6 +1122,18 @@
     "craneHeight": "Height m",
     "craneMinutes": "Crane min",
     "craneBillable": "Billable",
-    "craneSave": "Save"
+    "craneSave": "Save",
+    "method": "Transport",
+    "methods": {
+      "own_vehicle": "Own vehicle",
+      "vendor_delivers": "Vendor delivers",
+      "hired": "Hired carrier"
+    },
+    "carrier": "Carrier",
+    "carrierPick": "Carrier…",
+    "cost": "Cost €",
+    "methodSave": "Set",
+    "sendTransport": "Order transport",
+    "vendorDelivers": "Vendor delivers — no own vehicle"
   }
 }

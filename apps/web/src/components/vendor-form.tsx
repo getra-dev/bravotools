@@ -15,7 +15,7 @@ const INPUT =
   'mt-1 block h-11 w-full rounded-button border border-line/40 bg-paper px-3 text-sm outline-none focus:border-ink';
 const LABEL = 'font-mono text-[11px] uppercase tracking-[1.5px] text-dim';
 const METHODS = ['email', 'csv', 'api', 'manual'] as const;
-const TYPES = ['materials', 'rental', 'tools', 'subcontractor', 'service'] as const;
+const TYPES = ['materials', 'rental', 'tools', 'subcontractor', 'transport', 'service'] as const;
 
 export async function VendorForm({
   action,
