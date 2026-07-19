@@ -68,6 +68,12 @@ Every table ships with RLS policy + a pgTAP or SQL test in packages/db/tests.
 - Scan (expo-camera): resolves qr_code → tool detail with primary action
   contextual: available→"Hand over", checked_out→"Return / Transfer".
 - AC: scan-to-detail <2 s; unknown code → "register this sticker?" flow.
+- OWNER AMENDMENT (2026-07-19): tools WITHOUT QR stickers are the common
+  case (onboarding backlog, rented machines) — identification by SEARCH
+  (serial number / inventory code / name / QR text) is a first-class
+  alternative everywhere scanning is offered; the found tool behaves
+  identically to a scanned one (same card, same handover actions).
+  Stickers remain the target state; search is the permanent fallback.
 
 ### 2.4 Handover flow (core loop, must work offline)
 Steps: scan → choose receiver (org member OR external_person; create-inline

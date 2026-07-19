@@ -299,7 +299,14 @@
       "permissionNeeded": "Camera access is needed to scan tool stickers",
       "grant": "Allow camera",
       "signOut": "Sign out",
-      "lookupFailed": "Could not check this code — try again"
+      "lookupFailed": "Could not check this code — try again",
+      "searchCta": "No sticker? Search by number"
+    },
+    "search": {
+      "title": "Find a tool",
+      "placeholder": "Serial no., inventory code or name",
+      "empty": "No tools match",
+      "hint": "Works for tools without QR stickers — search by any number on the tool"
     },
     "tool": {
       "statusLabel": "Status",
@@ -315,7 +322,37 @@
       "comingSoon": "The signed handover flow arrives with SPEC 2.4",
       "scanAgain": "Scan next"
     },
+    "my": {
+      "title": "My responsibility",
+      "totalLabel": "Tools value on me",
+      "pendingTitle": "Waiting for my signature",
+      "pendingEmpty": "Nothing to sign",
+      "signAction": "Review and sign",
+      "toolsTitle": "Tools I hold",
+      "toolsEmpty": "No tools on you right now",
+      "daysHeld": "{days} d. held",
+      "longHoldStamp": "Long hold",
+      "rentalDueStamp": "Return by {date}",
+      "rentalOverdueStamp": "Overdue {days} d.",
+      "scanCta": "Scan",
+      "initiatedBy": "{name} · {date}"
+    },
+    "countersign": {
+      "title": "Review and sign",
+      "componentsTitle": "Components",
+      "includedStamp": "Included",
+      "missingStamp": "Missing",
+      "photosTitle": "Photos",
+      "giverNote": "Initiator note",
+      "yourNote": "Your note (optional)",
+      "signTitle": "Your signature",
+      "successTitle": "Act signed",
+      "backToMy": "Back to my list",
+      "failed": "Could not sign — try again"
+    },
     "handover": {
+      "pendingDoneTitle": "Waiting for countersignature",
+      "pendingDoneBody": "Act {act} is saved. The other party will review and sign in their own app — you will get a notification.",
       "titleCheckout": "Hand over",
       "titleCheckin": "Return",
       "titleTransfer": "Transfer",

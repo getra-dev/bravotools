@@ -64,14 +64,16 @@ function utf8Bytes(text: string): Uint8Array {
   return Uint8Array.from(out);
 }
 
-function stepsFor(action: HandoverAction, tracksEngine: boolean): Step[] {
+// ADR-015: org members countersign remotely in their own app; only external
+// persons still sign on this device (pass-the-phone).
+function stepsFor(action: HandoverAction, tracksEngine: boolean, remote: boolean): Step[] {
   const middle: Step[] = tracksEngine ? ['photo', 'engine'] : ['photo'];
   if (action === 'checkin') {
-    // performer receives the tool back: returning holder signs first
+    if (remote) return ['location', 'components', ...middle, 'signGiver'];
+    // tool held by an external person: they sign the return on this device
     return ['location', 'components', ...middle, 'passPhone', 'signGiver', 'signReceiver'];
   }
-  // performer gives the tool away: pick receiver AND the site it goes to,
-  // sign, then hand the phone over (owner: site fixation required)
+  if (remote) return ['receiver', 'location', 'components', ...middle, 'signGiver'];
   return ['receiver', 'location', 'components', ...middle, 'signGiver', 'passPhone', 'signReceiver'];
 }
 
@@ -87,7 +89,6 @@ export function HandoverWizard({
   onCancel: () => void;
 }) {
   const { t } = useTranslation();
-  const steps = stepsFor(action, tool.tracks_engine_hours);
   const [stepIndex, setStepIndex] = useState(0);
   const [receiver, setReceiver] = useState<Receiver | null>(null);
   const [toLocation, setToLocation] = useState<LocationOption | null>(null);
@@ -100,8 +101,12 @@ export function HandoverWizard({
   const [giverSig, setGiverSig] = useState<SignatureStrokes | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [actNumber, setActNumber] = useState<string | null>(null);
+  const [pendingDone, setPendingDone] = useState(false);
   const [saving, setSaving] = useState(false);
 
+  const remote =
+    action === 'checkin' ? tool.external_holder === null : receiver?.kind !== 'external';
+  const steps = stepsFor(action, tool.tracks_engine_hours, remote);
   const step: Step = actNumber ? 'done' : saving ? 'saving' : steps[stepIndex];
   const title =
     action === 'checkout'
@@ -222,6 +227,73 @@ export function HandoverWizard({
     }
   }
 
+  // remote path (ADR-015): initiator signs their side only; the counterparty
+  // countersigns in their own app
+  async function submitInitiate(signature: SignatureStrokes) {
+    setSaving(true);
+    setError(null);
+    try {
+      const movementId = ExpoCrypto.randomUUID();
+      const actId = ExpoCrypto.randomUUID();
+      const gps = await captureGps();
+
+      const photoItems: { storage_path: string; component_id?: string }[] = [];
+      const uploadPhoto = async (uri: string, name: string, componentId?: string) => {
+        const b64 = await FileSystem.readAsStringAsync(uri, { encoding: 'base64' });
+        const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+        const path = `${tool.org_id}/${tool.id}/${movementId}/${name}.jpg`;
+        await uploadBytes('tool-photos', path, bytes, 'image/jpeg');
+        photoItems.push(componentId ? { storage_path: path, component_id: componentId } : { storage_path: path });
+      };
+      for (let i = 0; i < photos.length; i += 1) {
+        await uploadPhoto(photos[i], String(i + 1));
+      }
+      const componentEntries = Object.entries(componentPhotos);
+      for (let i = 0; i < componentEntries.length; i += 1) {
+        const [componentId, uri] = componentEntries[i];
+        await uploadPhoto(uri, `c${i + 1}`, componentId);
+      }
+
+      const signaturePath = `${tool.org_id}/acts/${actId}/initiator.json`;
+      await uploadBytes(
+        'signatures',
+        signaturePath,
+        utf8Bytes(JSON.stringify(signature)),
+        'application/json',
+      );
+
+      const { data, error: rpcError } = await supabase.rpc('initiate_handover', {
+        args: {
+          movement_id: movementId,
+          act_id: actId,
+          tool_id: tool.id,
+          action,
+          receiver_profile_id: receiver?.kind === 'profile' ? receiver.id : '',
+          to_location_id: toLocation?.id ?? '',
+          engine_hours: tool.tracks_engine_hours ? engineHours.replace(',', '.') : '',
+          gps_lat: gps.lat === null ? '' : String(gps.lat),
+          gps_lng: gps.lng === null ? '' : String(gps.lng),
+          note: giverNote,
+          components: checklist.map((c) => ({
+            component_id: c.component_id,
+            included: c.included,
+            condition_note: c.condition_note,
+          })),
+          photos: photoItems,
+          signature_path: signaturePath,
+          performed_at: new Date().toISOString(),
+        },
+      });
+      if (rpcError) throw rpcError;
+      setPendingDone(true);
+      setActNumber((data as { act_number: string }).act_number);
+    } catch {
+      setError(t('mobile.handover.failed'));
+    } finally {
+      setSaving(false);
+    }
+  }
+
   const holderName =
     tool.holder?.full_name ?? tool.external_holder?.full_name ?? '';
   const passPhoneName = action === 'checkin' ? holderName : (receiver?.name ?? '');
@@ -250,8 +322,12 @@ export function HandoverWizard({
               <SignaturePad
                 title={t('mobile.handover.signGiver')}
                 onDone={(sig) => {
-                  setGiverSig(sig);
-                  next();
+                  if (remote) {
+                    void submitInitiate(sig);
+                  } else {
+                    setGiverSig(sig);
+                    next();
+                  }
                 }}
               />
             </>
@@ -355,14 +431,18 @@ export function HandoverWizard({
         ) : null}
         {step === 'done' && actNumber ? (
           <View style={{ marginTop: 32 }}>
-            <View style={[ui.stamp, { borderColor: theme.colors.ok }]}>
-              <Text style={[ui.stampText, { color: theme.colors.ok }]}>
-                {t('mobile.handover.successTitle')}
+            <View style={[ui.stamp, { borderColor: pendingDone ? theme.colors.hi : theme.colors.ok }]}>
+              <Text style={[ui.stampText, { color: pendingDone ? theme.colors.hi : theme.colors.ok }]}>
+                {pendingDone
+                  ? t('mobile.handover.pendingDoneTitle')
+                  : t('mobile.handover.successTitle')}
               </Text>
             </View>
             <Text style={[ui.title, { fontSize: 22 }]}>{actNumber}</Text>
             <Text style={[ui.value, { marginTop: 8 }]}>
-              {t('mobile.handover.successBody', { act: actNumber })}
+              {pendingDone
+                ? t('mobile.handover.pendingDoneBody', { act: actNumber })
+                : t('mobile.handover.successBody', { act: actNumber })}
             </Text>
             <Pressable style={ui.primaryButton} onPress={onDone}>
               <Text style={ui.primaryButtonText}>{t('mobile.handover.scanNext')}</Text>

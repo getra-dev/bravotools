@@ -3215,6 +3215,10 @@ export type Database = {
         Args: { manager?: boolean; target_site: string; target_user: string }
         Returns: undefined
       }
+      countersign_handover: {
+        Args: { act_id: string; note?: string; signature_path: string }
+        Returns: Json
+      }
       create_external_person: {
         Args: {
           person_name: string
@@ -3234,6 +3238,7 @@ export type Database = {
         Returns: string
       }
       import_tools: { Args: { rows: Json; target_org: string }; Returns: Json }
+      initiate_handover: { Args: { args: Json }; Returns: Json }
       invite_member: {
         Args: { invite_email: string; invite_role: string; target_org: string }
         Returns: string

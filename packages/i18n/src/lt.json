@@ -299,7 +299,14 @@
       "permissionNeeded": "Skenavimui reikia prieigos prie kameros",
       "grant": "Leisti kamerą",
       "signOut": "Atsijungti",
-      "lookupFailed": "Nepavyko patikrinti kodo — bandyk dar kartą"
+      "lookupFailed": "Nepavyko patikrinti kodo — bandyk dar kartą",
+      "searchCta": "Nėra lipduko? Ieškok pagal numerį"
+    },
+    "search": {
+      "title": "Rasti įrankį",
+      "placeholder": "Serijos nr., inventoriaus kodas ar pavadinimas",
+      "empty": "Nieko nerasta",
+      "hint": "Veikia įrankiams be QR lipdukų — ieškok pagal bet kurį numerį ant įrankio"
     },
     "tool": {
       "statusLabel": "Būsena",
@@ -315,7 +322,37 @@
       "comingSoon": "Pasirašomas perdavimo srautas atkeliauja su SPEC 2.4",
       "scanAgain": "Skenuoti kitą"
     },
+    "my": {
+      "title": "Mano atsakomybė",
+      "totalLabel": "Įrankių vertė pas mane",
+      "pendingTitle": "Laukia mano parašo",
+      "pendingEmpty": "Pasirašyti nėra ko",
+      "signAction": "Peržiūrėti ir pasirašyti",
+      "toolsTitle": "Įrankiai pas mane",
+      "toolsEmpty": "Šiuo metu įrankių pas tave nėra",
+      "daysHeld": "Laikoma {days} d.",
+      "longHoldStamp": "Ilgai laikoma",
+      "rentalDueStamp": "Grąžinti iki {date}",
+      "rentalOverdueStamp": "Vėluojama {days} d.",
+      "scanCta": "Skenuoti",
+      "initiatedBy": "{name} · {date}"
+    },
+    "countersign": {
+      "title": "Peržiūrėk ir pasirašyk",
+      "componentsTitle": "Komplektacija",
+      "includedStamp": "Perduota",
+      "missingStamp": "Trūksta",
+      "photosTitle": "Nuotraukos",
+      "giverNote": "Iniciatoriaus pastaba",
+      "yourNote": "Tavo pastaba (nebūtina)",
+      "signTitle": "Tavo parašas",
+      "successTitle": "Aktas pasirašytas",
+      "backToMy": "Grįžti į sąrašą",
+      "failed": "Nepavyko pasirašyti — bandyk dar kartą"
+    },
     "handover": {
+      "pendingDoneTitle": "Laukiama antrojo parašo",
+      "pendingDoneBody": "Aktas {act} išsaugotas. Kita pusė peržiūrės ir pasirašys savo programėlėje — gausi pranešimą.",
       "titleCheckout": "Perduoti",
       "titleCheckin": "Grąžinti",
       "titleTransfer": "Perduoti kitam",

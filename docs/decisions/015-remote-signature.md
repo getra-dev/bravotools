@@ -34,6 +34,17 @@ pasirašė, nes autentifikuotas).
   — reikia priminimo push + „laukia tavo parašo" sąrašo app'e (dera su 2.5
   „My responsibility" ekranu).
 
+## Įgyvendinimo būsena (2026-07-19)
+
+ĮGYVENDINTA: initiate_handover + countersign_handover (0010), pending
+sąrašas „Pas mane" ekrane su realtime atnaujinimu, countersign peržiūros
+ekranas (komplektacija, nuotraukos, pastabos, parašas savo sesijoje).
+PUSH PASTABA: tikri push pranešimai per Expo Go NEGALIMI be EAS projekto
+(getExpoPushTokenAsync reikalauja projectId) — o EAS draudžiamas iki
+ADR-014 promotion gate. Iki tol: in-app pranešimai + supabase realtime
+(veikia atidarius app'ą). Fizinis push įsijungs kartu su dev build'ais
+po gate (SPEC 2.7).
+
 ## Pasekmės
 
 - `perform_handover` skaidomas į `initiate_handover` (giver parašas) ir

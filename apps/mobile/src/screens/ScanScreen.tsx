@@ -2,18 +2,20 @@ import { useRef, useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useTranslation } from 'react-i18next';
-import { supabase } from '../lib/supabase';
+import { fetchToolByQr } from '../lib/tools';
 import { theme, ui } from '../ui';
 import type { ScannedTool } from '../types';
 
 export function ScanScreen({
   onTool,
   onUnknown,
-  onSignOut,
+  onSearch,
+  onBack,
 }: {
   onTool: (tool: ScannedTool) => void;
   onUnknown: (code: string) => void;
-  onSignOut: () => void;
+  onSearch: () => void;
+  onBack: () => void;
 }) {
   const { t } = useTranslation();
   const [permission, requestPermission] = useCameraPermissions();
@@ -25,27 +27,16 @@ export function ScanScreen({
     busyRef.current = true;
     setLookupError(false);
 
-    const { data, error } = await supabase
-      .from('tools')
-      .select(
-        `id, org_id, name, qr_code, status, serial_number, tracks_engine_hours, engine_hours,
-         category:tool_categories(name),
-         location:locations!tools_current_location_id_fkey(name),
-         holder:profiles!tools_current_holder_id_fkey(full_name),
-         external_holder:external_persons!tools_current_external_holder_id_fkey(full_name)`,
-      )
-      .eq('qr_code', code)
-      .maybeSingle();
-
-    if (error) {
+    const result = await fetchToolByQr(code);
+    if (result === 'error') {
       setLookupError(true);
       busyRef.current = false;
       return;
     }
-    if (!data) {
+    if (!result) {
       onUnknown(code);
     } else {
-      onTool(data as ScannedTool);
+      onTool(result);
     }
     // small delay so a lingering frame does not re-trigger instantly
     setTimeout(() => {
@@ -63,8 +54,11 @@ export function ScanScreen({
         <Pressable style={ui.primaryButton} onPress={requestPermission}>
           <Text style={ui.primaryButtonText}>{t('mobile.scan.grant')}</Text>
         </Pressable>
-        <Pressable style={ui.secondaryButton} onPress={onSignOut}>
-          <Text style={ui.secondaryButtonText}>{t('mobile.scan.signOut')}</Text>
+        <Pressable style={ui.secondaryButton} onPress={onSearch}>
+          <Text style={ui.secondaryButtonText}>{t('mobile.scan.searchCta')}</Text>
+        </Pressable>
+        <Pressable style={ui.secondaryButton} onPress={onBack}>
+          <Text style={ui.secondaryButtonText}>{t('mobile.handover.back')}</Text>
         </Pressable>
       </View>
     );
@@ -84,9 +78,14 @@ export function ScanScreen({
         <Text style={styles.instruction}>
           {lookupError ? t('mobile.scan.lookupFailed') : t('mobile.scan.instruction')}
         </Text>
-        <Pressable style={ui.secondaryButton} onPress={onSignOut}>
-          <Text style={ui.secondaryButtonText}>{t('mobile.scan.signOut')}</Text>
-        </Pressable>
+        <View style={{ alignSelf: 'stretch' }}>
+          <Pressable style={ui.secondaryButton} onPress={onSearch}>
+            <Text style={ui.secondaryButtonText}>{t('mobile.scan.searchCta')}</Text>
+          </Pressable>
+          <Pressable style={ui.secondaryButton} onPress={onBack}>
+            <Text style={ui.secondaryButtonText}>{t('mobile.handover.back')}</Text>
+          </Pressable>
+        </View>
       </View>
     </View>
   );
