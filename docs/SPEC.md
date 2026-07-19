@@ -147,6 +147,14 @@ UI. Requirements:
 - NOT random input: creation restricted to owner/admin/supply_manager;
   workers cannot create locations.
 
+### Mobile IA note — OWNER CONFIRMATION (2026-07-19)
+
+The field app grows into BOTTOM TABS as etapas content lands (per
+docs/plan.md skeleton): My (E1, exists) · Tools/search (E1 end, 2.8 era) ·
+Radio PTT (E2) · Orders (E2) · costs views (E3). The single-screen E1 layout
+is intentional scope, not the final IA; introduce the tab bar with the first
+E2 surface (or at 2.8 if a second E1 tab ships earlier).
+
 ### 2.9 Tools-axis backlog — OWNER ADDITIONS (2026-07-19, scope for E1.5/E2)
 
 - **Inventorizacija (stocktake).** Periodic audit session: auditor walks a
