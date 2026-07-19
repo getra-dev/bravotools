@@ -48,7 +48,8 @@
     "map": "Map",
     "members": "Members",
     "requests": "Requests",
-    "orders": "Orders"
+    "orders": "Orders",
+    "vendors": "Vendors"
   },
   "inventory": {
     "title": "Stocktakes",
@@ -786,6 +787,63 @@
       "site_manager": "Site manager",
       "driver": "Driver",
       "worker": "Worker"
+    }
+  },
+  "vendors": {
+    "title": "Vendors",
+    "newCta": "New vendor",
+    "empty": "No vendors yet",
+    "colName": "Name",
+    "colTypes": "Supplies",
+    "colEmail": "Email",
+    "colMethod": "Order method",
+    "colLeadTime": "Lead time",
+    "days": "{count} d",
+    "status": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "ordered": "Ordered",
+      "partially_delivered": "Partially delivered",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "detail": {
+      "edit": "Edit",
+      "recentOrders": "Recent orders",
+      "noOrders": "No orders to this vendor yet"
+    },
+    "form": {
+      "newTitle": "New vendor",
+      "editTitle": "Edit vendor",
+      "name": "Name",
+      "email": "Email",
+      "phone": "Phone",
+      "orderMethod": "Order method",
+      "leadTime": "Default lead time (days)",
+      "types": "Supplies",
+      "notes": "Notes",
+      "create": "Create vendor",
+      "save": "Save changes",
+      "cancel": "Cancel",
+      "methods": {
+        "email": "Email",
+        "csv": "CSV file",
+        "api": "API",
+        "manual": "Manual"
+      },
+      "typeLabels": {
+        "materials": "Materials",
+        "rental": "Rental",
+        "service": "Service",
+        "tools": "Tools",
+        "subcontractor": "Subcontractor"
+      },
+      "errors": {
+        "name_required": "Enter the vendor name",
+        "invalid_method": "Pick a valid order method",
+        "not_allowed": "Only the owner, admin or supply manager can manage vendors",
+        "save_failed": "Could not save — try again"
+      }
     }
   }
 }

@@ -48,7 +48,8 @@
     "map": "Žemėlapis",
     "members": "Nariai",
     "requests": "Poreikiai",
-    "orders": "Užsakymai"
+    "orders": "Užsakymai",
+    "vendors": "Tiekėjai"
   },
   "inventory": {
     "title": "Inventorizacijos",
@@ -786,6 +787,63 @@
       "site_manager": "Objekto vadovas",
       "driver": "Vairuotojas",
       "worker": "Darbuotojas"
+    }
+  },
+  "vendors": {
+    "title": "Tiekėjai",
+    "newCta": "Naujas tiekėjas",
+    "empty": "Tiekėjų dar nėra",
+    "colName": "Pavadinimas",
+    "colTypes": "Tiekia",
+    "colEmail": "El. paštas",
+    "colMethod": "Užsakymo būdas",
+    "colLeadTime": "Terminas",
+    "days": "{count} d.",
+    "status": {
+      "requested": "Užklausta",
+      "approved": "Patvirtinta",
+      "ordered": "Užsakyta",
+      "partially_delivered": "Dalinai pristatyta",
+      "delivered": "Pristatyta",
+      "cancelled": "Atšauktas"
+    },
+    "detail": {
+      "edit": "Redaguoti",
+      "recentOrders": "Naujausi užsakymai",
+      "noOrders": "Užsakymų šiam tiekėjui dar nėra"
+    },
+    "form": {
+      "newTitle": "Naujas tiekėjas",
+      "editTitle": "Redaguoti tiekėją",
+      "name": "Pavadinimas",
+      "email": "El. paštas",
+      "phone": "Telefonas",
+      "orderMethod": "Užsakymo būdas",
+      "leadTime": "Numatytas terminas (dienos)",
+      "types": "Tiekia",
+      "notes": "Pastabos",
+      "create": "Sukurti tiekėją",
+      "save": "Išsaugoti pakeitimus",
+      "cancel": "Atšaukti",
+      "methods": {
+        "email": "El. paštu",
+        "csv": "CSV failas",
+        "api": "API",
+        "manual": "Rankiniu būdu"
+      },
+      "typeLabels": {
+        "materials": "Medžiagos",
+        "rental": "Nuoma",
+        "service": "Servisas",
+        "tools": "Įrankiai",
+        "subcontractor": "Subrangovas"
+      },
+      "errors": {
+        "name_required": "Įvesk tiekėjo pavadinimą",
+        "invalid_method": "Pasirink teisingą užsakymo būdą",
+        "not_allowed": "Tiekėjus valdyti gali tik savininkas, administratorius arba tiekimo vadovas",
+        "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+      }
     }
   }
 }

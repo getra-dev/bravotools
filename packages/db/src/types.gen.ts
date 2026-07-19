@@ -3407,6 +3407,10 @@ export type Database = {
         Args: { payload: Json; target_org: string }
         Returns: string
       }
+      create_vendor: {
+        Args: { payload: Json; target_org: string }
+        Returns: string
+      }
       import_tools: { Args: { rows: Json; target_org: string }; Returns: Json }
       initiate_handover: { Args: { args: Json }; Returns: Json }
       invite_member: {
@@ -3483,6 +3487,10 @@ export type Database = {
       }
       update_tool: {
         Args: { payload: Json; tool_id: string }
+        Returns: undefined
+      }
+      update_vendor: {
+        Args: { payload: Json; vendor_id: string }
         Returns: undefined
       }
       write_off_tool: {
