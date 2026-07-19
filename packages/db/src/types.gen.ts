@@ -3403,6 +3403,7 @@ export type Database = {
         Args: { path: string; target_tool: string }
         Returns: undefined
       }
+      adjust_stock: { Args: { args: Json }; Returns: Json }
       archive_acts: {
         Args: { target_org: string; up_to: string }
         Returns: Json

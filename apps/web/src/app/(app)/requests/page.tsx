@@ -62,7 +62,7 @@ export default async function RequestsPage({
       `id, status, is_hot, hot_reason, needed_by, created_at,
        site:locations(name),
        requester:profiles!material_requests_requested_by_fkey(full_name),
-       items:material_request_items(id, raw_text, status, qty, unit,
+       items:material_request_items(id, raw_text, status, qty, unit, material_id,
          material:materials(canonical_name))`,
     )
     .eq('org_id', orgId)
@@ -90,6 +90,32 @@ export default async function RequestsPage({
     }),
   );
   const suggestions = new Map(suggestionEntries);
+
+  // own stock for the materials on these requests (matched or top-suggested)
+  // → dispatcher sees "we already have N somewhere" before ordering
+  const materialIds = new Set<string>();
+  for (const req of requests ?? []) {
+    for (const item of req.items) {
+      if (item.material_id) materialIds.add(item.material_id);
+      const topSugg = suggestions.get(item.id)?.[0];
+      if (topSugg) materialIds.add(topSugg.material_id);
+    }
+  }
+  const { data: stockRows } = materialIds.size
+    ? await supabase
+        .from('stock_items')
+        .select('material_id, quantity, unit, location:locations(name)')
+        .eq('org_id', orgId)
+        .gt('quantity', 0)
+        .in('material_id', [...materialIds])
+    : { data: [] };
+  const stockByMaterial = new Map<string, { qty: number; unit: string | null; where: string }[]>();
+  for (const row of stockRows ?? []) {
+    if (!row.material_id) continue;
+    const bucket = stockByMaterial.get(row.material_id) ?? [];
+    bucket.push({ qty: row.quantity, unit: row.unit, where: row.location?.name ?? '' });
+    stockByMaterial.set(row.material_id, bucket);
+  }
 
   return (
     <main>
@@ -145,6 +171,8 @@ export default async function RequestsPage({
                 {req.items.map((item) => {
                   const sugg = suggestions.get(item.id) ?? [];
                   const editable = actionable && (item.status === 'pending' || item.status === 'matched');
+                  const stockMatId = item.material_id ?? sugg[0]?.material_id;
+                  const stock = stockMatId ? stockByMaterial.get(stockMatId) : undefined;
                   return (
                     <li key={item.id} className="py-3">
                       <div className="flex flex-wrap items-center gap-2">
@@ -155,6 +183,17 @@ export default async function RequestsPage({
                         {item.qty ? (
                           <span className="text-xs text-dim">
                             {item.qty} {item.unit ?? ''}
+                          </span>
+                        ) : null}
+                        {stock && stock.length > 0 ? (
+                          <span
+                            className={`${STAMP} border-ok/50 text-ok`}
+                            title={stock.map((s) => `${s.qty} ${s.unit ?? ''} — ${s.where}`).join('; ')}
+                          >
+                            {t('inStock', {
+                              qty: stock.reduce((sum, s) => sum + s.qty, 0),
+                              where: stock[0].where,
+                            })}
                           </span>
                         ) : null}
                         <span

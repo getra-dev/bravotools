@@ -50,7 +50,8 @@
     "requests": "Poreikiai",
     "orders": "Užsakymai",
     "vendors": "Tiekėjai",
-    "materials": "Medžiagos"
+    "materials": "Medžiagos",
+    "stock": "Atsargos"
   },
   "inventory": {
     "title": "Inventorizacijos",
@@ -439,7 +440,8 @@
     "notices": {
       "confirmed": "Eilutė patvirtinta",
       "order_created": "Užsakymas sukurtas"
-    }
+    },
+    "inStock": "Sandėly: {qty} ({where})"
   },
   "orders": {
     "title": "Užsakymai",
@@ -903,6 +905,32 @@
         "not_allowed": "Neturi teisės",
         "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
       }
+    }
+  },
+  "stock": {
+    "title": "Atsargos",
+    "empty": "Atsargų dar nėra — pridėk pajamavimą žemiau",
+    "colMaterial": "Medžiaga",
+    "colQty": "Kiekis",
+    "note": "Pastaba",
+    "adjustTitle": "Koreguoti atsargas",
+    "adjustHint": "Pajamavimas prideda, nurašymas atima, koregavimas nustato tikslų likutį.",
+    "pickMaterial": "Medžiaga…",
+    "pickLocation": "Lokacija…",
+    "apply": "Vykdyti",
+    "saved": "Atsargos atnaujintos",
+    "movements": {
+      "receipt": "Pajamavimas +",
+      "issue": "Išdavimas −",
+      "adjustment": "Nustatyti tiksliai",
+      "write_off": "Nurašymas −"
+    },
+    "errors": {
+      "insufficient_stock": "Nepakanka likučio",
+      "invalid_qty": "Įvesk teisingą kiekį",
+      "invalid_type": "Neteisingas judėjimas",
+      "not_allowed": "Atsargas koreguoti gali tik tiekimo pusė",
+      "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
     }
   }
 }

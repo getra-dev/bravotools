@@ -50,7 +50,8 @@
     "requests": "Requests",
     "orders": "Orders",
     "vendors": "Vendors",
-    "materials": "Materials"
+    "materials": "Materials",
+    "stock": "Stock"
   },
   "inventory": {
     "title": "Stocktakes",
@@ -439,7 +440,8 @@
     "notices": {
       "confirmed": "Line confirmed",
       "order_created": "Order created"
-    }
+    },
+    "inStock": "In stock: {qty} ({where})"
   },
   "orders": {
     "title": "Orders",
@@ -903,6 +905,32 @@
         "not_allowed": "Not allowed",
         "save_failed": "Could not save — try again"
       }
+    }
+  },
+  "stock": {
+    "title": "Stock",
+    "empty": "No stock recorded yet — add a receipt below",
+    "colMaterial": "Material",
+    "colQty": "Quantity",
+    "note": "Note",
+    "adjustTitle": "Adjust stock",
+    "adjustHint": "Receipt adds, issue removes, adjustment sets the exact balance.",
+    "pickMaterial": "Material…",
+    "pickLocation": "Location…",
+    "apply": "Apply",
+    "saved": "Stock updated",
+    "movements": {
+      "receipt": "Receipt +",
+      "issue": "Issue −",
+      "adjustment": "Set exact",
+      "write_off": "Write off −"
+    },
+    "errors": {
+      "insufficient_stock": "Not enough on hand",
+      "invalid_qty": "Enter a valid quantity",
+      "invalid_type": "Invalid movement",
+      "not_allowed": "Only supply side can adjust stock",
+      "save_failed": "Could not save — try again"
     }
   }
 }
