@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Platform, SafeAreaView, StatusBar as RNStatusBar, View } from 'react-native';
+import {
+  Platform,
+  Pressable,
+  SafeAreaView,
+  StatusBar as RNStatusBar,
+  Text,
+  View,
+} from 'react-native';
+import { useTranslation } from 'react-i18next';
 import { StatusBar } from 'expo-status-bar';
 import type { Session } from '@supabase/supabase-js';
 import { rnTheme } from '@bravotools/theme';
@@ -15,6 +23,7 @@ import { ToolScreen } from './src/screens/ToolScreen';
 import { HandoverWizard } from './src/screens/HandoverWizard';
 import { CountersignScreen } from './src/screens/CountersignScreen';
 import { InventoryScreen } from './src/screens/InventoryScreen';
+import { RequestsScreen } from './src/screens/RequestsScreen';
 import { RentalIntakeScreen } from './src/screens/RentalIntakeScreen';
 import { ReturnVendorScreen } from './src/screens/ReturnVendorScreen';
 import { UnknownCodeScreen } from './src/screens/UnknownCodeScreen';
@@ -23,6 +32,7 @@ import type { HandoverAction, ScannedTool } from './src/types';
 
 type Route =
   | { name: 'my' }
+  | { name: 'requests' }
   | { name: 'scan' }
   | { name: 'search' }
   | { name: 'tool'; tool: ScannedTool }
@@ -32,6 +42,52 @@ type Route =
   | { name: 'rentalIntake' }
   | { name: 'returnVendor'; tool: ScannedTool }
   | { name: 'unknown'; code: string };
+
+// Bottom tabs (SPEC mobile IA): shown only on the two top-level screens so
+// flows (scan/handover/countersign) keep the full screen.
+function TabBar({
+  active,
+  onSelect,
+}: {
+  active: 'my' | 'requests';
+  onSelect: (tab: 'my' | 'requests') => void;
+}) {
+  const { t } = useTranslation();
+  const tabs = [
+    { key: 'my' as const, label: t('mobile.tabs.my') },
+    { key: 'requests' as const, label: t('mobile.tabs.requests') },
+  ];
+  return (
+    <View
+      style={{
+        flexDirection: 'row',
+        borderTopWidth: 1,
+        borderTopColor: rnTheme.colors.line,
+        backgroundColor: rnTheme.colors.panel2,
+      }}
+    >
+      {tabs.map((tab) => (
+        <Pressable
+          key={tab.key}
+          onPress={() => onSelect(tab.key)}
+          style={{ flex: 1, alignItems: 'center', paddingVertical: 12 }}
+        >
+          <Text
+            style={{
+              color: active === tab.key ? rnTheme.colors.hi : rnTheme.colors.dim,
+              fontWeight: active === tab.key ? '800' : '600',
+              fontSize: 13,
+              textTransform: 'uppercase',
+              letterSpacing: 1,
+            }}
+          >
+            {tab.label}
+          </Text>
+        </Pressable>
+      ))}
+    </View>
+  );
+}
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
@@ -120,6 +176,8 @@ export default function App() {
           onCancel={() => setRoute({ name: 'tool', tool: route.tool })}
         />
       );
+    } else if (route.name === 'requests') {
+      content = <RequestsScreen userId={session.user.id} />;
     } else if (route.name === 'unknown') {
       content = (
         <UnknownCodeScreen code={route.code} onScanAgain={() => setRoute({ name: 'scan' })} />
@@ -153,6 +211,12 @@ export default function App() {
         }}
       >
         {content}
+        {session && (route.name === 'my' || route.name === 'requests') ? (
+          <TabBar
+            active={route.name}
+            onSelect={(tab) => setRoute(tab === 'my' ? { name: 'my' } : { name: 'requests' })}
+          />
+        ) : null}
       </SafeAreaView>
       <StatusBar style="light" />
     </View>

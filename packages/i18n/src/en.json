@@ -46,7 +46,9 @@
     "tools": "Tools",
     "locations": "Locations",
     "map": "Map",
-    "members": "Members"
+    "members": "Members",
+    "requests": "Requests",
+    "orders": "Orders"
   },
   "inventory": {
     "title": "Stocktakes",
@@ -382,6 +384,92 @@
     "action": "Action",
     "openPdf": "PDF"
   },
+  "requests": {
+    "title": "Material requests",
+    "empty": "No open requests",
+    "requestedBy": "Requested by",
+    "neededBy": "Needed by",
+    "hot": "HOT",
+    "hotReasonLabel": "HOT reason",
+    "reasons": {
+      "planning_miss": "Planning miss",
+      "scope_change": "Scope change",
+      "emergency": "Emergency / defect fix",
+      "vendor_fail": "Vendor failed previous order",
+      "weather": "Weather replan",
+      "other": "Other"
+    },
+    "status": {
+      "open": "Open",
+      "processing": "Processing",
+      "ordered": "Ordered",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "itemStatus": {
+      "pending": "Pending",
+      "matched": "Matched",
+      "confirmed": "Confirmed",
+      "ordered": "Ordered",
+      "duplicate": "Duplicate"
+    },
+    "suggestions": "Suggestions",
+    "matchScore": "{score}%",
+    "material": "Material",
+    "pickMaterial": "Pick material…",
+    "qty": "Qty",
+    "unit": "Unit",
+    "confirm": "Confirm",
+    "createNewHint": "Not in the dictionary? Create it:",
+    "newName": "New material name",
+    "createAndConfirm": "Create + confirm",
+    "orderCta": "Create order",
+    "vendor": "Vendor",
+    "noVendor": "— no vendor —",
+    "showClosed": "Show closed requests",
+    "errors": {
+      "not_allowed": "You are not allowed to do this",
+      "save_failed": "Could not save — try again",
+      "no_confirmed_items": "Confirm at least one line first",
+      "request_closed": "This request is already closed",
+      "name_required": "Material name is required"
+    },
+    "notices": {
+      "confirmed": "Line confirmed",
+      "order_created": "Order created"
+    }
+  },
+  "orders": {
+    "title": "Orders",
+    "empty": "No orders yet",
+    "number": "Order no.",
+    "site": "Site",
+    "vendor": "Vendor",
+    "lines": "{count} lines",
+    "neededBy": "Needed by",
+    "hot": "HOT",
+    "fromRequest": "From request",
+    "status": {
+      "requested": "Requested",
+      "approved": "Approved",
+      "ordered": "Ordered",
+      "partially_delivered": "Partially delivered",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "actions": {
+      "approve": "Approve",
+      "markOrdered": "Mark ordered",
+      "markPartial": "Partial delivery",
+      "markDelivered": "Delivered",
+      "cancel": "Cancel"
+    },
+    "errors": {
+      "not_allowed": "You are not allowed to do this",
+      "save_failed": "Could not save — try again",
+      "order_closed": "This order is closed"
+    }
+  },
   "mobile": {
     "home": {
       "title": "Field app",
@@ -442,6 +530,45 @@
       "remindersTitle": "Reminders",
       "markAllRead": "Mark all as read",
       "inventoryCta": "Stocktake"
+    },
+    "tabs": {
+      "my": "My",
+      "requests": "Requests"
+    },
+    "requests": {
+      "title": "Material requests",
+      "newCta": "New request",
+      "empty": "No requests yet",
+      "site": "Site",
+      "itemsLabel": "What is needed (one line = one item)",
+      "neededBy": "Needed by (YYYY-MM-DD, optional)",
+      "hotToggle": "HOT — needed inside vendor lead time",
+      "hotReason": "Why HOT?",
+      "reasons": {
+        "planning_miss": "Planning miss",
+        "scope_change": "Scope change",
+        "emergency": "Emergency / defect fix",
+        "vendor_fail": "Vendor failed previous order",
+        "weather": "Weather replan",
+        "other": "Other"
+      },
+      "submit": "Send request",
+      "status": {
+        "open": "Open",
+        "processing": "Processing",
+        "ordered": "Ordered",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "itemStatus": {
+        "pending": "Pending",
+        "matched": "Matched",
+        "confirmed": "Confirmed",
+        "ordered": "Ordered",
+        "duplicate": "Duplicate"
+      },
+      "hotStamp": "HOT",
+      "failed": "Could not send — try again"
     },
     "rental": {
       "intakeCta": "Rental pickup",

@@ -46,7 +46,9 @@
     "tools": "Įrankiai",
     "locations": "Objektai",
     "map": "Žemėlapis",
-    "members": "Nariai"
+    "members": "Nariai",
+    "requests": "Poreikiai",
+    "orders": "Užsakymai"
   },
   "inventory": {
     "title": "Inventorizacijos",
@@ -382,6 +384,92 @@
     "action": "Veiksmas",
     "openPdf": "PDF"
   },
+  "requests": {
+    "title": "Medžiagų poreikiai",
+    "empty": "Atvirų poreikių nėra",
+    "requestedBy": "Užsakė",
+    "neededBy": "Reikia iki",
+    "hot": "HOT",
+    "hotReasonLabel": "HOT priežastis",
+    "reasons": {
+      "planning_miss": "Nesuplanuota",
+      "scope_change": "Pasikeitė sprendimas",
+      "emergency": "Avarija / broko taisymas",
+      "vendor_fail": "Tiekėjas pavedė su ankstesniu užsakymu",
+      "weather": "Orų perplanavimas",
+      "other": "Kita"
+    },
+    "status": {
+      "open": "Atviras",
+      "processing": "Tvarkomas",
+      "ordered": "Užsakyta",
+      "delivered": "Pristatyta",
+      "cancelled": "Atšauktas"
+    },
+    "itemStatus": {
+      "pending": "Laukia",
+      "matched": "Atpažinta",
+      "confirmed": "Patvirtinta",
+      "ordered": "Užsakyta",
+      "duplicate": "Dublikatas"
+    },
+    "suggestions": "Pasiūlymai",
+    "matchScore": "{score}%",
+    "material": "Medžiaga",
+    "pickMaterial": "Pasirink medžiagą…",
+    "qty": "Kiekis",
+    "unit": "Vnt.",
+    "confirm": "Patvirtinti",
+    "createNewHint": "Nėra žodyne? Sukurk:",
+    "newName": "Naujos medžiagos pavadinimas",
+    "createAndConfirm": "Sukurti + patvirtinti",
+    "orderCta": "Sukurti užsakymą",
+    "vendor": "Tiekėjas",
+    "noVendor": "— be tiekėjo —",
+    "showClosed": "Rodyti uždarytus poreikius",
+    "errors": {
+      "not_allowed": "Neturi teisės to daryti",
+      "save_failed": "Nepavyko išsaugoti — bandyk dar kartą",
+      "no_confirmed_items": "Pirma patvirtink bent vieną eilutę",
+      "request_closed": "Šis poreikis jau uždarytas",
+      "name_required": "Medžiagos pavadinimas privalomas"
+    },
+    "notices": {
+      "confirmed": "Eilutė patvirtinta",
+      "order_created": "Užsakymas sukurtas"
+    }
+  },
+  "orders": {
+    "title": "Užsakymai",
+    "empty": "Užsakymų dar nėra",
+    "number": "Užsakymo nr.",
+    "site": "Objektas",
+    "vendor": "Tiekėjas",
+    "lines": "{count} eil.",
+    "neededBy": "Reikia iki",
+    "hot": "HOT",
+    "fromRequest": "Iš poreikio",
+    "status": {
+      "requested": "Užklausta",
+      "approved": "Patvirtinta",
+      "ordered": "Užsakyta",
+      "partially_delivered": "Dalinai pristatyta",
+      "delivered": "Pristatyta",
+      "cancelled": "Atšauktas"
+    },
+    "actions": {
+      "approve": "Patvirtinti",
+      "markOrdered": "Pažymėti užsakytu",
+      "markPartial": "Dalinis pristatymas",
+      "markDelivered": "Pristatyta",
+      "cancel": "Atšaukti"
+    },
+    "errors": {
+      "not_allowed": "Neturi teisės to daryti",
+      "save_failed": "Nepavyko išsaugoti — bandyk dar kartą",
+      "order_closed": "Šis užsakymas uždarytas"
+    }
+  },
   "mobile": {
     "home": {
       "title": "Lauko aplikacija",
@@ -442,6 +530,45 @@
       "remindersTitle": "Priminimai",
       "markAllRead": "Pažymėti visus skaitytais",
       "inventoryCta": "Inventorizacija"
+    },
+    "tabs": {
+      "my": "Pas mane",
+      "requests": "Poreikiai"
+    },
+    "requests": {
+      "title": "Medžiagų poreikiai",
+      "newCta": "Naujas poreikis",
+      "empty": "Poreikių dar nėra",
+      "site": "Objektas",
+      "itemsLabel": "Ko reikia (viena eilutė = viena pozicija)",
+      "neededBy": "Iki kada (MMMM-MM-DD, nebūtina)",
+      "hotToggle": "HOT — reikia greičiau nei tiekėjo terminas",
+      "hotReason": "Kodėl HOT?",
+      "reasons": {
+        "planning_miss": "Nesuplanuota",
+        "scope_change": "Pasikeitė sprendimas",
+        "emergency": "Avarija / broko taisymas",
+        "vendor_fail": "Tiekėjas pavedė su ankstesniu užsakymu",
+        "weather": "Orų perplanavimas",
+        "other": "Kita"
+      },
+      "submit": "Siųsti poreikį",
+      "status": {
+        "open": "Atviras",
+        "processing": "Tvarkomas",
+        "ordered": "Užsakyta",
+        "delivered": "Pristatyta",
+        "cancelled": "Atšauktas"
+      },
+      "itemStatus": {
+        "pending": "Laukia",
+        "matched": "Atpažinta",
+        "confirmed": "Patvirtinta",
+        "ordered": "Užsakyta",
+        "duplicate": "Dublikatas"
+      },
+      "hotStamp": "HOT",
+      "failed": "Nepavyko išsiųsti — bandyk dar kartą"
     },
     "rental": {
       "intakeCta": "Nuomos paėmimas",

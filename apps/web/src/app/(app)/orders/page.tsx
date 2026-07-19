@@ -1,0 +1,152 @@
+import { getTranslations } from 'next-intl/server';
+import { redirect } from 'next/navigation';
+import { getSupabaseServer } from '@/lib/supabase/server';
+import { getSessionContext } from '@/lib/org';
+import { updateOrderStatusAction } from '@/lib/request-actions';
+
+const STAMP =
+  'inline-block rounded-stamp border px-1.5 py-px font-mono text-[10px] uppercase tracking-[1px]';
+const STATUS_STYLE: Record<string, string> = {
+  requested: 'border-blue/50 text-blue',
+  approved: 'border-hi/50 text-hi',
+  ordered: 'border-hi/50 text-hi',
+  partially_delivered: 'border-hi/50 text-hi',
+  delivered: 'border-ok/50 text-ok',
+  cancelled: 'border-line text-dim',
+};
+// board columns in flow order; closed ones last
+const COLUMNS = [
+  'requested',
+  'approved',
+  'ordered',
+  'partially_delivered',
+  'delivered',
+  'cancelled',
+] as const;
+// allowed next steps per status (update_order_status blocks closed ones anyway)
+const NEXT: Record<string, { status: string; key: 'approve' | 'markOrdered' | 'markPartial' | 'markDelivered' }[]> = {
+  requested: [{ status: 'approved', key: 'approve' }],
+  approved: [{ status: 'ordered', key: 'markOrdered' }],
+  ordered: [
+    { status: 'partially_delivered', key: 'markPartial' },
+    { status: 'delivered', key: 'markDelivered' },
+  ],
+  partially_delivered: [{ status: 'delivered', key: 'markDelivered' }],
+};
+const ERROR_KEYS = new Set(['not_allowed', 'save_failed', 'order_closed']);
+
+export default async function OrdersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ notice?: string; error?: string }>;
+}) {
+  const ctx = await getSessionContext();
+  if (!ctx?.activeOrg) redirect('/onboarding');
+  const t = await getTranslations('orders');
+  const tReq = await getTranslations('requests');
+  const { notice, error } = await searchParams;
+
+  const supabase = await getSupabaseServer();
+  const orgId = ctx.activeOrg.orgId;
+  const isSupply = ['owner', 'admin', 'supply_manager'].includes(ctx.activeOrg.role);
+
+  const { data: orders } = await supabase
+    .from('orders')
+    .select(
+      `id, order_number, status, is_hot, needed_by, created_at,
+       site:locations(name), vendor:vendors!orders_vendor_id_fkey(name),
+       items:order_items(id, description, quantity, unit)`,
+    )
+    .eq('org_id', orgId)
+    .order('created_at', { ascending: false })
+    .limit(200);
+
+  const byStatus = new Map<string, NonNullable<typeof orders>>();
+  for (const order of orders ?? []) {
+    const bucket = byStatus.get(order.status) ?? [];
+    bucket.push(order);
+    byStatus.set(order.status, bucket);
+  }
+
+  return (
+    <main>
+      <h1 className="text-2xl font-extrabold tracking-tight">{t('title')}</h1>
+
+      {notice ? (
+        <p className="mt-4 rounded-button-sm border border-ok/40 bg-ok/10 px-3 py-2 text-sm">
+          {tReq('notices.order_created')}
+        </p>
+      ) : null}
+      {error ? (
+        <p className="mt-4 rounded-button-sm border border-hot/40 bg-hot/10 px-3 py-2 text-sm">
+          {t(`errors.${ERROR_KEYS.has(error) ? error : 'save_failed'}` as Parameters<typeof t>[0])}
+        </p>
+      ) : null}
+
+      {(orders ?? []).length === 0 ? <p className="mt-8 text-sm text-dim">{t('empty')}</p> : null}
+
+      <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        {COLUMNS.filter((status) => (byStatus.get(status) ?? []).length > 0).map((status) => (
+          <div key={status}>
+            <h2 className="font-mono text-[11px] uppercase tracking-[1.5px] text-dim">
+              {t(`status.${status}`)} · {(byStatus.get(status) ?? []).length}
+            </h2>
+            <div className="mt-2 space-y-3">
+              {(byStatus.get(status) ?? []).map((order) => (
+                <section key={order.id} className="rounded-card border border-line/30 bg-white p-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-mono text-xs font-bold">{order.order_number}</span>
+                    {order.is_hot ? (
+                      <span className={`${STAMP} border-hot/50 text-hot`}>{t('hot')}</span>
+                    ) : null}
+                    <span
+                      className={`${STAMP} ml-auto ${STATUS_STYLE[order.status] ?? 'border-line text-dim'}`}
+                    >
+                      {t(`status.${order.status}` as Parameters<typeof t>[0])}
+                    </span>
+                  </div>
+                  <p className="mt-1 text-xs text-dim">
+                    {order.site?.name ?? '—'}
+                    {order.vendor?.name ? ` · ${t('vendor')}: ${order.vendor.name}` : ''}
+                    {order.needed_by ? ` · ${t('neededBy')}: ${order.needed_by}` : ''}
+                  </p>
+                  <ul className="mt-2 space-y-0.5">
+                    {order.items.map((item) => (
+                      <li key={item.id} className="text-sm">
+                        {item.description}
+                        <span className="text-dim">
+                          {' '}
+                          · {item.quantity} {item.unit}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                  {isSupply && !['delivered', 'cancelled'].includes(order.status) ? (
+                    <div className="mt-2 flex flex-wrap gap-2 border-t border-line/20 pt-2">
+                      {(NEXT[order.status] ?? []).map((step) => (
+                        <form key={step.status} action={updateOrderStatusAction}>
+                          <input type="hidden" name="orderId" value={order.id} />
+                          <input type="hidden" name="status" value={step.status} />
+                          <button className="h-7 rounded-button-sm bg-ink px-2.5 text-[11px] font-bold text-paper">
+                            {t(`actions.${step.key}`)}
+                          </button>
+                        </form>
+                      ))}
+                      <form action={updateOrderStatusAction}>
+                        <input type="hidden" name="orderId" value={order.id} />
+                        <input type="hidden" name="status" value="cancelled" />
+                        <button className="h-7 rounded-button-sm border border-hot/40 px-2.5 text-[11px] font-bold text-hot">
+                          {t('actions.cancel')}
+                        </button>
+                      </form>
+                    </div>
+                  ) : null}
+                </section>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    </main>
+  );
+}

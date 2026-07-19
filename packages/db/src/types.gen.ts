@@ -3362,6 +3362,15 @@ export type Database = {
         Args: { mark_missing_lost?: boolean; target_session: string }
         Returns: Json
       }
+      confirm_material_match: {
+        Args: {
+          item_id: string
+          p_qty?: number
+          p_unit?: string
+          target_material: string
+        }
+        Returns: undefined
+      }
       countersign_handover: {
         Args: { act_id: string; note?: string; signature_path: string }
         Returns: Json
@@ -3379,6 +3388,20 @@ export type Database = {
         Args: { payload: Json; target_org: string }
         Returns: string
       }
+      create_material: {
+        Args: {
+          m_category?: string
+          m_name: string
+          m_unit?: string
+          target_org: string
+        }
+        Returns: string
+      }
+      create_material_request: { Args: { args: Json }; Returns: string }
+      create_order_from_request: {
+        Args: { p_vendor?: string; req_id: string }
+        Returns: Json
+      }
       create_organization: { Args: { org_name: string }; Returns: string }
       create_tool: {
         Args: { payload: Json; target_org: string }
@@ -3392,7 +3415,9 @@ export type Database = {
       }
       is_assigned_to_site: { Args: { check_site: string }; Returns: boolean }
       is_org_member: { Args: { check_org: string }; Returns: boolean }
+      is_supply: { Args: { target_org: string }; Returns: boolean }
       next_act_number: { Args: { target_org: string }; Returns: string }
+      next_order_number: { Args: { target_org: string }; Returns: string }
       next_tool_qr: { Args: { target_org: string }; Returns: string }
       notify_missing_components: {
         Args: { movement: string; target_org: string; target_tool: string }
@@ -3431,12 +3456,27 @@ export type Database = {
         Returns: undefined
       }
       shares_org_with: { Args: { other: string }; Returns: boolean }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       start_inventory_session: {
         Args: { target_location: string }
         Returns: string
       }
+      suggest_material_matches: {
+        Args: { raw: string; target_org: string }
+        Returns: {
+          base_unit: string
+          canonical_name: string
+          material_id: string
+          score: number
+        }[]
+      }
       update_location: {
         Args: { location_id: string; payload: Json }
+        Returns: undefined
+      }
+      update_order_status: {
+        Args: { new_status: string; order_id: string }
         Returns: undefined
       }
       update_tool: {
