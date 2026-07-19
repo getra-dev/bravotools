@@ -771,6 +771,24 @@
       "doneTitle": "Receiving saved",
       "partialHint": "the rest stays open for the next delivery",
       "failed": "Could not save — try again"
+    },
+    "driver": {
+      "title": "My deliveries",
+      "myDeliveries": "My deliveries",
+      "todayStops": "Today's stops",
+      "noStops": "No deliveries assigned to you today",
+      "tripActive": "Trip in progress",
+      "noTrip": "No active trip",
+      "odometerStart": "Odometer (start)",
+      "odometerEnd": "Odometer (end)",
+      "startTrip": "Start trip",
+      "endTrip": "End trip",
+      "markPickedUp": "Picked up",
+      "markDelivered": "Delivered",
+      "status": {
+        "assigned": "To pick up",
+        "picked_up": "En route"
+      }
     }
   },
   "members": {

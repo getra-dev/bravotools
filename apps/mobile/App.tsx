@@ -25,6 +25,7 @@ import { CountersignScreen } from './src/screens/CountersignScreen';
 import { InventoryScreen } from './src/screens/InventoryScreen';
 import { RequestsScreen } from './src/screens/RequestsScreen';
 import { ReceiveOrderScreen } from './src/screens/ReceiveOrderScreen';
+import { DriverScreen } from './src/screens/DriverScreen';
 import { RentalIntakeScreen } from './src/screens/RentalIntakeScreen';
 import { ReturnVendorScreen } from './src/screens/ReturnVendorScreen';
 import { UnknownCodeScreen } from './src/screens/UnknownCodeScreen';
@@ -41,6 +42,7 @@ type Route =
   | { name: 'handover'; tool: ScannedTool; action: HandoverAction }
   | { name: 'countersign'; actId: string }
   | { name: 'inventory' }
+  | { name: 'driver' }
   | { name: 'rentalIntake' }
   | { name: 'returnVendor'; tool: ScannedTool }
   | { name: 'unknown'; code: string };
@@ -170,6 +172,10 @@ export default function App() {
       );
     } else if (route.name === 'inventory') {
       content = <InventoryScreen onDone={() => setRoute({ name: 'my' })} />;
+    } else if (route.name === 'driver') {
+      content = (
+        <DriverScreen userId={session.user.id} onDone={() => setRoute({ name: 'my' })} />
+      );
     } else if (route.name === 'rentalIntake') {
       content = <RentalIntakeScreen onDone={() => setRoute({ name: 'my' })} />;
     } else if (route.name === 'returnVendor') {
@@ -213,6 +219,7 @@ export default function App() {
           }}
           onInventory={() => setRoute({ name: 'inventory' })}
           onRentalIntake={() => setRoute({ name: 'rentalIntake' })}
+          onDriver={() => setRoute({ name: 'driver' })}
           onSignOut={() => void supabase.auth.signOut()}
         />
       );

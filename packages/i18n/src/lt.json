@@ -771,6 +771,24 @@
       "doneTitle": "Priėmimas išsaugotas",
       "partialHint": "likutis lieka atviras kitam pristatymui",
       "failed": "Nepavyko išsaugoti — bandyk dar kartą"
+    },
+    "driver": {
+      "title": "Mano pristatymai",
+      "myDeliveries": "Mano pristatymai",
+      "todayStops": "Šiandienos sustojimai",
+      "noStops": "Šiandien tau pristatymų nepriskirta",
+      "tripActive": "Reisas vyksta",
+      "noTrip": "Aktyvaus reiso nėra",
+      "odometerStart": "Ridos rodmuo (pradžia)",
+      "odometerEnd": "Ridos rodmuo (pabaiga)",
+      "startTrip": "Pradėti reisą",
+      "endTrip": "Baigti reisą",
+      "markPickedUp": "Paimta",
+      "markDelivered": "Pristatyta",
+      "status": {
+        "assigned": "Paimti",
+        "picked_up": "Kelyje"
+      }
     }
   },
   "members": {

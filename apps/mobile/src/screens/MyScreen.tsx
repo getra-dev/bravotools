@@ -47,6 +47,7 @@ export function MyScreen({
   onOpenTool,
   onInventory,
   onRentalIntake,
+  onDriver,
   onSignOut,
 }: {
   userId: string;
@@ -55,6 +56,7 @@ export function MyScreen({
   onOpenTool: (toolId: string) => void;
   onInventory: () => void;
   onRentalIntake: () => void;
+  onDriver: () => void;
   onSignOut: () => void;
 }) {
   const { t } = useTranslation();
@@ -380,6 +382,9 @@ export function MyScreen({
           </Pressable>
           <Pressable style={ui.secondaryButton} onPress={onInventory}>
             <Text style={ui.secondaryButtonText}>{t('mobile.my.inventoryCta')}</Text>
+          </Pressable>
+          <Pressable style={ui.secondaryButton} onPress={onDriver}>
+            <Text style={ui.secondaryButtonText}>{t('mobile.driver.myDeliveries')}</Text>
           </Pressable>
         </>
       ) : null}
