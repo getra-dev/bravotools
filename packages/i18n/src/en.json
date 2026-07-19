@@ -45,7 +45,16 @@
     "overview": "Overview",
     "tools": "Tools",
     "locations": "Locations",
+    "map": "Map",
     "members": "Members"
+  },
+  "map": {
+    "title": "Map",
+    "toolsHere": "{count} tools",
+    "legendSite": "Site",
+    "legendWarehouse": "Warehouse",
+    "legendVendor": "Vendor",
+    "openList": "Open tool list"
   },
   "locations": {
     "title": "Locations",
@@ -162,6 +171,16 @@
     "colCode": "Code",
     "colName": "Name",
     "colStatus": "Status",
+    "colLocation": "Location",
+    "colHolder": "Holder",
+    "colDue": "Due",
+    "filters": {
+      "searchPlaceholder": "Search: name, code, serial (Cmd+K)",
+      "allStatuses": "All statuses",
+      "allLocations": "All locations",
+      "printFiltered": "Print QR (filtered)",
+      "count": "{count} tools"
+    },
     "detail": {
       "edit": "Edit",
       "location": "Location",

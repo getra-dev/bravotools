@@ -5,19 +5,31 @@ import { getSupabaseServer } from '@/lib/supabase/server';
 import { getSessionContext } from '@/lib/org';
 import { PrintButton } from '@/components/print-button';
 
-export default async function StickersPage() {
+export default async function StickersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string; status?: string; location?: string }>;
+}) {
   const ctx = await getSessionContext();
   if (!ctx?.activeOrg) redirect('/onboarding');
   const activeOrg = ctx.activeOrg;
   const t = await getTranslations('tools.stickers');
+  const { q, status, location } = await searchParams;
 
   const supabase = await getSupabaseServer();
-  const { data: tools } = await supabase
+  let query = supabase
     .from('tools')
     .select('id, qr_code, name')
     .eq('org_id', activeOrg.orgId)
     .not('qr_code', 'is', null)
     .order('qr_code');
+  if (q?.trim()) {
+    const like = `%${q.trim()}%`;
+    query = query.or(`name.ilike.${like},qr_code.ilike.${like},serial_number.ilike.${like},inventory_code.ilike.${like}`);
+  }
+  if (status) query = query.eq('status', status);
+  if (location) query = query.eq('current_location_id', location);
+  const { data: tools } = await query;
 
   const labels = await Promise.all(
     (tools ?? []).map(async (tool) => ({

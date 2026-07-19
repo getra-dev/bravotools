@@ -45,7 +45,16 @@
     "overview": "Apžvalga",
     "tools": "Įrankiai",
     "locations": "Objektai",
+    "map": "Žemėlapis",
     "members": "Nariai"
+  },
+  "map": {
+    "title": "Žemėlapis",
+    "toolsHere": "Įrankių: {count}",
+    "legendSite": "Objektas",
+    "legendWarehouse": "Sandėlis",
+    "legendVendor": "Tiekėjas",
+    "openList": "Atidaryti įrankių sąrašą"
   },
   "locations": {
     "title": "Objektai",
@@ -162,6 +171,16 @@
     "colCode": "Kodas",
     "colName": "Pavadinimas",
     "colStatus": "Būsena",
+    "colLocation": "Lokacija",
+    "colHolder": "Pas ką",
+    "colDue": "Terminas",
+    "filters": {
+      "searchPlaceholder": "Paieška: pavadinimas, kodas, serija (Cmd+K)",
+      "allStatuses": "Visos būsenos",
+      "allLocations": "Visos lokacijos",
+      "printFiltered": "Spausdinti QR (filtruotus)",
+      "count": "Įrankių: {count}"
+    },
     "detail": {
       "edit": "Redaguoti",
       "location": "Lokacija",
