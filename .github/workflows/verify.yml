@@ -1,0 +1,71 @@
+name: verify
+
+# Visi vartai vienoje vietoje: tas pats, ką lokaliai daro `pnpm verify`.
+# Paslapčių NEREIKIA — lokalaus Supabase raktai deterministiniai, o testai
+# sąmoningai nekviečia apmokamo modelio (žr. docs/testing.md).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: verify-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Local env (development constants only)
+        run: cp apps/web/.env.example apps/web/.env.local
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Start local Supabase (migrations + seed)
+        run: supabase start
+
+      - name: Generated DB types must match the migrations
+        run: |
+          pnpm db:typegen
+          git diff --exit-code packages/db/src/types.gen.ts
+
+      - run: pnpm typecheck
+      - run: pnpm lint
+
+      - name: Unit + RLS
+        run: pnpm test
+
+      - name: Playwright browser
+        run: pnpm --filter e2e exec playwright install --with-deps chromium
+
+      - name: End-to-end
+        run: pnpm test:e2e
+
+      - name: Keep the report when something fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            apps/e2e/playwright-report/
+            apps/e2e/test-results/
+          retention-days: 7

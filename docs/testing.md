@@ -53,9 +53,9 @@ code, and no mail catcher is involved.
 **No key is stored in the repo, not even a local one.** The setup reads
 `E2E_SUPABASE_SECRET` if set, otherwise asks the CLI (`supabase status -o
 env`). That keeps the file working after `supabase stop && start` mints
-new keys, and it keeps GitHub's secret scanner quiet — it blocks a pushed
-`sb_secret_…` string regardless of which machine it unlocks. Production
-keys never enter this repo at all (ADR-014).
+new keys, and it keeps GitHub's secret scanner quiet — it blocks any
+pushed Supabase secret key by pattern, no matter which machine that key
+unlocks. Production keys never enter this repo at all (ADR-014).
 
 Two projects:
 
