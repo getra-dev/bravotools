@@ -531,7 +531,8 @@
       "received": "Received on site",
       "reorder": "Re-ordered elsewhere",
       "status_changed": "Status changed"
-    }
+    },
+    "sentToContact": "· to {name}"
   },
   "mobile": {
     "home": {
@@ -849,7 +850,21 @@
     "detail": {
       "edit": "Edit",
       "recentOrders": "Recent orders",
-      "noOrders": "No orders to this vendor yet"
+      "noOrders": "No orders to this vendor yet",
+      "contacts": "Contacts",
+      "contactsHint": "One vendor, many responsible people. The categories a contact covers decide who receives the purchase order email.",
+      "noContacts": "No contacts yet — orders go to the vendor address",
+      "notices": {
+        "contact_added": "Contact added",
+        "contact_saved": "Contact saved",
+        "contact_removed": "Contact removed"
+      },
+      "errors": {
+        "name_required": "Enter the contact name",
+        "vendor_not_found": "Vendor not found",
+        "not_allowed": "Only the owner, admin or supply manager can manage contacts",
+        "save_failed": "Could not save — try again"
+      }
     },
     "form": {
       "newTitle": "New vendor",
@@ -884,6 +899,18 @@
         "not_allowed": "Only the owner, admin or supply manager can manage vendors",
         "save_failed": "Could not save — try again"
       }
+    },
+    "contacts": {
+      "name": "Name",
+      "position": "Position",
+      "email": "Email",
+      "phone": "Phone",
+      "handles": "Covers (categories)",
+      "noHandles": "No categories assigned",
+      "primary": "Primary",
+      "add": "Add contact",
+      "save": "Save",
+      "remove": "Remove"
     }
   },
   "materials": {

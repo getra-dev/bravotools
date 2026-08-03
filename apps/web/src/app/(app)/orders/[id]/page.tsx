@@ -59,7 +59,9 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
         ),
       supabase
         .from('outbound_messages')
-        .select('to_address, subject, status_updated_at')
+        .select(
+          'to_address, subject, status_updated_at, contact:vendor_contacts(name, position)',
+        )
         .eq('entity_type', 'order')
         .eq('entity_id', id)
         .order('status_updated_at', { ascending: false }),
@@ -127,6 +129,11 @@ export default async function OrderDetailPage({ params }: { params: Promise<{ id
               : '',
             to: msgs![0].to_address ?? '',
           })}
+          {msgs![0].contact?.name ? (
+            <span className="ml-1 text-dim">
+              {t('sentToContact', { name: msgs![0].contact.name })}
+            </span>
+          ) : null}
         </p>
       ) : null}
 

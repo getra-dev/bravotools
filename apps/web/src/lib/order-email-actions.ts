@@ -35,8 +35,18 @@ export async function sendOrderToVendorAction(formData: FormData) {
   if (order.status === 'delivered' || order.status === 'cancelled') {
     redirect('/orders?error=order_closed');
   }
-  const vendorEmail = order.vendor?.email?.trim();
-  if (!order.vendor || !vendorEmail) redirect('/orders?error=no_vendor_email');
+  // SPEC 3.6: route the PO to the contact who covers this order's material
+  // categories; fall back to the primary contact, then to vendors.email
+  const { data: routed } = await supabase.rpc('pick_order_contact', { order_id: order.id });
+  const route = (routed ?? null) as {
+    to_address: string | null;
+    contact_id: string | null;
+    contact_name: string | null;
+    match: string;
+  } | null;
+
+  const toAddress = route?.to_address?.trim() || order.vendor?.email?.trim();
+  if (!order.vendor || !toAddress) redirect('/orders?error=no_vendor_email');
 
   const tp = await getTranslations('orders.pdf');
 
@@ -96,7 +106,7 @@ export async function sendOrderToVendorAction(formData: FormData) {
   let messageId = '';
   try {
     const sent = await sendMail({
-      to: vendorEmail,
+      to: toAddress,
       subject,
       text: body,
       attachments: [
@@ -111,11 +121,12 @@ export async function sendOrderToVendorAction(formData: FormData) {
   const { error: rpcError } = await supabase.rpc('record_order_sent', {
     args: {
       order_id: order.id,
-      to_address: vendorEmail,
+      to_address: toAddress,
       subject,
       provider_message_id: messageId,
       body_storage_path: pdfPath,
       vendor_id: order.vendor.id,
+      contact_id: route?.contact_id ?? '',
     },
   });
   if (rpcError) {

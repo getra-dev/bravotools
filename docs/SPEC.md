@@ -330,7 +330,10 @@ crew completes real handovers offline for 2 weeks without prompting.
 ### 3.6 Vendor relationship hub — "Vendor 360" (OWNER AMENDMENT 2026-07-19, later work)
 Owner-requested. The vendor detail page becomes the single place to
 track everything about a vendor. Buildable WITHOUT AI except where noted.
-- **Contacts (multiple per vendor).** New `vendor_contacts` table:
+- **Contacts (multiple per vendor).** BUILT 2026-08-03 (migration 0033):
+  `vendor_contacts` + create/update/remove RPCs, contacts section on the
+  vendor page, `pick_order_contact` routing wired into the PO mailer,
+  `outbound_messages.contact_id` in the proof chain. New `vendor_contacts` table:
   vendor_id, name, position, email, phone, `handles` text[] (what they
   cover — e.g. one contact for blocks, another for stone wool),
   is_primary. One vendor = many responsible people. RPCs create/update/

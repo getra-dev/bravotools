@@ -531,7 +531,8 @@
       "received": "Priimta objekte",
       "reorder": "Užsakyta kitur",
       "status_changed": "Būsena pakeista"
-    }
+    },
+    "sentToContact": "· {name}"
   },
   "mobile": {
     "home": {
@@ -849,7 +850,21 @@
     "detail": {
       "edit": "Redaguoti",
       "recentOrders": "Naujausi užsakymai",
-      "noOrders": "Užsakymų šiam tiekėjui dar nėra"
+      "noOrders": "Užsakymų šiam tiekėjui dar nėra",
+      "contacts": "Kontaktai",
+      "contactsHint": "Vienas tiekėjas — keli atsakingi žmonės. Kurias kategorijas kontaktas kuruoja, tam ir keliauja užsakymo laiškas.",
+      "noContacts": "Kontaktų dar nėra — užsakymai eina bendru tiekėjo adresu",
+      "notices": {
+        "contact_added": "Kontaktas pridėtas",
+        "contact_saved": "Kontaktas išsaugotas",
+        "contact_removed": "Kontaktas pašalintas"
+      },
+      "errors": {
+        "name_required": "Įveskite kontakto vardą",
+        "vendor_not_found": "Tiekėjas nerastas",
+        "not_allowed": "Kontaktus tvarko tik savininkas, administratorius ar tiekimo vadovas",
+        "save_failed": "Nepavyko išsaugoti — bandykite dar kartą"
+      }
     },
     "form": {
       "newTitle": "Naujas tiekėjas",
@@ -884,6 +899,18 @@
         "not_allowed": "Tiekėjus valdyti gali tik savininkas, administratorius arba tiekimo vadovas",
         "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
       }
+    },
+    "contacts": {
+      "name": "Vardas",
+      "position": "Pareigos",
+      "email": "El. paštas",
+      "phone": "Telefonas",
+      "handles": "Kuruoja (kategorijos)",
+      "noHandles": "Kategorijų nepriskirta",
+      "primary": "Pagrindinis",
+      "add": "Pridėti kontaktą",
+      "save": "Išsaugoti",
+      "remove": "Šalinti"
     }
   },
   "materials": {

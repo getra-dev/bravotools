@@ -1683,6 +1683,7 @@ export type Database = {
         Row: {
           body_storage_path: string | null
           channel: string
+          contact_id: string | null
           created_at: string
           entity_id: string | null
           entity_type: string | null
@@ -1699,6 +1700,7 @@ export type Database = {
         Insert: {
           body_storage_path?: string | null
           channel: string
+          contact_id?: string | null
           created_at?: string
           entity_id?: string | null
           entity_type?: string | null
@@ -1715,6 +1717,7 @@ export type Database = {
         Update: {
           body_storage_path?: string | null
           channel?: string
+          contact_id?: string | null
           created_at?: string
           entity_id?: string | null
           entity_type?: string | null
@@ -1729,6 +1732,13 @@ export type Database = {
           to_address?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "outbound_messages_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "vendor_contacts"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "outbound_messages_org_id_fkey"
             columns: ["org_id"]
@@ -3067,6 +3077,60 @@ export type Database = {
           },
         ]
       }
+      vendor_contacts: {
+        Row: {
+          created_at: string
+          email: string | null
+          handles: string[]
+          id: string
+          is_primary: boolean
+          name: string
+          org_id: string
+          phone: string | null
+          position: string | null
+          vendor_id: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          handles?: string[]
+          id?: string
+          is_primary?: boolean
+          name: string
+          org_id: string
+          phone?: string | null
+          position?: string | null
+          vendor_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          handles?: string[]
+          id?: string
+          is_primary?: boolean
+          name?: string
+          org_id?: string
+          phone?: string | null
+          position?: string | null
+          vendor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vendor_contacts_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vendor_contacts_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vendor_invoice_lines: {
         Row: {
           billed_amount: number
@@ -3546,6 +3610,7 @@ export type Database = {
         Args: { payload: Json; target_org: string }
         Returns: string
       }
+      create_vendor_contact: { Args: { args: Json }; Returns: string }
       end_trip: { Args: { args: Json }; Returns: undefined }
       import_tools: { Args: { rows: Json; target_org: string }; Returns: Json }
       initiate_handover: { Args: { args: Json }; Returns: Json }
@@ -3565,6 +3630,7 @@ export type Database = {
         Returns: undefined
       }
       perform_handover: { Args: { args: Json }; Returns: Json }
+      pick_order_contact: { Args: { order_id: string }; Returns: Json }
       plan_delivery: { Args: { args: Json }; Returns: string }
       receive_order: { Args: { args: Json }; Returns: Json }
       record_inventory_scan: {
@@ -3592,6 +3658,10 @@ export type Database = {
       }
       remove_tool_component: {
         Args: { component_id: string }
+        Returns: undefined
+      }
+      remove_vendor_contact: {
+        Args: { contact_id: string }
         Returns: undefined
       }
       rental_intake: { Args: { args: Json }; Returns: Json }
@@ -3655,6 +3725,7 @@ export type Database = {
         Args: { payload: Json; vendor_id: string }
         Returns: undefined
       }
+      update_vendor_contact: { Args: { args: Json }; Returns: undefined }
       write_off_tool: {
         Args: {
           note?: string
