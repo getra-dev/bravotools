@@ -1,5 +1,5 @@
 -- RLS test: tools org isolation.
--- Proves: (1) org member sees only own-org tools via policy org_members_all;
+-- Proves: (1) org member sees only own-org tools via policy tools_org_select;
 --         (2) without the policy access is denied (deny-by-default);
 --         (3) RLS-enabled table with no policy (platform_admins) is invisible.
 -- Runs inside one transaction and rolls back — leaves no trace.
@@ -67,7 +67,9 @@ end $$;
 
 -- ---------- red without policy ----------
 reset role;
-drop policy org_members_all on tools;
+-- 0035 pervadino šitą politiką (buvo org_members_all, FOR ALL — leido
+-- darbininkui ir rašyti). Dabar tik SELECT.
+drop policy tools_org_select on tools;
 
 set local role authenticated;
 set local request.jwt.claims =
