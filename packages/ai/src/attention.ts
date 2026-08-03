@@ -62,15 +62,20 @@ export async function rankAttentionSignals(
   signals: AttentionSignal[],
   locale: string,
 ): Promise<RankResult> {
-  const model = modelFor('reasoning');
+  // Reitingavimas — pigus darbas: faktus jau surinko SQL, modeliui lieka
+  // surikiuoti ir parašyti sakinį. Brangesnį modelį imk per ENV.
+  const model = modelFor('cheap');
   const started = Date.now();
+
+  // Haiku nepriima `effort` (grąžina 400) — siunčiam tik ten, kur veikia.
+  const supportsEffort = !model.startsWith('claude-haiku');
 
   const response = await anthropic().messages.parse({
     model,
     max_tokens: 16000,
     system: ATTENTION_QUEUE_PROMPT,
     output_config: {
-      effort: 'medium',
+      ...(supportsEffort ? { effort: 'medium' as const } : {}),
       format: zodOutputFormat(ResultSchema),
     },
     messages: [
