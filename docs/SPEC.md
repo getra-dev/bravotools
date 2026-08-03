@@ -221,6 +221,23 @@ crew completes real handovers offline for 2 weeks without prompting.
 ## 3. Etapas 2 — Supply flow (summary spec)
 
 ### 3.1 Radio (PTT)
+- PARKED BY OWNER 2026-08-03 — an option for later, not a blocker for
+  anything else. Anthropic credits unblocked the rest of the AI work,
+  but voice needs a speech-to-text provider, which Anthropic does not
+  offer. Three routes, in rising cost of change:
+  1. **System keyboard dictation** — already usable today in every
+     TextInput (Expo Go, no package, no key, no cost); not hands-free.
+  2. **Device speech APIs** (`SFSpeechRecognizer` / Android
+     `SpeechRecognizer`, via a community Expo package) — real
+     hold-to-talk, free, but needs a development build, which conflicts
+     with ADR-014's Expo-Go-until-the-gate rule.
+  3. **Whisper API** — works from Expo Go, ~$0.006/min, needs a second
+     vendor + key.
+  OPEN QUESTION before choosing: does Apple dictation support
+  Lithuanian? Google (Android) does. If Apple does not, iPhone crews can
+  only go the Whisper route. Verify on a real device before building.
+  The Claude-side parsing contract below is unaffected — STT is
+  pluggable in front of it.
 - Hold-to-talk (expo-av), release → upload → /ai/voice-parse:
   Whisper transcript → Claude structured JSON:
   `{intent: question|request|other, items:[{raw,material_id?,confidence,qty,unit}],
