@@ -6,7 +6,8 @@
     "dev": "next dev --port 3100",
     "build": "next build",
     "start": "next start --port 3100",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "@bravotools/ai": "workspace:*",
@@ -36,6 +37,7 @@
     "@types/react-dom": "^19.1.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.11",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
   }
 }

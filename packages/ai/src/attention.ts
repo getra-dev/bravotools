@@ -105,24 +105,44 @@ export async function rankAttentionSignals(
   const parsed = response.parsed_output;
   if (!parsed) throw new Error('invalid_ai_output');
 
-  // Modelio išvestis niekada nepatenka į DB neperfiltruota: kortelė
-  // priimama tik jei atitinka realų signalą, o veiksmai — tik leistini
-  // tam signalo tipui.
+  return {
+    cards: sanitizeCards(parsed.cards, signals),
+    usage,
+    promptVersion: ATTENTION_QUEUE_VERSION,
+  };
+}
+
+/**
+ * Sargas tarp modelio ir DB. Modelio išvestis niekada nepatenka į bazę
+ * neperfiltruota: kortelė priimama tik jei atitinka REALŲ SQL signalą
+ * (taip išgalvota kortelė nukrenta), faktai imami iš signalo, o ne iš
+ * modelio, ir veiksmai paliekami tik tie, kurie leistini tam signalo
+ * tipui. Gryna funkcija — testuojama be tinklo.
+ */
+export function sanitizeCards(
+  rawCards: z.infer<typeof CardSchema>[],
+  signals: AttentionSignal[],
+): AttentionCard[] {
   const byEntity = new Map(signals.map((s) => [`${s.signal_key}:${s.entity_id}`, s]));
+  const seen = new Set<string>();
   const cards: AttentionCard[] = [];
-  for (const card of parsed.cards) {
-    const signal = byEntity.get(`${card.signal_key}:${card.entity_id}`);
+
+  for (const card of rawCards) {
+    const key = `${card.signal_key}:${card.entity_id}`;
+    const signal = byEntity.get(key);
     if (!signal) continue;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
     const allowed = ALLOWED_ACTIONS[card.signal_key] ?? [];
     cards.push({
       ...card,
       reason: card.reason.slice(0, 300),
-      actions: card.actions.filter((a) => allowed.includes(a)).slice(0, 3),
+      actions: [...new Set(card.actions.filter((a) => allowed.includes(a)))].slice(0, 3),
       entity_type: signal.entity_type,
       facts: signal.facts,
     });
   }
 
-  cards.sort((a, b) => a.rank - b.rank);
-  return { cards, usage, promptVersion: ATTENTION_QUEUE_VERSION };
+  return cards.sort((a, b) => a.rank - b.rank);
 }
