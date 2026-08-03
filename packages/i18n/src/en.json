@@ -1116,7 +1116,8 @@
       "save_failed": "Could not save — try again",
       "carrier_required": "Pick a carrier",
       "no_vendor_email": "Carrier has no email",
-      "send_failed": "Could not send"
+      "send_failed": "Could not send",
+      "not_a_driver": "That person is not a driver"
     },
     "need": "Load: {pallets} pallets · longest {length} m",
     "suggests": "suggests {vehicle} ({pct}% load)",
@@ -1170,7 +1171,8 @@
     "cost": "Cost €",
     "methodSave": "Set",
     "sendTransport": "Order transport",
-    "vendorDelivers": "Vendor delivers — no own vehicle"
+    "vendorDelivers": "Vendor delivers — no own vehicle",
+    "noDrivers": "No one has the driver role yet — assign it in members"
   },
   "attention": {
     "title": "Needs attention",

@@ -72,7 +72,14 @@ export default async function DeliveriesPage({
         .eq('org_id', orgId)
         .eq('status', 'available')
         .order('name'),
-      supabase.from('memberships').select('user_id, profiles(full_name)').eq('org_id', orgId),
+      // tik vairuotojai: sąrašas be filtro siūlydavo ir objekto vadovą,
+      // ir jis realiai atsidurdavo reise kaip vairuotojas (0036 uždarė
+      // tai ir DB pusėje — sąsaja nėra apsauga)
+      supabase
+        .from('memberships')
+        .select('user_id, profiles(full_name)')
+        .eq('org_id', orgId)
+        .eq('role', 'driver'),
       supabase
         .from('vendors')
         .select('id, name')
@@ -371,7 +378,9 @@ export default async function DeliveriesPage({
                         ))}
                       </select>
                       <select name="driverId" className={INPUT} defaultValue="">
-                        <option value="">{t('pickDriver')}</option>
+                        <option value="">
+                          {(members ?? []).length === 0 ? t('noDrivers') : t('pickDriver')}
+                        </option>
                         {(members ?? []).map((m) => (
                           <option key={m.user_id} value={m.user_id}>
                             {m.profiles?.full_name ?? m.user_id}

@@ -18,7 +18,8 @@ do $$
 declare org uuid; mid uuid; vid uuid; site uuid; rid uuid; item uuid; l_veh uuid; ores jsonb; oid uuid;
 begin
   select org_id into org from tc;
-  perform invite_member(org, 'driver@tc.local', 'worker');
+  -- 0036: reisą galima priskirti tik nariui su vairuotojo vaidmeniu
+  perform invite_member(org, 'driver@tc.local', 'driver');
   -- material with weight so the estimate is non-zero
   select create_material(org, 'Cementas 25kg', 'vnt', 'rišikliai', 'stock') into mid;
   update materials set unit_weight_kg = 25 where id = mid;

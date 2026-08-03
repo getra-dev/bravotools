@@ -179,6 +179,29 @@ begin
   end if;
 end $$;
 
+-- ============ 0036: priskirti galima tik vairuotoją ============
+do $$
+declare task uuid; org uuid;
+begin
+  select task_id into task from t28_fix;
+  select org_id into org from t28_ctx;
+  -- darbininkas nėra vairuotojas — priskyrimas turi lūžti
+  begin
+    perform assign_delivery(jsonb_build_object(
+      'task_id', task, 'driver_id', 'b0b00000-0000-0000-0000-00000000000b'));
+    raise exception 'FAIL: a non-driver was assigned as driver';
+  exception when others then
+    if sqlerrm not like '%not_a_driver%' then raise; end if;
+  end;
+  -- tikras vairuotojas priskiriamas be klaidų
+  perform assign_delivery(jsonb_build_object(
+    'task_id', task, 'driver_id', 'b0b00000-0000-0000-0000-00000000000c'));
+  if (select assigned_to from delivery_tasks where id = task)
+     <> 'b0b00000-0000-0000-0000-00000000000c' then
+    raise exception 'FAIL: real driver was not assigned';
+  end if;
+end $$;
+
 -- ============ SARGAS: RLS be politikų ============
 -- Būtent ši klaida jau kartą tyliai paslėpė duomenis nuo visų.
 do $$

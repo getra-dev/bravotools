@@ -1116,7 +1116,8 @@
       "save_failed": "Nepavyko išsaugoti — bandyk dar kartą",
       "carrier_required": "Pasirink vežėją",
       "no_vendor_email": "Vežėjas be el. pašto",
-      "send_failed": "Nepavyko išsiųsti"
+      "send_failed": "Nepavyko išsiųsti",
+      "not_a_driver": "Tas žmogus nėra vairuotojas"
     },
     "need": "Apkrova: {pallets} paletės · ilgiausia {length} m",
     "suggests": "siūlo {vehicle} ({pct}% apkrova)",
@@ -1170,7 +1171,8 @@
     "cost": "Kaina €",
     "methodSave": "Nustatyti",
     "sendTransport": "Užsakyti transportą",
-    "vendorDelivers": "Tiekėjas atveža — be savo transporto"
+    "vendorDelivers": "Tiekėjas atveža — be savo transporto",
+    "noDrivers": "Nė vienas narys dar neturi vairuotojo vaidmens — priskirk jį nariuose"
   },
   "attention": {
     "title": "Reikia dėmesio",
