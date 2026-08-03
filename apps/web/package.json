@@ -9,6 +9,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@bravotools/ai": "workspace:*",
     "@bravotools/db": "workspace:*",
     "@bravotools/i18n": "workspace:*",
     "@bravotools/theme": "workspace:*",

@@ -54,7 +54,8 @@
     "stock": "Stock",
     "awaiting": "Awaiting",
     "vehicles": "Vehicles",
-    "deliveries": "Deliveries"
+    "deliveries": "Deliveries",
+    "attention": "Attention"
   },
   "inventory": {
     "title": "Stocktakes",
@@ -1170,5 +1171,48 @@
     "methodSave": "Set",
     "sendTransport": "Order transport",
     "vendorDelivers": "Vendor delivers — no own vehicle"
+  },
+  "attention": {
+    "title": "Needs attention",
+    "hint": "Only exceptions: what broke, why it matters, and what to do about it. Facts come from your own data; the model ranks and explains them.",
+    "refresh": "Refresh",
+    "empty": "Nothing needs attention right now",
+    "neverRun": "Not ranked yet — press Refresh",
+    "dismiss": "Dismiss",
+    "lastRun": "Ranked {date} · {model} · {tokens} tokens · {seconds} s",
+    "severity": {
+      "critical": "Critical",
+      "warning": "Warning",
+      "info": "Info"
+    },
+    "signals": {
+      "vendor_silent": "Vendor silent",
+      "eta_overdue": "ETA passed",
+      "open_issue": "Delivery issue",
+      "hot_request_open": "HOT request open",
+      "stale_request": "Request untouched",
+      "unsent_order": "Order not sent",
+      "possible_duplicate": "Possible duplicate"
+    },
+    "actions": {
+      "open_order": "Open order",
+      "send_order_email": "Send to vendor",
+      "set_line_eta": "Set ETA",
+      "reorder_shortfall": "Re-order shortfall",
+      "plan_delivery": "Plan delivery",
+      "open_request": "Open request",
+      "contact_vendor": "Vendor contacts"
+    },
+    "notices": {
+      "refreshed": "Queue refreshed",
+      "empty": "No exceptions found — queue cleared",
+      "dismissed": "Card dismissed"
+    },
+    "errors": {
+      "not_allowed": "Only the owner, admin or supply manager can use the attention queue",
+      "no_api_key": "ANTHROPIC_API_KEY is not set on the server",
+      "ai_failed": "The model call failed — check the AI run log and try again",
+      "save_failed": "Could not save — try again"
+    }
   }
 }

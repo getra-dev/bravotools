@@ -124,6 +124,142 @@ export type Database = {
           },
         ]
       }
+      ai_runs: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          endpoint: string
+          error: string | null
+          id: string
+          input_tokens: number | null
+          latency_ms: number | null
+          model: string
+          org_id: string
+          output_tokens: number | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          endpoint: string
+          error?: string | null
+          id?: string
+          input_tokens?: number | null
+          latency_ms?: number | null
+          model: string
+          org_id: string
+          output_tokens?: number | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          endpoint?: string
+          error?: string | null
+          id?: string
+          input_tokens?: number | null
+          latency_ms?: number | null
+          model?: string
+          org_id?: string
+          output_tokens?: number | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_runs_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_runs_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      attention_cards: {
+        Row: {
+          actions: Json
+          created_at: string
+          dismiss_reason: string | null
+          dismissed_at: string | null
+          dismissed_by: string | null
+          entity_id: string
+          entity_type: string
+          facts: Json
+          id: string
+          org_id: string
+          rank: number
+          reason: string
+          run_id: string | null
+          severity: string
+          signal_key: string
+          status: string
+        }
+        Insert: {
+          actions?: Json
+          created_at?: string
+          dismiss_reason?: string | null
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          entity_id: string
+          entity_type: string
+          facts?: Json
+          id?: string
+          org_id: string
+          rank?: number
+          reason: string
+          run_id?: string | null
+          severity?: string
+          signal_key: string
+          status?: string
+        }
+        Update: {
+          actions?: Json
+          created_at?: string
+          dismiss_reason?: string | null
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          entity_id?: string
+          entity_type?: string
+          facts?: Json
+          id?: string
+          org_id?: string
+          rank?: number
+          reason?: string
+          run_id?: string | null
+          severity?: string
+          signal_key?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attention_cards_dismissed_by_fkey"
+            columns: ["dismissed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attention_cards_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "attention_cards_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "ai_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comment_mentions: {
         Row: {
           comment_id: string
@@ -3552,6 +3688,7 @@ export type Database = {
         Args: { mark_missing_lost?: boolean; target_session: string }
         Returns: Json
       }
+      collect_attention_signals: { Args: { target_org: string }; Returns: Json }
       confirm_material_match: {
         Args: {
           item_id: string
@@ -3611,6 +3748,7 @@ export type Database = {
         Returns: string
       }
       create_vendor_contact: { Args: { args: Json }; Returns: string }
+      dismiss_attention_card: { Args: { args: Json }; Returns: undefined }
       end_trip: { Args: { args: Json }; Returns: undefined }
       import_tools: { Args: { rows: Json; target_org: string }; Returns: Json }
       initiate_handover: { Args: { args: Json }; Returns: Json }
@@ -3668,6 +3806,7 @@ export type Database = {
       reorder_shortfall: { Args: { args: Json }; Returns: Json }
       return_to_vendor: { Args: { args: Json }; Returns: Json }
       run_daily_reminders: { Args: never; Returns: Json }
+      save_attention_cards: { Args: { args: Json }; Returns: string }
       set_act_pdf_path: {
         Args: { act_id: string; pdf_path: string }
         Returns: undefined

@@ -54,7 +54,8 @@
     "stock": "Atsargos",
     "awaiting": "Laukiama",
     "vehicles": "Transportas",
-    "deliveries": "Pristatymai"
+    "deliveries": "Pristatymai",
+    "attention": "Dėmesio"
   },
   "inventory": {
     "title": "Inventorizacijos",
@@ -1170,5 +1171,48 @@
     "methodSave": "Nustatyti",
     "sendTransport": "Užsakyti transportą",
     "vendorDelivers": "Tiekėjas atveža — be savo transporto"
+  },
+  "attention": {
+    "title": "Reikia dėmesio",
+    "hint": "Tik išimtys: kas sugriuvo, kodėl tai svarbu ir ką daryti. Faktai — iš tavo duomenų; modelis juos tik surikiuoja ir paaiškina.",
+    "refresh": "Atnaujinti",
+    "empty": "Šiuo metu dėmesio niekas nereikalauja",
+    "neverRun": "Dar nereitinguota — spausk „Atnaujinti“",
+    "dismiss": "Atmesti",
+    "lastRun": "Reitinguota {date} · {model} · {tokens} žetonų · {seconds} s",
+    "severity": {
+      "critical": "Kritinis",
+      "warning": "Įspėjimas",
+      "info": "Informacija"
+    },
+    "signals": {
+      "vendor_silent": "Tiekėjas tyli",
+      "eta_overdue": "ETA praėjo",
+      "open_issue": "Pristatymo trūkumas",
+      "hot_request_open": "HOT poreikis atviras",
+      "stale_request": "Poreikis neliestas",
+      "unsent_order": "Užsakymas neišsiųstas",
+      "possible_duplicate": "Galimas dublikatas"
+    },
+    "actions": {
+      "open_order": "Atverti užsakymą",
+      "send_order_email": "Siųsti tiekėjui",
+      "set_line_eta": "Nustatyti ETA",
+      "reorder_shortfall": "Peružsakyti trūkumą",
+      "plan_delivery": "Planuoti pristatymą",
+      "open_request": "Atverti poreikį",
+      "contact_vendor": "Tiekėjo kontaktai"
+    },
+    "notices": {
+      "refreshed": "Eilė atnaujinta",
+      "empty": "Išimčių nerasta — eilė išvalyta",
+      "dismissed": "Kortelė atmesta"
+    },
+    "errors": {
+      "not_allowed": "Dėmesio eilę naudoja tik savininkas, administratorius ar tiekimo vadovas",
+      "no_api_key": "Serveryje nenustatytas ANTHROPIC_API_KEY",
+      "ai_failed": "Modelio iškvietimas nepavyko — pažiūrėk AI žurnalą ir bandyk dar kartą",
+      "save_failed": "Nepavyko išsaugoti — bandyk dar kartą"
+    }
   }
 }
