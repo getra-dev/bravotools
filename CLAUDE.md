@@ -4,6 +4,26 @@ BravoTools is a construction supply management SaaS: tool tracking (QR,
 handover acts), material ordering (voice → AI parse → orders), invoice
 reconciliation, and logistics. Multi-tenant. Pilot client: Sivysta UAB.
 
+## 🚦 Orchestration — ask first (owner, 2026-09-26)
+
+BravoTools is part of the BravoBIM team and runs under the same orchestrator as
+`~/my-saas`. The orchestrator is the Claude session **„Agentų orkestravimas ir prieigos
+kontrolė"**; name this session **„BravoTools"**.
+
+- Before ANY work (edits, builds, tests, migrations, local DB resets, browser QA,
+  subagents): `SendMessage` the orchestrator `REQUEST — BravoTools — <task>` and wait for
+  `GRANTED`. Only one working session runs at a time across both repos.
+- When done, or before going idle: `DONE — BravoTools — <result + commit>`. Your own chat is
+  not a report. Waiting on the owner → `OWNER-NEEDED — BravoTools — <what>` first.
+- QA verifies every DONE; work to another role goes as `HANDOFF` through the orchestrator.
+- Overlaps with BravoBIM must be raised to the orchestrator before building, never solved
+  locally: vendors ↔ BravoBIM Contacts (`@kit/contacts`), `vendor_contracts` / vendor
+  invoices ↔ BravoBIM Contracting (SPEC-85), orders / notifications / comments name clashes,
+  people ↔ BravoBIM HR (own + contingent workers). Direction (not locked): BravoTools becomes
+  a module inside BravoBIM (`~/my-saas/specs/SPEC-64-…`, ADR-016) — no new BT features
+  that deepen the split until the owner locks it.
+- Full rules: `~/my-saas/CLAUDE.md` → „ONE AGENT AT A TIME".
+
 ## Stack (LOCKED — never suggest alternatives)
 - Mobile field app: **Expo / React Native**, TypeScript, expo-sqlite (offline outbox)
 - Web (dispatcher pult + admin): **Next.js** on Vercel
